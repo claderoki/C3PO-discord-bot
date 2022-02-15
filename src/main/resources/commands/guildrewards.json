@@ -1,0 +1,11 @@
+{
+  "name": "guildrewards",
+  "description": "Guild rewards",
+  "options": [
+    {
+      "name": "setup",
+      "description": "Setup guild rewards for this server.",
+      "type": 1
+    }
+  ]
+}
