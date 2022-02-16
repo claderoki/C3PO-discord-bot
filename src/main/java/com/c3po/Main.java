@@ -1,8 +1,8 @@
 package com.c3po;
 
-import com.c3po.helpers.environment.Configuration;
-import com.c3po.helpers.environment.ConfigurationLoader;
-import com.c3po.listeners.CommandListener;
+import com.c3po.helper.environment.Configuration;
+import com.c3po.helper.environment.ConfigurationLoader;
+import com.c3po.listener.CommandListener;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;

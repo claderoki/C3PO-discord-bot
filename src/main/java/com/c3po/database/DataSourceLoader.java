@@ -1,7 +1,7 @@
 package com.c3po.database;
 
-import com.c3po.helpers.environment.ConfigurationLoader;
-import com.c3po.helpers.environment.DatabaseCredentials;
+import com.c3po.helper.environment.ConfigurationLoader;
+import com.c3po.helper.environment.DatabaseCredentials;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
