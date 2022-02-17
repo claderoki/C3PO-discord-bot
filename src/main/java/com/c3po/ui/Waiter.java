@@ -31,11 +31,14 @@ public abstract class Waiter<T> {
                     if (!isAllowed(messageCreateEvent)) {
                         return Mono.empty();
                     }
+
                     try {
                         setValue(parse(messageCreateEvent.getMessage().getContent()));
+                        return Mono.error(new TimeoutException());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    messageCreateEvent.getMessage().delete().then();
 
                     return Mono.empty();
 

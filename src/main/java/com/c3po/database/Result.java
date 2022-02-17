@@ -14,7 +14,7 @@ public class Result {
     public Result(ResultSet resultSet, String[] columnLabels) {
         values = new HashMap<>();
         try {
-            for (int i = 1; i < columnLabels.length; i++) {
+            for (int i = 0; i < columnLabels.length; i++) {
                 values.put(columnLabels[i], resultSet.getString(i+1));
             }
         } catch (SQLException e) {
@@ -44,6 +44,24 @@ public class Result {
         return DurationFormatter.parse(value);
     }
 
+    public String optString(String key) {
+        return values.get(key);
+    }
 
+    public Integer optInt(String key) {
+        String value = values.get(key);
+        if (value == null) {
+            return null;
+        }
+        return Integer.parseInt(value);
+    }
+
+    public Long optLong(String key) {
+        String value = values.get(key);
+        if (value == null) {
+            return null;
+        }
+        return Long.parseLong(value);
+    }
 
 }

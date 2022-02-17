@@ -6,6 +6,7 @@ import com.c3po.database.Result;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Repository {
@@ -61,6 +62,10 @@ public class Repository {
         }
     }
 
+    protected List<Result> query(String query, Collection<Parameter> params) throws SQLException {
+        return query(query, params.toArray(new Parameter[0]));
+    }
+
     protected Result getOne(String query, Parameter... params) throws SQLException {
         List<Result> results = query(query, params);
         if (results.isEmpty()) {
@@ -68,4 +73,5 @@ public class Repository {
         }
         return results.get(0);
     }
+
 }

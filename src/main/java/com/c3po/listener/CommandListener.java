@@ -1,7 +1,7 @@
 package com.c3po.listener;
 
 import com.c3po.command.ICommand;
-import com.c3po.command.guildrewards.GuildRewardsSetupCommand;
+import com.c3po.command.guildrewards.GuildRewardsSetMinPointsCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import reactor.core.publisher.Flux;
@@ -12,15 +12,26 @@ import java.util.List;
 
 public class CommandListener {
     private final static List<ICommand> commands = new ArrayList<>(){{
-        add(new GuildRewardsSetupCommand());
+        add(new GuildRewardsSetMinPointsCommand());
     }};
+
+
+    private static void appendOptionFullyQualifiedCommandName(ApplicationCommandInteractionOption option, StringBuilder builder) {
+        switch (option.getType()) {
+            case SUB_COMMAND -> builder.append(" ").append(option.getName());
+            case SUB_COMMAND_GROUP -> {
+                builder.append(" ").append(option.getName());
+                for (ApplicationCommandInteractionOption op1 : option.getOptions()) {
+                    appendOptionFullyQualifiedCommandName(op1, builder);
+                }
+            }
+        }
+    }
 
     private static String getFullyQualifiedCommandName(ChatInputInteractionEvent event) {
         StringBuilder base = new StringBuilder(event.getCommandName());
         for (ApplicationCommandInteractionOption option: event.getOptions()) {
-            switch (option.getType()) {
-                case SUB_COMMAND, SUB_COMMAND_GROUP -> base.append(" ").append(option.getName());
-            }
+            appendOptionFullyQualifiedCommandName(option, base);
         }
         return base.toString();
     }

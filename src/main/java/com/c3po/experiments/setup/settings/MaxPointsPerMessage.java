@@ -1,9 +1,8 @@
-package com.c3po.command.guildrewards.settings;
+package com.c3po.experiments.setup.settings;
 
 import com.c3po.model.GuildRewardsSettings;
 import com.c3po.ui.IntWaiter;
 import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import lombok.AllArgsConstructor;
 

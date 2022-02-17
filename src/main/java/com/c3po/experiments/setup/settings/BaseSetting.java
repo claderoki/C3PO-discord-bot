@@ -1,4 +1,4 @@
-package com.c3po.command.guildrewards.settings;
+package com.c3po.experiments.setup.settings;
 
 import com.c3po.ui.Waiter;
 import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;

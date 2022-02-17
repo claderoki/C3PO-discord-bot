@@ -39,7 +39,7 @@ public class CommandRegistrar {
             commands.add(request);
         }
 
-        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands)
+        applicationService.bulkOverwriteGuildApplicationCommand(applicationId,729843647347949638L, commands)
                 .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
                 .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
                 .subscribe();
