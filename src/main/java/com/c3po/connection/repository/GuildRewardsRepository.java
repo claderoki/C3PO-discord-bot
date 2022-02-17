@@ -1,8 +1,8 @@
 package com.c3po.connection.repository;
 
+import com.c3po.connection.Repository;
 import com.c3po.database.DataSourceLoader;
 import com.c3po.database.LongParameter;
-import com.c3po.connection.Repository;
 import com.c3po.database.Result;
 import com.c3po.model.GuildRewardsSettings;
 

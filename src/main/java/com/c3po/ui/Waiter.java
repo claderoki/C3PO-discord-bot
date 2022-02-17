@@ -1,7 +1,6 @@
 package com.c3po.ui;
 
 import com.c3po.errors.PublicException;
-import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.command.Interaction;
 import reactor.core.publisher.Mono;
@@ -40,7 +39,7 @@ public abstract class Waiter<T> {
 
                     return Mono.empty();
 
-                }).timeout(Duration.ofMinutes(30))
+                }).timeout(Duration.ofSeconds(10))
                 .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
                 .then();
     }

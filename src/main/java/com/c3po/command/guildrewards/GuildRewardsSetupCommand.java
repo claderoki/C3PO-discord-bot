@@ -1,11 +1,16 @@
 package com.c3po.command.guildrewards;
 
 import com.c3po.command.Command;
+import com.c3po.command.guildrewards.settings.BaseSetting;
+import com.c3po.command.guildrewards.settings.MaxPointsPerMessage;
 import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.model.GuildRewardsSettings;
 import com.c3po.ui.IntWaiter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GuildRewardsSetupCommand extends Command {
@@ -26,10 +31,12 @@ public class GuildRewardsSetupCommand extends Command {
                         .build();
         }
 
-        event.reply().withContent("Enter the max value you'd like.").block();
-        IntWaiter waiter = new IntWaiter(event.getInteraction());
-        waiter.handle().block();
-        Integer a = waiter.getValue();
+        ArrayList<BaseSetting<?>> configs = new ArrayList<>();
+        configs.add(new MaxPointsPerMessage(settings));
+
+        for (BaseSetting<?> config: configs) {
+            config.input(event).block();
+        }
 
         return event.createFollowup()
                 .withContent("OK then, max is now " + settings.getMaxPointsPerMessage() + " and min is now " + settings.getMinPointsPerMessage())
