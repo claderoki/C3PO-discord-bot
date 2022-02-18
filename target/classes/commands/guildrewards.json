@@ -3,6 +3,11 @@
   "description": "Guild rewards",
   "options": [
     {
+      "name": "toggle",
+      "description": "Enabled / disables guildrewards for this server.",
+      "type": 1
+    },
+    {
       "name": "set",
       "description": "Setup guild rewards for this server.",
       "type": 2,
@@ -36,11 +41,6 @@
               "max_value": 99999
             }
           ]
-        },
-        {
-          "name": "toggle",
-          "description": "Enabled / disables guildrewards for this server.",
-          "type": 1
         }
       ]
     }

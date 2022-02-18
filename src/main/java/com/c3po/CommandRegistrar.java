@@ -39,10 +39,18 @@ public class CommandRegistrar {
             commands.add(request);
         }
 
-        applicationService.bulkOverwriteGuildApplicationCommand(applicationId,729843647347949638L, commands)
-                .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
-                .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
-                .subscribe();
+        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
+
+        Long[] guildIds = {
+                729843647347949638L,
+                761624318291476482L
+        };
+        for (Long guildId: guildIds) {
+            applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands)
+                    .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
+                    .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
+                    .subscribe();
+        }
     }
 
     private static List<String> getCommandsJson(List<String> fileNames) throws IOException {

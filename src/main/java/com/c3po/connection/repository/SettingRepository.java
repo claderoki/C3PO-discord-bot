@@ -61,7 +61,7 @@ public class SettingRepository extends Repository {
     public HashMap<String, Setting> getSettings(String category) throws SQLException {
         HashMap<String, Setting> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
-            settings.put(result.getString("code"),
+            settings.put(result.getString("key"),
                     Setting.builder()
                             .id(result.getInt("id"))
                             .category(result.getString("category"))

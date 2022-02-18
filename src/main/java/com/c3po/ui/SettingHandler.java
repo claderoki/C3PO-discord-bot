@@ -23,8 +23,8 @@ public class SettingHandler {
     }
 
     private void load() throws SQLException {
-        settings = SettingCache.getSettings(category);
-        values = SettingValueLoader.load(target, category);
+//        settings = SettingCache.getSettings(category);
+//        values = SettingValueLoader.load(target, category);
     }
 
     private static EmbedCreateSpec createEmbedFor(Setting setting) {

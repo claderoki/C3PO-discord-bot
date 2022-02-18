@@ -11,11 +11,18 @@ public class SettingValue {
     private String newValue;
 
     public void setValue(String value) {
+        if (this.value == null) {
+            this.value = this.newValue;
+        }
         this.newValue = value;
     }
 
     public String getValue() {
         return newValue != null ? newValue : value;
+    }
+
+    public String getOriginalValue() {
+        return value;
     }
 
     public SettingScopeTarget getTarget() {

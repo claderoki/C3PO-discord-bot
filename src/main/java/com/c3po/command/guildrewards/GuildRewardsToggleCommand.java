@@ -1,5 +1,6 @@
 package com.c3po.command.guildrewards;
 
+import com.c3po.helper.setting.SettingValue;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
@@ -9,12 +10,13 @@ public class GuildRewardsToggleCommand extends GuildRewardsGroup {
     }
 
     public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
-        if (event.getInteraction().getGuildId().isEmpty()) {
-            return Mono.empty();
-        }
-        long guildId = event.getInteraction().getGuildId().get().asLong();
+        return handleSetting(event);
+    }
 
-        return Mono.empty();
+    @Override
+    protected void setValue(SettingValue settingValue, String value) {
+        String newValue = settingValue.getValue().equals("0") ? "1" : "0";
+        settingValue.setValue(newValue);
     }
 
     @Override
