@@ -1,13 +1,16 @@
 package com.c3po.helper.setting;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
-public class SettingScopeTarget {
+public final class SettingScopeTarget {
     final private Long userId;
     final private Long guildId;
+
+    private SettingScopeTarget(Long userId, Long guildId) {
+        this.userId = userId;
+        this.guildId = guildId;
+    }
 
     public static SettingScopeTarget member(Long userId, Long guildId) {
         return new SettingScopeTarget(userId, guildId);

@@ -43,7 +43,8 @@ public class CommandRegistrar {
 
         Long[] guildIds = {
                 729843647347949638L,
-                761624318291476482L
+                761624318291476482L,
+                944339782002163732L,
         };
         for (Long guildId: guildIds) {
             applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands)

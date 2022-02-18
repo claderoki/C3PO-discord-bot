@@ -1,0 +1,81 @@
+{
+  "name": "milkyway",
+  "description": "Milky way",
+  "options": [
+    {
+      "name": "toggle",
+      "description": "Enabled / disables milkyway for this server.",
+      "type": 1
+    },
+    {
+      "name": "godmode",
+      "description": "Enabled / disables godmode for this server.",
+      "type": 1
+    },
+    {
+      "name": "set",
+      "description": "Setup milkyway for this server.",
+      "type": 2,
+      "options": [
+        {
+          "name": "costperday",
+          "description": "Change the minimum points a user should get per message for this server.",
+          "type": 1,
+          "options": [
+            {
+              "name": "points",
+              "description": "The amount of points",
+              "type": 4,
+              "required": true,
+              "min_value": 1,
+              "max_value": 99999
+            }
+          ]
+        },
+        {
+          "name": "limit",
+          "description": "Change the maximum points a user should get per message for this server.",
+          "type": 1,
+          "options": [
+            {
+              "name": "limit",
+              "description": "The amount of points",
+              "type": 4,
+              "required": true,
+              "min_value": 1,
+              "max_value": 50
+            }
+          ]
+        },
+        {
+          "name": "category",
+          "description": "Set the category.",
+          "type": 1,
+          "options": [
+            {
+              "name": "category",
+              "description": "The category",
+              "type": 7,
+              "required": true,
+              "channel_types": [4]
+            }
+          ]
+        },
+        {
+          "name": "logchannel",
+          "description": "Channel where requests will be sent to.",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The channel",
+              "type": 7,
+              "required": true,
+              "channel_types": [0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

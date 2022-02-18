@@ -27,39 +27,39 @@ public class SettingHandler {
 //        values = SettingValueLoader.load(target, category);
     }
 
-    private static EmbedCreateSpec createEmbedFor(Setting setting) {
-        return EmbedCreateSpec.builder()
-                .color(Color.of(242, 180, 37))
-                .description(setting.getPrompt())
-        .build();
-    }
+//    private static EmbedCreateSpec createEmbedFor(Setting setting) {
+//        return EmbedCreateSpec.builder()
+//                .color(Color.of(242, 180, 37))
+//                .description(setting.getPrompt())
+//        .build();
+//    }
 
-    public Mono<Void> handle(DeferrableInteractionEvent event) throws Exception {
-        if (settings == null) {
-            load();
-        }
-
-        event.reply().withContent("Question").block();
-
-        for (Setting setting: settings) {
-            if (!setting.isExposed()) {
-                continue;
-            }
-
-            Waiter<?> waiter = WaiterFactory.getFor(setting.getType(), event.getInteraction());
-
-            event.editReply()
-                    .withEmbeds(createEmbedFor(setting))
-                    .then(
-                    waiter.handle().doFinally((c) -> {
-                        SettingValue value = values.get(setting.getId());
-                        if (value != null) {
-                            value.setValue(waiter.getValue().toString());
-                        }
-                    }).then()
-            ).block();
-        }
-        return Mono.empty();
-    }
+//    public Mono<Void> handle(DeferrableInteractionEvent event) throws Exception {
+//        if (settings == null) {
+//            load();
+//        }
+//
+//        event.reply().withContent("Question").block();
+//
+//        for (Setting setting: settings) {
+//            if (!setting.isExposed()) {
+//                continue;
+//            }
+//
+//            Waiter<?> waiter = WaiterFactory.getFor(setting.getType(), event.getInteraction());
+//
+//            event.editReply()
+//                    .withEmbeds(createEmbedFor(setting))
+//                    .then(
+//                    waiter.handle().doFinally((c) -> {
+//                        SettingValue value = values.get(setting.getId());
+//                        if (value != null) {
+//                            value.setValue(waiter.getValue().toString());
+//                        }
+//                    }).then()
+//            ).block();
+//        }
+//        return Mono.empty();
+//    }
 
 }

@@ -13,7 +13,4 @@ public class Setting {
     private String defaultValue;
     private String category;
     private String key;
-    private String example;
-    private String prompt;
-    private boolean exposed;
 }

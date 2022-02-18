@@ -1,5 +1,6 @@
 package com.c3po.helper.setting;
 
+import com.c3po.helper.DataType;
 import lombok.Builder;
 
 @Builder
@@ -7,6 +8,8 @@ public class SettingValue {
     private Integer id;
     private Integer settingId;
     private SettingScopeTarget target;
+    private DataType type;
+    private String key;
     private String value;
     private String newValue;
 
@@ -31,6 +34,14 @@ public class SettingValue {
 
     public Integer getId() {
         return id;
+    }
+
+    public Integer getSettingId() {
+        return settingId;
+    }
+
+    public DataType getType() {
+        return type;
     }
 
     public boolean changed() {

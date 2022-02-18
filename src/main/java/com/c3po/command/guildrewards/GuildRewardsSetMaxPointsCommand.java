@@ -1,7 +1,6 @@
 package com.c3po.command.guildrewards;
 
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import reactor.core.publisher.Mono;
+import java.util.ArrayList;
 
 public class GuildRewardsSetMaxPointsCommand extends GuildRewardsGroup {
     public String getName() {
@@ -12,12 +11,15 @@ public class GuildRewardsSetMaxPointsCommand extends GuildRewardsGroup {
         return "points";
     }
 
-    public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
-        return handleSetting(event);
+    @Override
+    protected String getSettingKey() {
+        return "max_points_per_message";
     }
 
     @Override
-    String getSettingKey() {
-        return "max_points_per_message";
+    public ArrayList<String> getRequiredSettings() {
+        ArrayList<String> settings =  super.getRequiredSettings();
+        settings.add("min_points_per_message");
+        return settings;
     }
 }

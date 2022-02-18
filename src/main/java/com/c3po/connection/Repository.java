@@ -39,6 +39,14 @@ public class Repository {
             statement.executeUpdate();
         }
     }
+    protected void update(String query, Parameter... params) throws SQLException {
+        try (Connection connection = this.dataSource.getConnection()) {
+            try (PreparedStatement statement = preparedStatement(connection, query, params)) {
+                statement.executeUpdate();
+            }
+        }
+
+    }
 
     protected List<Result> query(Connection connection, String query, Parameter... params) throws SQLException {
         ArrayList<Result> results = new ArrayList<>();
