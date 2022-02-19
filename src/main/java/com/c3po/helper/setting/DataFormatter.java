@@ -5,7 +5,7 @@ import com.c3po.helper.DataType;
 public class DataFormatter {
     public static String prettify(DataType type, String value) {
         if (value == null) {
-            return "none";
+            return "n/a";
         }
 
         if (type.equals(DataType.BOOLEAN)) {

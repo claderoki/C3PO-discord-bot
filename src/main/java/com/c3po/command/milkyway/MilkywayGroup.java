@@ -1,9 +1,9 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.command.CommandSettings;
-import com.c3po.command.SettingGroup;
+import com.c3po.command.SettingGroupOld;
 
-public abstract class MilkywayGroup extends SettingGroup {
+public abstract class MilkywayGroup extends SettingGroupOld {
     protected String getCategory() {
         return "milkyway";
     }

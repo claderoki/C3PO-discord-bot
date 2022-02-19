@@ -45,7 +45,7 @@ public class SettingValue {
     }
 
     public boolean changed() {
-        return newValue != null;
+        return newValue != null && !newValue.equals(value);
     }
 
 }

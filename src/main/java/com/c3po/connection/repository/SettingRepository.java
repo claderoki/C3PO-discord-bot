@@ -162,18 +162,30 @@ public class SettingRepository extends Repository {
         return values;
     }
 
+    private Setting resultToSetting(Result result) {
+        return Setting.builder()
+                .id(result.getInt("id"))
+                .category(result.getString("category"))
+                .defaultValue(result.optString("default_value"))
+                .key(result.getString("key"))
+                .scope(SettingScope.find(result.getString("scope")))
+                .type(DataType.find(result.getString("type")))
+                .build();
+    }
+
     public HashMap<String, Setting> getSettings(String category) throws SQLException {
         HashMap<String, Setting> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
-            settings.put(result.getString("key"),
-                    Setting.builder()
-                            .id(result.getInt("id"))
-                            .category(result.getString("category"))
-                            .defaultValue(result.getString("default_value"))
-                            .key(result.getString("key"))
-                            .scope(SettingScope.find(result.getString("scope")))
-                            .type(DataType.find(result.getString("type")))
-                    .build());
+            settings.put(result.getString("key"), resultToSetting(result));
+        }
+
+        return settings;
+    }
+
+    public HashMap<String, HashMap<String, Setting>> getAllSettings() throws SQLException {
+        HashMap<String, HashMap<String, Setting>> settings = new HashMap<>();
+        for (Result result: query("SELECT * FROM `setting` ORDER BY `setting`.`category`")) {
+            settings.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>()).put(result.getString("key"), resultToSetting(result));
         }
 
         return settings;

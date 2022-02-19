@@ -10,6 +10,7 @@ public class Setting {
     private int id;
     private SettingScope scope;
     private DataType type;
+    private String subtype;
     private String defaultValue;
     private String category;
     private String key;

@@ -1,8 +1,16 @@
 package com.c3po;
 
 
-import discord4j.common.JacksonResources;
+import com.c3po.connection.repository.SettingRepository;
+import com.c3po.helper.DiscordCommandOptionType;
+import com.c3po.helper.setting.DataFormatter;
+import com.c3po.helper.setting.Setting;
+import com.c3po.helper.setting.SettingTransformer;
+import com.c3po.listener.CommandListener;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
+import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 
@@ -11,9 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandRegistrar {
@@ -25,21 +32,30 @@ public class CommandRegistrar {
         this.restClient = restClient;
     }
 
-    protected void registerCommands(List<String> fileNames) throws IOException {
-        final JacksonResources d4jMapper = JacksonResources.create();
-
+    protected void registerCommands(List<String> fileNames) throws IOException, SQLException {
+//        final JacksonResources d4jMapper = JacksonResources.create();
+//
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().block();
 
         List<ApplicationCommandRequest> commands = new ArrayList<>();
-        for (String json : getCommandsJson(fileNames)) {
-            ApplicationCommandRequest request = d4jMapper.getObjectMapper()
-                    .readValue(json, ApplicationCommandRequest.class);
-
-            commands.add(request);
+        for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
+            ApplicationCommandRequest command = SettingTransformer.toCommand(entrySet.getKey(), entrySet.getValue().values());
+            commands.add(command);
         }
 
-        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
+        //        for (String json : getCommandsJson(fileNames)) {
+//            ApplicationCommandRequest request = d4jMapper.getObjectMapper()
+//                    .readValue(json, ApplicationCommandRequest.class);
+//
+//            commands.add(request);
+//        }
+
+//        commands.add(ApplicationCommandRequest.builder()
+//                        .
+//                .build());
+
+//        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
 
         Long[] guildIds = {
                 729843647347949638L,

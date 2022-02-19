@@ -7,7 +7,8 @@ public enum DataType {
     INTEGER("integer"),
     STRING("string"),
     BOOLEAN("boolean"),
-    DURATION("duration");
+    CHANNEL("channel"),
+    CATEGORY("category");
 
     private final String type;
 
