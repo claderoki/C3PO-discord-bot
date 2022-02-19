@@ -4,7 +4,6 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Command {
 
@@ -16,7 +15,7 @@ public abstract class Command {
 
     public abstract Mono<Void> handle(ChatInputInteractionEvent event) throws Exception;
 
-    public ArrayList<String> getRequiredSettings() {
+    public ArrayList<Integer> getRequiredSettings() {
         return new ArrayList<>();
     }
 

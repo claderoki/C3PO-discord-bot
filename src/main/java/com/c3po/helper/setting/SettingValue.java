@@ -9,7 +9,6 @@ public class SettingValue {
     private Integer settingId;
     private SettingScopeTarget target;
     private DataType type;
-    private String key;
     private String value;
     private String newValue;
 

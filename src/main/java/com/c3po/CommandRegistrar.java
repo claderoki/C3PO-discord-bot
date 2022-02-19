@@ -7,6 +7,7 @@ import com.c3po.helper.setting.DataFormatter;
 import com.c3po.helper.setting.Setting;
 import com.c3po.helper.setting.SettingTransformer;
 import com.c3po.listener.CommandListener;
+import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
@@ -33,34 +34,28 @@ public class CommandRegistrar {
     }
 
     protected void registerCommands(List<String> fileNames) throws IOException, SQLException {
-//        final JacksonResources d4jMapper = JacksonResources.create();
+        final JacksonResources d4jMapper = JacksonResources.create();
 //
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().block();
 
         List<ApplicationCommandRequest> commands = new ArrayList<>();
         for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
-            ApplicationCommandRequest command = SettingTransformer.toCommand(entrySet.getKey(), entrySet.getValue().values());
-            commands.add(command);
+            commands.add(SettingTransformer.toCommand(entrySet.getKey(), entrySet.getValue().values()));
         }
 
-        //        for (String json : getCommandsJson(fileNames)) {
-//            ApplicationCommandRequest request = d4jMapper.getObjectMapper()
-//                    .readValue(json, ApplicationCommandRequest.class);
-//
-//            commands.add(request);
-//        }
-
-//        commands.add(ApplicationCommandRequest.builder()
-//                        .
-//                .build());
+        for (String json : getCommandsJson(fileNames)) {
+            ApplicationCommandRequest request = d4jMapper.getObjectMapper()
+                    .readValue(json, ApplicationCommandRequest.class);
+            commands.add(request);
+        }
 
 //        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
 
         Long[] guildIds = {
                 729843647347949638L,
-                761624318291476482L,
-                944339782002163732L,
+//                761624318291476482L,
+//                944339782002163732L,
         };
         for (Long guildId: guildIds) {
             applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands)

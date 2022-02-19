@@ -4,6 +4,9 @@ import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.DataType;
 import com.c3po.helper.setting.*;
+import com.c3po.helper.setting.validation.Condition;
+import com.c3po.helper.setting.validation.SettingValidation;
+import com.c3po.helper.setting.validation.ValueType;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -54,21 +57,24 @@ public class SettingRepository extends Repository {
         }
     }
 
-    public HashMap<String, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Collection<String> keys) throws SQLException {
-        return getHydratedSettingValues(target, category, keys.toArray(new String[0]));
+    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Collection<Integer> ids) throws SQLException {
+        return getHydratedSettingValues(target, category, ids.toArray(new Integer[0]));
     }
 
-    private HashMap<String, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, String... settingKeys) throws SQLException {
-        HashMap<String, SettingValue> values = new HashMap<>();
+    private HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Integer... settingIds) throws SQLException {
+        HashMap<Integer, SettingValue> values = new HashMap<>();
         ArrayList<Parameter> params = new ArrayList<>();
 
         StringBuilder query = new StringBuilder("""
                 SELECT
                     IFNULL(`setting_value`.`id`, 0) as `id`,
-                    CASE WHEN `setting_value`.`id` IS NULL THEN `setting`.`default_value` ELSE `setting_value`.`value` END AS `value`,
+                    (
+                        CASE WHEN `setting_value`.`id` IS NULL
+                            THEN `setting`.`default_value`
+                            ELSE `setting_value`.`value`
+                        END) AS `value`,
                     `setting`.`id` AS `setting_id`,
-                    `setting`.`type` AS `setting_type`,
-                    `setting`.`key` AS `setting_key`
+                    `setting`.`type` AS `setting_type`
                 FROM `setting`
                 LEFT JOIN `setting_value` ON `setting_value`.`setting_id` = `setting`.`id`
                 """);
@@ -85,31 +91,28 @@ public class SettingRepository extends Repository {
         query.append(" WHERE `setting`.`category` = ? ");
         params.add(new StringParameter(category));
 
-        for (int i = 0; i < settingKeys.length; i++) {
-            String key = settingKeys[i];
+        for (int i = 0; i < settingIds.length; i++) {
+            Integer key = settingIds[i];
             if (i == 0) {
-                query.append(" AND `setting`.`key` IN (");
+                query.append(" AND `setting`.`id` IN (");
             }
 
-            if (i == settingKeys.length-1) {
+            if (i == settingIds.length-1) {
                 query.append("?) ");
             } else {
                 query.append("?,");
             }
-            params.add(new StringParameter(key));
+            params.add(new LongParameter(key));
         }
 
         query.append(" GROUP BY `setting`.`id`");
 
         for (Result result: this.query(query.toString(), params)) {
             int id = result.getInt("id");
-            String key = result.getString("setting_key");
-
             SettingValue.SettingValueBuilder builder = SettingValue.builder()
                     .target(target)
                     .id(id)
                     .type(DataType.find(result.getString("setting_type")))
-                    .key(key)
                     .settingId(result.getInt("setting_id"))
             ;
             if (id == 0) {
@@ -118,13 +121,13 @@ public class SettingRepository extends Repository {
                 builder.value(result.optString("value"));
             }
 
-            values.put(key, builder.build());
+            values.put(result.getInt("setting_id"), builder.build());
         }
         return values;
     }
 
-    public Optional<SettingValue> getHydratedSettingValue(SettingScopeTarget target, String category, String settingKey) throws SQLException {
-        HashMap<String, SettingValue> values = getHydratedSettingValues(target, category, settingKey);
+    public Optional<SettingValue> getHydratedSettingValue(SettingScopeTarget target, String category, Integer settingId) throws SQLException {
+        HashMap<Integer, SettingValue> values = getHydratedSettingValues(target, category, settingId);
         return values.values().stream().findFirst();
     }
 
@@ -173,10 +176,10 @@ public class SettingRepository extends Repository {
                 .build();
     }
 
-    public HashMap<String, Setting> getSettings(String category) throws SQLException {
-        HashMap<String, Setting> settings = new HashMap<>();
+    public HashMap<Integer, Setting> getSettings(String category) throws SQLException {
+        HashMap<Integer, Setting> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
-            settings.put(result.getString("key"), resultToSetting(result));
+            settings.put(result.getInt("id"), resultToSetting(result));
         }
 
         return settings;
@@ -185,10 +188,40 @@ public class SettingRepository extends Repository {
     public HashMap<String, HashMap<String, Setting>> getAllSettings() throws SQLException {
         HashMap<String, HashMap<String, Setting>> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` ORDER BY `setting`.`category`")) {
-            settings.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>()).put(result.getString("key"), resultToSetting(result));
+            settings.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())
+                    .put(result.getString("key"), resultToSetting(result));
         }
 
         return settings;
     }
 
+    public HashMap<String, Integer> getSettingIdentifiers() throws SQLException {
+        HashMap<String, Integer> identifiers = new HashMap<>();
+        for (Result result: query("SELECT `id`, `key` FROM `setting`")) {
+            identifiers.put(result.getString("key"), result.getInt("id"));
+        }
+
+        return identifiers;
+    }
+
+    public HashMap<Integer, ArrayList<SettingValidation>> getValidations() throws SQLException {
+        HashMap<Integer, ArrayList<SettingValidation>> validations = new HashMap<>();
+        String query = """
+                SELECT
+                    `setting_validation`.*
+                FROM `setting_validation`
+                """;
+        for (Result result: query(query)) {
+            validations.computeIfAbsent(result.getInt("setting_id"), (c) -> new ArrayList<>())
+                    .add(SettingValidation.builder()
+                            .condition(Condition.find(result.getString("condition")))
+                            .settingId(result.getInt("setting_id"))
+                            .id(result.getInt("id"))
+                            .value(result.optString("value"))
+                            .valueType(ValueType.find(result.getString("value_type")))
+                            .build());
+        }
+
+        return validations;
+    }
 }

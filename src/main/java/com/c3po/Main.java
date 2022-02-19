@@ -19,7 +19,8 @@ public class Main {
                     .login()
                     .block();
 
-            List<String> commands = List.of("guildrewards.json", "milkyway.json");
+            List<String> commands = List.of();
+            assert client != null;
             new CommandRegistrar(client.getRestClient()).registerCommands(commands);
             client.on(ChatInputInteractionEvent.class, CommandListener::handle)
                     .then(client.onDisconnect())
