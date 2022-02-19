@@ -39,6 +39,7 @@ public class Repository {
             statement.executeUpdate();
         }
     }
+
     protected void update(String query, Parameter... params) throws SQLException {
         try (Connection connection = this.dataSource.getConnection()) {
             try (PreparedStatement statement = preparedStatement(connection, query, params)) {

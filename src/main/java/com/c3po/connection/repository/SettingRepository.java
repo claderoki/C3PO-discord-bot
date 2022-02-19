@@ -61,7 +61,7 @@ public class SettingRepository extends Repository {
         return getHydratedSettingValues(target, category, ids.toArray(new Integer[0]));
     }
 
-    private HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Integer... settingIds) throws SQLException {
+    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Integer... settingIds) throws SQLException {
         HashMap<Integer, SettingValue> values = new HashMap<>();
         ArrayList<Parameter> params = new ArrayList<>();
 
@@ -195,10 +195,11 @@ public class SettingRepository extends Repository {
         return settings;
     }
 
-    public HashMap<String, Integer> getSettingIdentifiers() throws SQLException {
-        HashMap<String, Integer> identifiers = new HashMap<>();
-        for (Result result: query("SELECT `id`, `key` FROM `setting`")) {
-            identifiers.put(result.getString("key"), result.getInt("id"));
+    public HashMap<String, HashMap<String, Integer>> getSettingIdentifiers() throws SQLException {
+        HashMap<String, HashMap<String, Integer>> identifiers = new HashMap<>();
+        for (Result result: query("SELECT `id`, `key`, `category` FROM `setting`")) {
+            identifiers.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())
+                    .put(result.getString("key"), result.getInt("id"));
         }
 
         return identifiers;

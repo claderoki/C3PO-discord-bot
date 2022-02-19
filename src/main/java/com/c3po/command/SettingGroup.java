@@ -22,20 +22,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class SettingGroup {
-    private String category;
-    private String settingParam;
-    private Integer settingId;
+    private final String category;
+    private final String settingParam;
+    private final Integer settingId;
 
     public SettingGroup(String category, String settingKey) {
         this.category = category;
         this.settingParam = settingKey.replace("_id", "");
-        this.settingId = SettingCache.getId(settingKey);
-
+        this.settingId = SettingCache.getId(category, settingKey);
     }
 
     protected String getValueFromEvent(ChatInputInteractionEvent event) {
-        String param = settingParam;
-        ApplicationCommandInteractionOptionValue value = InteractionHelper.getOptionValue(event, param);
+        ApplicationCommandInteractionOptionValue value = InteractionHelper.getOptionValue(event, settingParam);
         if (value == null) {
             return null;
         }
@@ -73,7 +71,7 @@ public class SettingGroup {
         return requiredSettings;
     }
 
-    private CommandSettings scopeToSettings(SettingScope scope) {
+    public static CommandSettings scopeToSettings(SettingScope scope) {
         return switch (scope) {
             case GUILD -> CommandSettings.builder().guildOnly(true).adminOnly(true).build();
             case USER -> CommandSettings.builder().guildOnly(false).adminOnly(false).build();
@@ -81,7 +79,7 @@ public class SettingGroup {
         };
     }
 
-    private SettingScopeTarget scopeToTarget(SettingScope scope, ChatInputInteractionEvent event) {
+    public static SettingScopeTarget scopeToTarget(SettingScope scope, ChatInputInteractionEvent event) {
         return switch (scope) {
             case GUILD ->SettingScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
             case USER -> SettingScopeTarget.user(event.getInteraction().getUser().getId().asLong());

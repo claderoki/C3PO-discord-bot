@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class SettingCache extends Cache<Setting> {
     private static final HashMap<String, HashMap<Integer, Setting>> cache = new HashMap<>();
-    private static HashMap<String, Integer> ids = new HashMap<>();
+    private static HashMap<String, HashMap<String, Integer>> ids = new HashMap<>();
     private static HashMap<Integer, String> codes = new HashMap<>();
 
     private static final TimedTrigger idRefreshes = new TimedTrigger(Duration.ofHours(1));
@@ -42,19 +42,22 @@ public class SettingCache extends Cache<Setting> {
 
     private static void refreshIdAndCodes() {
         try {
+            HashMap<String, HashMap<String, Integer>> a = SettingRepository.db().getSettingIdentifiers();
             ids = SettingRepository.db().getSettingIdentifiers();
             codes = new HashMap<>();
-            for (Map.Entry<String, Integer> entry: ids.entrySet()) {
-                codes.put(entry.getValue(), entry.getKey());
+            for (Map.Entry<String, HashMap<String, Integer>> entry: ids.entrySet()) {
+                for (Map.Entry<String, Integer> mapping: entry.getValue().entrySet()) {
+                    codes.put(mapping.getValue(), mapping.getKey());
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static Integer getId(String key) {
+    public static Integer getId(String category, String key) {
         idRefreshes.check(SettingCache::refreshIdAndCodes);
-        return ids.get(key);
+        return ids.get(category).get(key);
     }
 
     public static String getCode(Integer id) {
