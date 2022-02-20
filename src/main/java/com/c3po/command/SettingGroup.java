@@ -6,6 +6,7 @@ import com.c3po.helper.InteractionHelper;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.cache.SettingCache;
 import com.c3po.helper.setting.cache.SettingValidationCache;
+import com.c3po.helper.setting.cache.SettingValueCache;
 import com.c3po.helper.setting.validation.SettingValidation;
 import com.c3po.helper.setting.validation.SettingValidationResult;
 import com.c3po.helper.setting.validation.SettingValidator;
@@ -119,6 +120,9 @@ public class SettingGroup {
             }
         }
         SettingRepository.db().save(settingValue);
+        if (settingValue.changed()) {
+            SettingValueCache.clear(target, category);
+        }
         return event.reply().withEmbeds(createEmbedFor(settingValue)).then();
     }
 

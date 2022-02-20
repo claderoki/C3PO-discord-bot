@@ -42,7 +42,6 @@ public class SettingCache extends Cache<Setting> {
 
     private static void refreshIdAndCodes() {
         try {
-            HashMap<String, HashMap<String, Integer>> a = SettingRepository.db().getSettingIdentifiers();
             ids = SettingRepository.db().getSettingIdentifiers();
             codes = new HashMap<>();
             for (Map.Entry<String, HashMap<String, Integer>> entry: ids.entrySet()) {

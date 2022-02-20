@@ -2,6 +2,7 @@ package com.c3po.helper.setting;
 
 import lombok.Getter;
 
+
 @Getter
 public final class SettingScopeTarget {
     final private Long userId;
@@ -26,6 +27,14 @@ public final class SettingScopeTarget {
 
     @Override
     public String toString() {
-        return userId.toString() + guildId.toString();
+        if (userId != null && guildId != null) {
+            return userId + guildId.toString();
+        } else if (userId != null) {
+             return userId.toString();
+        } else if (guildId != null) {
+            return guildId.toString();
+        } else {
+            return "";
+        }
     }
 }

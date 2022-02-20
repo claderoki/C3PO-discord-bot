@@ -21,32 +21,18 @@ public class SettingValueCache extends Cache<SettingValue> {
     }
 
     public static HashMap<Integer, SettingValue> get(SettingScopeTarget target, String category) throws SQLException {
-        String key = getCacheKey(target, category);
+        String key = category + target;
         if (shouldRefresh(key)) {
             HashMap<Integer, SettingValue> values = SettingRepository.db().getSettingValues(target, category);
             lastRefreshes.put(category, OffsetDateTime.now(ZoneOffset.UTC));
             cache.put(key, values);
             return values;
         }
-
         return cache.computeIfAbsent(key, (c) -> new HashMap<>());
     }
 
-    private static String getCacheKey(SettingScopeTarget target, String category) {
-        StringBuilder keyBuilder = new StringBuilder();
-        keyBuilder.append(category);
-        if (target.getUserId() != null) {
-            keyBuilder.append(target.getUserId());
-        }
-        if (target.getGuildId() != null) {
-            keyBuilder.append(target.getGuildId());
-        }
-
-        return keyBuilder.toString();
-    }
-
     public static void clear(SettingScopeTarget target, String category) {
-        String key = getCacheKey(target, category);
+        String key = category + target;
         lastRefreshes.remove(key);
         cache.remove(key);
     }

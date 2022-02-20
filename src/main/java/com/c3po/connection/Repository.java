@@ -46,7 +46,6 @@ public class Repository {
                 statement.executeUpdate();
             }
         }
-
     }
 
     protected List<Result> query(Connection connection, String query, Parameter... params) throws SQLException {

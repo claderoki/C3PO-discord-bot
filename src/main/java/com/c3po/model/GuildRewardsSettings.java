@@ -10,10 +10,6 @@ import java.time.Duration;
 public class GuildRewardsSettings extends BaseModel {
     private final SettingScopeTarget target;
 
-    public GuildRewardsSettings(SettingScopeTarget target) {
-        this.target = target;
-    }
-
     private boolean enabled;
 
     @Builder.Default
@@ -23,10 +19,14 @@ public class GuildRewardsSettings extends BaseModel {
 
     private int maxPointsPerMessage;
 
+    public GuildRewardsSettings(SettingScopeTarget target) {
+        this.target = target;
+    }
+
     public void set(String key, String value) {
         switch (key) {
-            case "min_points_per_message": this.minPointsPerMessage = Integer.parseInt(value);
-            case "max_points_per_message": this.maxPointsPerMessage = Integer.parseInt(value);
+            case "min_points": this.minPointsPerMessage = Integer.parseInt(value);
+            case "max_points": this.maxPointsPerMessage = Integer.parseInt(value);
             case "enabled": this.enabled = value.equals("1");
         }
     }
