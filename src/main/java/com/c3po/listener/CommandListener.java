@@ -6,6 +6,7 @@ import com.c3po.command.SettingGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.cache.SettingCache;
+import com.c3po.model.GuildRewardsSettings;
 import com.c3po.ui.table.Row;
 import com.c3po.ui.table.Table;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;

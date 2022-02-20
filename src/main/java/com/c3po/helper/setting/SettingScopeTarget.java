@@ -23,4 +23,9 @@ public final class SettingScopeTarget {
     public static SettingScopeTarget guild(Long guildId) {
         return new SettingScopeTarget(null, guildId);
     }
+
+    @Override
+    public String toString() {
+        return userId.toString() + guildId.toString();
+    }
 }
