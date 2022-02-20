@@ -3,6 +3,7 @@ package com.c3po.helper.setting.cache;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.TimedTrigger;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.validation.SettingValidation;
 
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ public class SettingValidationCache extends Cache<SettingValidation> {
             try {
                 validations = SettingRepository.db().getValidations();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogHelper.logException(e);
             }
         });
 

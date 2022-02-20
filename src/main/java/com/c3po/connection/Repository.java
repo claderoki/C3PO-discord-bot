@@ -82,4 +82,8 @@ public class Repository {
         return results.get(0);
     }
 
+    protected Result getOne(String query, Collection<Parameter> params) throws SQLException {
+        return getOne(query, params.toArray(new Parameter[0]));
+    }
+
 }

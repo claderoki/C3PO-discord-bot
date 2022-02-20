@@ -1,9 +1,9 @@
 package com.c3po.helper.setting.cache;
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.InteractionHelper;
 import com.c3po.helper.TimedTrigger;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.Setting;
 
 import java.sql.SQLException;
@@ -50,7 +50,7 @@ public class SettingCache extends Cache<Setting> {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogHelper.logException(e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.c3po.helper.guildrewards;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.TimedTrigger;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.setting.KnownCategory;
 import com.c3po.helper.setting.Setting;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.setting.SettingValue;
@@ -26,7 +27,7 @@ public class GuildRewardsCache extends Cache<GuildRewardsSettings> {
 
     public static GuildRewardsSettings getSettings(long guildId) throws SQLException {
         SettingScopeTarget target = SettingScopeTarget.guild(guildId);
-        String category = "guildrewards";
+        String category = KnownCategory.GUILDREWARDS;
         String cacheKey = target + category;
         if (shouldRefresh(cacheKey)) {
             GuildRewardsSettings settings = new GuildRewardsSettings(target);

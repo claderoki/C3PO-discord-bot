@@ -3,6 +3,7 @@ package com.c3po.command;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.DataType;
 import com.c3po.helper.InteractionHelper;
+import com.c3po.helper.guildrewards.GuildRewardsCache;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.cache.SettingCache;
 import com.c3po.helper.setting.cache.SettingValidationCache;
@@ -122,6 +123,9 @@ public class SettingGroup {
         SettingRepository.db().save(settingValue);
         if (settingValue.changed()) {
             SettingValueCache.clear(target, category);
+            if (category.equals(KnownCategory.GUILDREWARDS)) {
+                GuildRewardsCache.clear();
+            }
         }
         return event.reply().withEmbeds(createEmbedFor(settingValue)).then();
     }
