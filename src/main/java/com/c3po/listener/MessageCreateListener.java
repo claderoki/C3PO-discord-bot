@@ -3,7 +3,7 @@ package com.c3po.listener;
 import com.c3po.helper.guildrewards.GuildRewardsCache;
 import com.c3po.helper.LogHelper;
 import com.c3po.model.GuildRewardsSettings;
-import com.c3po.processors.GuildRewardsProcessor;
+import com.c3po.processors.GuildRewardsRewardProcessor;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +16,7 @@ public class MessageCreateListener {
         if (event.getGuildId().isPresent()) {
             long guildId = event.getGuildId().get().asLong();
             GuildRewardsSettings guildRewardsSettings = GuildRewardsCache.getSettings(guildId);
-            GuildRewardsProcessor guildRewardsProcessor = new GuildRewardsProcessor(guildRewardsSettings, event);
+            GuildRewardsRewardProcessor guildRewardsProcessor = new GuildRewardsRewardProcessor(guildRewardsSettings, event);
             guildRewardsProcessor.run();
         }
 

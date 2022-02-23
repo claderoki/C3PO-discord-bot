@@ -7,28 +7,24 @@ import com.c3po.model.GuildRewardsSettings;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 
 import java.sql.SQLException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
-import java.util.Random;
 
-public class GuildRewardsProcessor implements Runnable {
-    private static final HashMap<String, Integer> profileIds = new HashMap<>();
-    private static final HashMap<String, OffsetDateTime> lastRewards = new HashMap<>();
+public abstract class GuildRewardsProcessor implements Runnable {
+    protected static final HashMap<String, Integer> profileIds = new HashMap<>();
 
-    private final GuildRewardsSettings settings;
-    private final MessageCreateEvent event;
+    protected final GuildRewardsSettings settings;
+    protected final MessageCreateEvent event;
 
     public GuildRewardsProcessor(GuildRewardsSettings settings, MessageCreateEvent event) {
         this.settings = settings;
         this.event = event;
     }
 
-    private boolean validate() {
+    protected boolean validate() {
         return settings.isEnabled() && event.getGuildId().isPresent();
     }
 
-    private Integer getProfileId(SettingScopeTarget target) throws SQLException {
+    protected Integer getProfileId(SettingScopeTarget target) throws SQLException {
         Integer profileId = profileIds.get(target.toString());
         if (profileId != null) {
             return profileId;
@@ -46,43 +42,7 @@ public class GuildRewardsProcessor implements Runnable {
         return profileId;
     }
 
-    private boolean shouldReward(SettingScopeTarget target) {
-        OffsetDateTime lastRefresh = lastRewards.get(target.toString());
-        return lastRefresh == null || OffsetDateTime.now(ZoneOffset.UTC).isAfter(lastRefresh.plus(settings.getTimeout()));
-    }
-
-    private int getPointsToReward() {
-        int minPoints = settings.getMinPointsPerMessage();
-        int maxPoints = settings.getMaxPointsPerMessage();
-        if (minPoints == maxPoints) {
-            return minPoints;
-        }
-
-        Random r = new Random();
-        return r.ints(minPoints, maxPoints).findFirst().orElseThrow();
-    }
-
-    private void reward(Integer profileId) throws SQLException {
-        GuildRewardsRepository.db().incrementPoints(profileId, getPointsToReward());
-    }
-
-    private void _run() throws SQLException {
-        if (!validate()) {
-            return;
-        }
-
-        SettingScopeTarget target = SettingScopeTarget.member(
-                settings.getTarget().getGuildId(),
-                event.getMember().orElseThrow().getId().asLong()
-        );
-
-        if (shouldReward(target)) {
-            Integer profileId = getProfileId(target);
-            if (profileId != null) {
-                reward(profileId);
-            }
-        }
-    }
+    protected abstract void _run() throws SQLException;
 
     @Override
     public void run() {

@@ -21,7 +21,7 @@ public class Main {
                     .login()
                     .block();
 
-            List<String> commands = List.of();
+            List<String> commands = List.of("milkyway.json");
             assert client != null;
             new CommandRegistrar(client.getRestClient()).registerCommands(commands);
             client.on(MessageCreateEvent.class, MessageCreateListener::handle).subscribe();

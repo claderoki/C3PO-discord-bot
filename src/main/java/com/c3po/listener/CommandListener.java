@@ -2,8 +2,10 @@ package com.c3po.listener;
 
 import com.c3po.command.Command;
 import com.c3po.command.CommandSettingValidation;
+import com.c3po.command.milkyway.MilkywayCreateCommand;
 import com.c3po.command.SettingGroup;
 import com.c3po.connection.repository.SettingRepository;
+import com.c3po.errors.PublicException;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.cache.SettingCache;
@@ -14,13 +16,13 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class CommandListener {
-    private final static List<Command> commands = new ArrayList<>(){{
-    }};
+    private final static List<Command> commands = List.of(
+            new MilkywayCreateCommand()
+    );
 
     private final static HashMap<String, HashMap<String, String>> settingMap = new HashMap<>();
 
@@ -84,7 +86,6 @@ public class CommandListener {
                 if (settingKey.equals(SettingTransformer.viewOptionName)) {
                     SettingScopeTarget target = SettingGroup.scopeToTarget(SettingScope.GUILD, event);
                     HashMap<Integer, SettingValue> values = SettingRepository.db().getHydratedSettingValues(target, category);
-//                    Table table = valuesToTable(values);
                     String content = valuesToView(values);
                     return event.reply().withContent("```\n%s```".formatted(content));
                 } else {
@@ -103,6 +104,8 @@ public class CommandListener {
                     if (CommandSettingValidation.validate(command.getSettings(), event)) {
                         try {
                             return command.handle(event);
+                        } catch (PublicException e) {
+                            return event.reply().withContent(e.getMessage()).then();
                         } catch (Exception e) {
                             LogHelper.logException(e);
                         }

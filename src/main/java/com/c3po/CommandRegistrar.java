@@ -2,16 +2,13 @@ package com.c3po;
 
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.DiscordCommandOptionType;
-import com.c3po.helper.setting.DataFormatter;
 import com.c3po.helper.setting.Setting;
 import com.c3po.helper.setting.SettingTransformer;
-import com.c3po.listener.CommandListener;
 import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
-import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
 import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
+import discord4j.discordjson.possible.Possible;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 
@@ -33,21 +30,37 @@ public class CommandRegistrar {
         this.restClient = restClient;
     }
 
+    private ApplicationCommandRequest combineCommands(ApplicationCommandRequest first, ApplicationCommandRequest second) {
+        ImmutableApplicationCommandRequest.Builder builder = ApplicationCommandRequest.builder();
+        builder.from(first);
+
+        for(ApplicationCommandOptionData option: second.options().get()) {
+            builder.addOption(option);
+        }
+
+        return builder.build();
+    }
+
     protected void registerCommands(List<String> fileNames) throws IOException, SQLException {
         final JacksonResources d4jMapper = JacksonResources.create();
-//
+
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().block();
 
-        List<ApplicationCommandRequest> commands = new ArrayList<>();
+        Map<String, ApplicationCommandRequest> commands = new HashMap<>();
         for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
-            commands.add(SettingTransformer.toCommand(entrySet.getKey(), entrySet.getValue().values()));
+            commands.put(entrySet.getKey(), SettingTransformer.toCommand(entrySet.getKey(), entrySet.getValue().values()));
         }
 
-        for (String json : getCommandsJson(fileNames)) {
+        for (String json: getCommandsJson(fileNames)) {
             ApplicationCommandRequest request = d4jMapper.getObjectMapper()
                     .readValue(json, ApplicationCommandRequest.class);
-            commands.add(request);
+            ApplicationCommandRequest existingCommand = commands.get(request.name());
+            if (existingCommand != null) {
+                commands.put(existingCommand.name(), combineCommands(request, existingCommand));
+            } else {
+                commands.put(request.name(), request);
+            }
         }
 
 //        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
@@ -58,7 +71,7 @@ public class CommandRegistrar {
                 944339782002163732L,
         };
         for (Long guildId: guildIds) {
-            applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands)
+            applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands.values().stream().toList())
                     .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
                     .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
                     .subscribe();
