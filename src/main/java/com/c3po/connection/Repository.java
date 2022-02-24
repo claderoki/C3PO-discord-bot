@@ -2,6 +2,7 @@ package com.c3po.connection;
 
 import com.c3po.database.Parameter;
 import com.c3po.database.Result;
+import com.c3po.database.SQLRuntimeException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -25,6 +26,14 @@ public class Repository {
         return columnLabels;
     }
 
+    private Connection getConnection() {
+        try {
+            return this.dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
+
     private PreparedStatement preparedStatement(Connection connection, String query, Parameter... params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(query);
         int index = 1;
@@ -34,21 +43,25 @@ public class Repository {
         return statement;
     }
 
-    protected void update(Connection connection, String query, Parameter... params) throws SQLException {
+    protected void update(Connection connection, String query, Parameter... params) {
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
-    protected void update(String query, Parameter... params) throws SQLException {
-        try (Connection connection = this.dataSource.getConnection()) {
+    protected void update(String query, Parameter... params) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement statement = preparedStatement(connection, query, params)) {
                 statement.executeUpdate();
             }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
-    protected List<Result> query(Connection connection, String query, Parameter... params) throws SQLException {
+    protected List<Result> query(Connection connection, String query, Parameter... params) {
         ArrayList<Result> results = new ArrayList<>();
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             try (ResultSet rs = statement.executeQuery()) {
@@ -60,21 +73,25 @@ public class Repository {
                     results.add(new Result(rs, columnLabels));
                 }
             }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
         return results;
     }
 
-    protected List<Result> query(String query, Parameter... params) throws SQLException {
-        try (Connection connection = this.dataSource.getConnection()) {
+    protected List<Result> query(String query, Parameter... params) {
+        try (Connection connection = getConnection()) {
             return query(connection, query, params);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
-    protected List<Result> query(String query, Collection<Parameter> params) throws SQLException {
+    protected List<Result> query(String query, Collection<Parameter> params) {
         return query(query, params.toArray(new Parameter[0]));
     }
 
-    protected Result getOne(String query, Parameter... params) throws SQLException {
+    protected Result getOne(String query, Parameter... params) {
         List<Result> results = query(query, params);
         if (results.isEmpty()) {
             return null;
@@ -82,7 +99,7 @@ public class Repository {
         return results.get(0);
     }
 
-    protected Result getOne(String query, Collection<Parameter> params) throws SQLException {
+    protected Result getOne(String query, Collection<Parameter> params) {
         return getOne(query, params.toArray(new Parameter[0]));
     }
 

@@ -1,7 +1,7 @@
 package com.c3po.helper.setting.cache;
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.OldCache;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.setting.SettingValue;
 
@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 
-public class SettingValueCache extends Cache<SettingValue> {
+public class SettingValueCache extends OldCache<SettingValue> {
     private static final HashMap<String, OffsetDateTime> lastRefreshes = new HashMap<>();
     private static final HashMap<String, HashMap<Integer, SettingValue>> cache = new HashMap<>();
 

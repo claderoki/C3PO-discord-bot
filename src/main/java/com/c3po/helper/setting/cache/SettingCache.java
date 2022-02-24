@@ -2,7 +2,7 @@ package com.c3po.helper.setting.cache;
 
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.TimedTrigger;
-import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.OldCache;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.Setting;
 
@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SettingCache extends Cache<Setting> {
+public class SettingCache extends OldCache<Setting> {
     private static final HashMap<String, HashMap<Integer, Setting>> cache = new HashMap<>();
     private static HashMap<String, HashMap<String, Integer>> ids = new HashMap<>();
     private static HashMap<Integer, String> codes = new HashMap<>();

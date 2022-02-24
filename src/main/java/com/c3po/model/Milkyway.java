@@ -7,9 +7,11 @@ import lombok.Getter;
 @Builder
 @Getter
 public class Milkyway {
+    @Builder.Default
+    private int id = 0;
     private SettingScopeTarget target;
     private Long channelId;
-    private String identifier;
+    private Integer identifier;
     private String expiresAt;
     private String description;
     private String name;
@@ -17,7 +19,7 @@ public class Milkyway {
     private String denyReason;
     private PurchaseType purchaseType;
     private Integer itemId;
-    private Integer amount;
-    private Integer daysPending;
-    private Integer totalDays;
+    private int amount;
+    private int daysPending;
+    private int totalDays;
 }

@@ -1,22 +1,25 @@
 package com.c3po.helper.milkyway;
 
+import com.c3po.command.milkyway.MilkywayItem;
+import com.c3po.connection.repository.MilkywayRepository;
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.cache.Cache;
+import com.c3po.helper.TimedTrigger;
+import com.c3po.helper.cache.OldCache;
 import com.c3po.helper.setting.KnownCategory;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.setting.SettingValue;
 import com.c3po.helper.setting.cache.SettingCache;
-import com.c3po.model.GuildRewardsSettings;
 import com.c3po.model.MilkywaySettings;
 
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MilkywayCache extends Cache<MilkywaySettings> {
-    private static final HashMap<String, MilkywaySettings> cache = new HashMap<>();
+public class MilkywayCache extends OldCache<MilkywaySettings> {
+    private static final HashMap<String, MilkywaySettings> settingCache = new HashMap<>();
     private static final HashMap<String, OffsetDateTime> lastRefreshes = new HashMap<>();
 
     private static boolean shouldRefresh(String cacheKey) {
@@ -34,16 +37,24 @@ public class MilkywayCache extends Cache<MilkywaySettings> {
                 String settingKey = SettingCache.getCode(value.getSettingId());
                 settings.set(settingKey, value.getValue());
             }
-            cache.put(cacheKey, settings);
+            settingCache.put(cacheKey, settings);
             lastRefreshes.put(cacheKey, OffsetDateTime.now(ZoneOffset.UTC));
             return settings;
         }
-        return cache.get(cacheKey);
+        return settingCache.get(cacheKey);
+    }
+
+    private static TimedTrigger timedTrigger = new TimedTrigger(Duration.ofHours(10));
+    private static ArrayList<MilkywayItem> itemCache = new ArrayList<>();
+
+    public static ArrayList<MilkywayItem> getAvailableItems() {
+        timedTrigger.check(() -> itemCache = MilkywayRepository.db().getAvailableItems());
+        return itemCache;
     }
 
     public static void clear() {
         lastRefreshes.clear();
-        cache.clear();
+        settingCache.clear();
     }
 
 }
