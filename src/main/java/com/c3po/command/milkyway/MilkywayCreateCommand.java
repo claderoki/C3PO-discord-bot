@@ -1,10 +1,11 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.command.Command;
-import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.errors.PublicException;
-import com.c3po.helper.milkyway.MilkywayCache;
+import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.model.GuildRewardsSettings;
 import com.c3po.model.MilkywaySettings;
+import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
@@ -29,8 +30,15 @@ public class MilkywayCreateCommand extends Command {
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
-        MilkywaySettings settings = MilkywayCache.getSettings(event.getInteraction().getGuildId().orElseThrow().asLong());
-        validate(settings);
+        SettingScopeTarget target = SettingScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
+        GuildRewardsSettings settings = GuildRewardService.getSettings(target);
+        String a = "";
+
+
+//        MilkywaySettings settings = MilkywayCache.getSettings(event.getInteraction().getGuildId().orElseThrow().asLong());
+//        validate(settings);
+
+
 
 //        Integer points = GuildRewardsRepository.db().getPoints();
 

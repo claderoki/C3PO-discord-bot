@@ -57,11 +57,11 @@ public class SettingRepository extends Repository {
         }
     }
 
-    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Collection<Integer> ids) throws SQLException {
+    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Collection<Integer> ids) {
         return getHydratedSettingValues(target, category, ids.toArray(new Integer[0]));
     }
 
-    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Integer... settingIds) throws SQLException {
+    public HashMap<Integer, SettingValue> getHydratedSettingValues(SettingScopeTarget target, String category, Integer... settingIds) {
         HashMap<Integer, SettingValue> values = new HashMap<>();
         ArrayList<Parameter> params = new ArrayList<>();
 
@@ -195,7 +195,7 @@ public class SettingRepository extends Repository {
         return settings;
     }
 
-    public HashMap<String, HashMap<String, Integer>> getSettingIdentifiers() throws SQLException {
+    public HashMap<String, HashMap<String, Integer>> getSettingIdentifiers() {
         HashMap<String, HashMap<String, Integer>> identifiers = new HashMap<>();
         for (Result result: query("SELECT `id`, `key`, `category` FROM `setting`")) {
             identifiers.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())
@@ -205,14 +205,9 @@ public class SettingRepository extends Repository {
         return identifiers;
     }
 
-    public HashMap<Integer, ArrayList<SettingValidation>> getValidations() throws SQLException {
+    public HashMap<Integer, ArrayList<SettingValidation>> getValidations() {
         HashMap<Integer, ArrayList<SettingValidation>> validations = new HashMap<>();
-        String query = """
-                SELECT
-                    `setting_validation`.*
-                FROM `setting_validation`
-                """;
-        for (Result result: query(query)) {
+        for (Result result: query("SELECT * FROM `setting_validation`")) {
             validations.computeIfAbsent(result.getInt("setting_id"), (c) -> new ArrayList<>())
                     .add(SettingValidation.builder()
                             .condition(Condition.find(result.getString("condition")))

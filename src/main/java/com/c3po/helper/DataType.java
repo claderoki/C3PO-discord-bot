@@ -1,8 +1,10 @@
 package com.c3po.helper;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum DataType {
     INTEGER("integer"),
     STRING("string"),
@@ -11,10 +13,6 @@ public enum DataType {
     CATEGORY("category");
 
     private final String type;
-
-    DataType(String type) {
-        this.type = type;
-    }
 
     public static DataType find(String type) {
         for(DataType value: values()) {

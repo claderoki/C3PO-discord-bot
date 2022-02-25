@@ -1,6 +1,6 @@
 package com.c3po.model;
 
-public class BaseModel {
+public abstract class BaseSettings {
     public String optString(String value) {
         if (value == null) {
             return null;
@@ -34,4 +34,5 @@ public class BaseModel {
         return value.equals("1");
     }
 
+    public abstract void set(String key, String value);
 }

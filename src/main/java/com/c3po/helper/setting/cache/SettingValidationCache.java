@@ -15,15 +15,8 @@ public class SettingValidationCache extends OldCache<SettingValidation> {
     private static HashMap<Integer, ArrayList<SettingValidation>> validations = new HashMap<>();
     private static final TimedTrigger refresh = new TimedTrigger(Duration.ofHours(1));
 
-    public static HashMap<Integer, ArrayList<SettingValidation>> get() throws SQLException {
-        refresh.check(() -> {
-            try {
-                validations = SettingRepository.db().getValidations();
-            } catch (SQLException e) {
-                LogHelper.logException(e);
-            }
-        });
-
+    public static HashMap<Integer, ArrayList<SettingValidation>> get() {
+        refresh.check(() -> validations = SettingRepository.db().getValidations());
         return validations;
     }
 

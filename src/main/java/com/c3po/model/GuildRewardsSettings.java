@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.Duration;
 
 @Getter
-public class GuildRewardsSettings extends BaseModel {
+public class GuildRewardsSettings extends BaseSettings {
     private final SettingScopeTarget target;
 
     private boolean enabled;

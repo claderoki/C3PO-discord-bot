@@ -4,7 +4,7 @@ import com.c3po.helper.setting.SettingScopeTarget;
 import lombok.Getter;
 
 @Getter
-public class MilkywaySettings extends BaseModel {
+public class MilkywaySettings extends BaseSettings {
     private final SettingScopeTarget target;
     private boolean enabled;
     private int costPerDay;
