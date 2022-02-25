@@ -29,7 +29,7 @@ public class SettingRepository extends Repository {
         super(dataSource);
     }
 
-    private void create(SettingValue settingValue) throws SQLException {
+    private void create(SettingValue settingValue) {
         String query = "INSERT INTO `setting_value` (`user_id`, `guild_id`, `value`, `setting_id`) VALUES (?, ?, ?, ?)";
         update(query,
                 Parameter.from(settingValue.getTarget().getUserId()),
@@ -39,7 +39,7 @@ public class SettingRepository extends Repository {
         );
     }
 
-    private void update(SettingValue settingValue) throws SQLException {
+    private void update(SettingValue settingValue) {
         if (!settingValue.changed()) {
             return;
         }
@@ -47,7 +47,7 @@ public class SettingRepository extends Repository {
         update(query, new StringParameter(settingValue.getValue()), new LongParameter(settingValue.getId()));
     }
 
-    public void save(SettingValue... settingValues) throws SQLException {
+    public void save(SettingValue... settingValues) {
         for (SettingValue settingValue: settingValues) {
             if (settingValue.getId() == 0 || settingValue.getId() == null) {
                 create(settingValue);
@@ -126,12 +126,12 @@ public class SettingRepository extends Repository {
         return values;
     }
 
-    public Optional<SettingValue> getHydratedSettingValue(SettingScopeTarget target, String category, Integer settingId) throws SQLException {
+    public Optional<SettingValue> getHydratedSettingValue(SettingScopeTarget target, String category, Integer settingId) {
         HashMap<Integer, SettingValue> values = getHydratedSettingValues(target, category, settingId);
         return values.values().stream().findFirst();
     }
 
-    public HashMap<Integer, SettingValue> getSettingValues(SettingScopeTarget target, String category) throws SQLException {
+    public HashMap<Integer, SettingValue> getSettingValues(SettingScopeTarget target, String category) {
         HashMap<Integer, SettingValue> values = new HashMap<>();
         ArrayList<Parameter> params = new ArrayList<>();
         params.add(new StringParameter(category));
@@ -176,7 +176,7 @@ public class SettingRepository extends Repository {
                 .build();
     }
 
-    public HashMap<Integer, Setting> getSettings(String category) throws SQLException {
+    public HashMap<Integer, Setting> getSettings(String category) {
         HashMap<Integer, Setting> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
             settings.put(result.getInt("id"), resultToSetting(result));
@@ -185,7 +185,12 @@ public class SettingRepository extends Repository {
         return settings;
     }
 
-    public HashMap<String, HashMap<String, Setting>> getAllSettings() throws SQLException {
+    public Setting getSetting(int id) {
+        Result result = getOne("SELECT * FROM `setting` WHERE `setting`.`id` = ?", new LongParameter(id));
+        return resultToSetting(result);
+    }
+
+    public HashMap<String, HashMap<String, Setting>> getAllSettings() {
         HashMap<String, HashMap<String, Setting>> settings = new HashMap<>();
         for (Result result: query("SELECT * FROM `setting` ORDER BY `setting`.`category`")) {
             settings.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())

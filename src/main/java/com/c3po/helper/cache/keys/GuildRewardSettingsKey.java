@@ -12,8 +12,8 @@ public class GuildRewardSettingsKey extends SettingGroupCacheKey<GuildRewardsSet
     }
 
     @Override
-    public String getFullKey() {
-        return "guildrewards:" + target;
+    public String getKeyAffix() {
+        return target.toString();
     }
 
     @Override

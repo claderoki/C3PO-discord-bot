@@ -6,12 +6,12 @@ import com.c3po.helper.InteractionHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.setting.*;
-import com.c3po.helper.setting.cache.SettingCache;
 import com.c3po.helper.setting.cache.SettingValidationCache;
 import com.c3po.helper.setting.validation.SettingValidation;
 import com.c3po.helper.setting.validation.SettingValidationResult;
 import com.c3po.helper.setting.validation.SettingValidator;
 import com.c3po.helper.setting.validation.ValueType;
+import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -31,7 +31,7 @@ public class SettingGroup {
     public SettingGroup(String category, String settingKey) {
         this.category = category;
         this.settingParam = settingKey.replace("_id", "");
-        this.settingId = SettingCache.getId(category, settingKey);
+        this.settingId = SettingService.getId(category, settingKey);
     }
 
     protected String getValueFromEvent(ChatInputInteractionEvent event) {
@@ -93,7 +93,7 @@ public class SettingGroup {
     }
 
     public Mono<Void> handle(ChatInputInteractionEvent event) throws SQLException {
-        Setting setting = SettingCache.get(category).get(settingId);
+        Setting setting = SettingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
         if (!CommandSettingValidation.validate(commandSettings, event)) {
             return Mono.empty();

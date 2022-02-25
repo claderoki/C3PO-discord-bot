@@ -2,7 +2,7 @@ package com.c3po.helper.setting.validation;
 
 import com.c3po.helper.DataType;
 import com.c3po.helper.setting.SettingValue;
-import com.c3po.helper.setting.cache.SettingCache;
+import com.c3po.service.SettingService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,8 +41,8 @@ public class SettingValidator {
                 SettingValue right = settingValues.get(Integer.parseInt(validation.getValue()));
                 if (!compareValues(left.getType(), left.getValue(), right.getValue(), validation.getCondition())) {
                     String error = SettingValidationFormatter.getError(
-                            SettingCache.getCode(left.getSettingId()),
-                            SettingCache.getCode(right.getSettingId()),
+                            SettingService.getCode(left.getSettingId()),
+                            SettingService.getCode(right.getSettingId()),
                             validation.getCondition());
                     result.addError(error);
                 }

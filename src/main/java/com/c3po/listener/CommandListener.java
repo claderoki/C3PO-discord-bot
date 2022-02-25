@@ -8,7 +8,7 @@ import com.c3po.connection.repository.SettingRepository;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.*;
-import com.c3po.helper.setting.cache.SettingCache;
+import com.c3po.service.SettingService;
 import com.c3po.ui.table.Row;
 import com.c3po.ui.table.Table;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -53,7 +53,7 @@ public class CommandListener {
     private static String valuesToView(HashMap<Integer, SettingValue> settingValues) {
         StringBuilder builder = new StringBuilder();
         for (SettingValue settingValue: settingValues.values()) {
-            String key = SettingCache.getCode(settingValue.getSettingId());
+            String key = SettingService.getCode(settingValue.getSettingId());
             builder.append(key)
                     .append("\t\t\t")
                     .append(DataFormatter.prettify(settingValue.getType(), settingValue.getValue()))
@@ -66,7 +66,7 @@ public class CommandListener {
         Table table = new Table();
 
         for (SettingValue settingValue: settingValues.values()) {
-            String key = SettingCache.getCode(settingValue.getSettingId());
+            String key = SettingService.getCode(settingValue.getSettingId());
             table.addRow(new Row(key, DataFormatter.prettify(settingValue.getType(), settingValue.getValue())));
         }
 
