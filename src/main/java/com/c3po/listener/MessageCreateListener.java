@@ -9,7 +9,8 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
 
 public class MessageCreateListener {
-    private static Mono<Void> _handle(MessageCreateEvent event) throws Exception {
+    private static Mono<Void> _handle(MessageCreateEvent event) {
+        //TODO: when message events start piling up, turn these into async handlers similar to CommandListener.
         if (event.getMember().isPresent() && event.getMember().get().isBot()) {
             return Mono.empty();
         }
