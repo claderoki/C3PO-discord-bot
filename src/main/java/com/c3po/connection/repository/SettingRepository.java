@@ -9,7 +9,6 @@ import com.c3po.helper.setting.validation.SettingValidation;
 import com.c3po.helper.setting.validation.ValueType;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -171,7 +170,7 @@ public class SettingRepository extends Repository {
                 .category(result.getString("category"))
                 .defaultValue(result.optString("default_value"))
                 .key(result.getString("key"))
-                .description(result.getString("description"))
+                .description(result.optString("description"))
                 .scope(SettingScope.find(result.getString("scope")))
                 .type(DataType.find(result.getString("type")))
                 .build();

@@ -5,7 +5,6 @@ import com.c3po.database.*;
 import com.c3po.helper.setting.SettingScopeTarget;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 
 public class GuildRewardsRepository extends Repository {
     protected static GuildRewardsRepository DB;

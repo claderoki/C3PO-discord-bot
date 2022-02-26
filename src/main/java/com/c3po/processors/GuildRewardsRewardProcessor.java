@@ -4,9 +4,9 @@ import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.model.GuildRewardsSettings;
+import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 
-import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class GuildRewardsRewardProcessor extends GuildRewardsProcessor {
         );
 
         if (shouldReward(target)) {
-            Integer profileId = getProfileId(target);
+            Integer profileId = GuildRewardService.getProfileId(target);
             if (profileId != null) {
                 reward(profileId);
             }

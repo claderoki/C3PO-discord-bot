@@ -2,7 +2,6 @@ package com.c3po.database;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.SQLType;
 import java.sql.Types;
 
 public class NullParameter extends Parameter {

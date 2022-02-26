@@ -1,7 +1,9 @@
 package com.c3po.service;
 
+import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.keys.GuildRewardProfileIdKey;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.setting.KnownCategory;
 import com.c3po.helper.setting.SettingScopeTarget;
@@ -23,6 +25,28 @@ public class GuildRewardService extends Service {
         }
         Cache.set(key, settings);
         return settings;
+    }
+
+    public static Integer getProfileId(SettingScopeTarget target) {
+        GuildRewardProfileIdKey key = new GuildRewardProfileIdKey(target);
+        Integer profileId = Cache.get(key);
+        if (profileId != null) {
+            return profileId;
+        }
+
+        profileId = GuildRewardsRepository.db().getProfileId(target);
+        if (profileId != null) {
+            Cache.set(key, profileId);
+            return profileId;
+        }
+
+        GuildRewardsRepository.db().createProfile(target);
+        profileId = GuildRewardsRepository.db().getProfileId(target);
+        if (profileId != null) {
+            Cache.set(key, profileId);
+            return profileId;
+        }
+        return profileId;
     }
 
 }

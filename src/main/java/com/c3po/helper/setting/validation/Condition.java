@@ -9,7 +9,7 @@ public enum Condition {
     LT("lt"),
     LTE("lte");
 
-    private String type;
+    private final String type;
     Condition(String type) {
         this.type = type;
     }

@@ -25,9 +25,9 @@ public class GuildRewardsSettings extends BaseSettings {
 
     public void set(String key, String value) {
         switch (key) {
-            case "min_points": this.minPointsPerMessage = Integer.parseInt(value);
-            case "max_points": this.maxPointsPerMessage = Integer.parseInt(value);
-            case "enabled": this.enabled = value.equals("1");
+            case "min_points": this.minPointsPerMessage = getInt(value);
+            case "max_points": this.maxPointsPerMessage = getInt(value);
+            case "enabled": this.enabled = getBool(value);
         }
     }
 }

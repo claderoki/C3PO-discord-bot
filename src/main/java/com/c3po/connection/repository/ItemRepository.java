@@ -2,11 +2,9 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import com.c3po.model.Milkyway;
 import com.c3po.model.SimpleItem;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ItemRepository extends Repository {

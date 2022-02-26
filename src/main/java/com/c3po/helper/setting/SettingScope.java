@@ -8,7 +8,7 @@ public enum SettingScope {
     USER("user"),
     MEMBER("member");
 
-    private String type;
+    private final String type;
 
     SettingScope(String type) {
         this.type = type;

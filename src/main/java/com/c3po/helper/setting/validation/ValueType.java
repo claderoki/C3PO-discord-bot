@@ -4,7 +4,7 @@ public enum ValueType {
     SETTING("setting")
     ;
 
-    private String type;
+    private final String type;
     ValueType(String type) {
         this.type = type;
     }

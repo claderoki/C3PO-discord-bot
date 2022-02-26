@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import java.time.Duration;
 
 @AllArgsConstructor
-public class GuildRewardProfileId extends CacheKey<Integer> {
+public class GuildRewardProfileIdKey extends CacheKey<Integer> {
     private SettingScopeTarget target;
 
     @Override

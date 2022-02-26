@@ -1,5 +1,10 @@
 package com.c3po.helper;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum DiscordCommandOptionType {
     SUB_COMMAND(1),
     SUB_COMMAND_GROUP(2),
@@ -13,12 +18,5 @@ public enum DiscordCommandOptionType {
     NUMBER(10),
     ATTACHMENT(11);
 
-    private int value;
-    DiscordCommandOptionType(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
+    private final int value;
 }
