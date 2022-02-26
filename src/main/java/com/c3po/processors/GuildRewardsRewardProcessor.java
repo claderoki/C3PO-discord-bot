@@ -35,11 +35,11 @@ public class GuildRewardsRewardProcessor extends GuildRewardsProcessor {
         return r.ints(minPoints, maxPoints).findFirst().orElseThrow();
     }
 
-    protected void reward(Integer profileId) throws SQLException {
+    protected void reward(Integer profileId) {
         GuildRewardsRepository.db().incrementPoints(profileId, getPointsToReward());
     }
 
-    protected void _run() throws SQLException {
+    protected void _run() {
         if (!validate()) {
             return;
         }
@@ -61,7 +61,7 @@ public class GuildRewardsRewardProcessor extends GuildRewardsProcessor {
     public void run() {
         try {
             _run();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LogHelper.logException(e);
         }
     }

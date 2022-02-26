@@ -6,7 +6,7 @@ import com.c3po.helper.InteractionHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.setting.*;
-import com.c3po.helper.setting.cache.SettingValidationCache;
+import com.c3po.helper.setting.validation.SettingValidationCache;
 import com.c3po.helper.setting.validation.SettingValidation;
 import com.c3po.helper.setting.validation.SettingValidationResult;
 import com.c3po.helper.setting.validation.SettingValidator;

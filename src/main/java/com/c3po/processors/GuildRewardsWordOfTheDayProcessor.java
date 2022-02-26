@@ -13,7 +13,7 @@ public class GuildRewardsWordOfTheDayProcessor extends GuildRewardsProcessor {
         super(settings, event);
     }
 
-    protected void _run() throws SQLException {
+    protected void _run() {
         if (!validate()) {
             return;
         }
@@ -28,10 +28,6 @@ public class GuildRewardsWordOfTheDayProcessor extends GuildRewardsProcessor {
 
     @Override
     public void run() {
-        try {
-            _run();
-        } catch (SQLException e) {
-            LogHelper.logException(e);
-        }
+        _run();
     }
 }

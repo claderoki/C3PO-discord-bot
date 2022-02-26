@@ -24,7 +24,7 @@ public abstract class GuildRewardsProcessor implements Runnable {
         return settings.isEnabled() && event.getGuildId().isPresent();
     }
 
-    protected Integer getProfileId(SettingScopeTarget target) throws SQLException {
+    protected Integer getProfileId(SettingScopeTarget target) {
         Integer profileId = profileIds.get(target.toString());
         if (profileId != null) {
             return profileId;
@@ -42,14 +42,10 @@ public abstract class GuildRewardsProcessor implements Runnable {
         return profileId;
     }
 
-    protected abstract void _run() throws SQLException;
+    protected abstract void _run();
 
     @Override
     public void run() {
-        try {
-            _run();
-        } catch (SQLException e) {
-            LogHelper.logException(e);
-        }
+        _run();
     }
 }

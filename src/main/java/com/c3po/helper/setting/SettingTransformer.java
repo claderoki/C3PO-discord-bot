@@ -15,7 +15,7 @@ public class SettingTransformer {
 
     private static void hydrateFinalSettingOption(ImmutableApplicationCommandOptionData.Builder builder, Setting setting) {
         builder.name(setting.getKey().replace("_id", ""));
-        builder.description("def");
+        builder.description("Choose something.");
         builder.required(true);
         switch (setting.getType()) {
             case INTEGER -> {
@@ -39,7 +39,7 @@ public class SettingTransformer {
     public static ApplicationCommandRequest toCommand(String category, Collection<Setting> settings) {
         ImmutableApplicationCommandRequest.Builder request = ApplicationCommandRequest.builder();
         request.name(category);
-        request.description("okok");
+        request.description("General " + category + " config");
 
         for (Setting setting: settings) {
             String name = "set" + setting.getKey()
@@ -53,7 +53,7 @@ public class SettingTransformer {
 
             request.addOption(ApplicationCommandOptionData.builder()
                     .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
-                    .description("abc")
+                    .description(setting.getDescription() != null ? setting.getDescription() : "No description")
                     .name(name)
                     .addOption(finalOption.build())
                     .build());

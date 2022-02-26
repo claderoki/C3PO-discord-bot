@@ -14,4 +14,5 @@ public class Setting {
     private String defaultValue;
     private String category;
     private String key;
+    private String description;
 }

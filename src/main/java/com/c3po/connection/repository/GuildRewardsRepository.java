@@ -21,7 +21,7 @@ public class GuildRewardsRepository extends Repository {
         super(dataSource);
     }
 
-    public Integer getProfileId(SettingScopeTarget target) throws SQLException {
+    public Integer getProfileId(SettingScopeTarget target) {
         Result result = getOne("SELECT `id` FROM `guild_rewards_profile` WHERE `guild_id` = ? AND `user_id` = ?",
             new LongParameter(target.getGuildId()),
             new LongParameter(target.getUserId())
@@ -32,21 +32,21 @@ public class GuildRewardsRepository extends Repository {
         return result.getInt("id");
     }
 
-    public void createProfile(SettingScopeTarget target) throws SQLException {
+    public void createProfile(SettingScopeTarget target) {
         update("INSERT INTO `guild_rewards_profile` (`guild_id`, `user_id`) VALUES (?,?)",
                 new LongParameter(target.getGuildId()),
                 new LongParameter(target.getUserId())
         );
     }
 
-    public void incrementPoints(Integer profileId, int amount) throws SQLException {
+    public void incrementPoints(Integer profileId, int amount) {
         update("UPDATE `guild_rewards_profile` SET `points` = `points` + ? WHERE `id` = ?",
             new LongParameter(amount),
             new LongParameter(profileId)
         );
     }
 
-    public Integer getPoints(Integer profileId) throws SQLException {
+    public Integer getPoints(Integer profileId) {
         Result result = getOne("SELECT `points` FROM `guild_rewards_profile` WHERE `id` = ?",
             new LongParameter(profileId)
         );

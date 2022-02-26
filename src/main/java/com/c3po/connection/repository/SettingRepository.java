@@ -171,6 +171,7 @@ public class SettingRepository extends Repository {
                 .category(result.getString("category"))
                 .defaultValue(result.optString("default_value"))
                 .key(result.getString("key"))
+                .description(result.getString("description"))
                 .scope(SettingScope.find(result.getString("scope")))
                 .type(DataType.find(result.getString("type")))
                 .build();

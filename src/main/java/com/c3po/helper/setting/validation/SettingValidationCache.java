@@ -1,4 +1,4 @@
-package com.c3po.helper.setting.cache;
+package com.c3po.helper.setting.validation;
 
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.TimedTrigger;
