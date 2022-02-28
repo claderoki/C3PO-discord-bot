@@ -3,9 +3,6 @@ package com.c3po.model;
 import com.c3po.helper.ValueParser;
 
 public abstract class BaseSettings implements ValueParser {
-    public String getString(String value) {
-        return value;
-    }
     public String optString(String value) {
         return value;
     }

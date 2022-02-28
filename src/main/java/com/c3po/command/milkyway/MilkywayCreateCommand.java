@@ -3,12 +3,13 @@ package com.c3po.command.milkyway;
 import com.c3po.command.Command;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.GuildRewardsSettings;
 import com.c3po.model.MilkywaySettings;
-import com.c3po.service.GuildRewardService;
+import com.c3po.service.MilkywayService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class MilkywayCreateCommand extends Command {
     @Override
@@ -28,27 +29,24 @@ public class MilkywayCreateCommand extends Command {
         }
     }
 
+    public List<AvailablePurchase> getAvailablePurchases() {
+        List<AvailablePurchase> availablePurchases = new ArrayList<>();
+
+        List<MilkywayItem> items = MilkywayService.getItems();
+
+        return availablePurchases;
+    }
+
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
         SettingScopeTarget target = SettingScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
-        GuildRewardsSettings settings = GuildRewardService.getSettings(target);
-        String a = "";
-
-
-//        MilkywaySettings settings = MilkywayCache.getSettings(event.getInteraction().getGuildId().orElseThrow().asLong());
-//        validate(settings);
-
-
-
-//        Integer points = GuildRewardsRepository.db().getPoints();
+//        GuildRewardsSettings rewardsSettings = GuildRewardService.getSettings(target);
+        MilkywaySettings milkywaySettings = MilkywayService.getSettings(target);
+        validate(milkywaySettings);
 
         /*
-        Scenario's:
-
-            1 payment available:
-                Continue with that payment
-            2 or more payments available:
-                Show an option menu with buttons allowing someone to choose one.
+            1. Check what purchase options are available. and (optionally) let them choose. If only 1, continue without asking.
+            2. Ask how many days they want to buy a channel for, or how many items they want to spend.
          */
 
         return Mono.empty();

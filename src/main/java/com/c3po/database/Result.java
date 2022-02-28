@@ -16,16 +16,8 @@ public class Result implements ValueParser {
             for (int i = 0; i < columnLabels.length; i++) {
                 values.put(columnLabels[i], resultSet.getString(i+1));
             }
-        } catch (SQLException e) {
+        } catch (SQLException ignored) {
         }
-    }
-
-    public String getString(String key) {
-        String value = values.get(key);
-        if (value == null) {
-            throw new RuntimeException(key + " is null but is required.");
-        }
-        return value;
     }
 
     public String optString(String key) {

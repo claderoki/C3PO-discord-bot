@@ -1,39 +1,38 @@
 package com.c3po.helper;
 
-import java.time.Duration;
+import java.util.function.Function;
 
 public interface ValueParser {
-    String getString(String key);
     String optString(String key);
 
+    default String getString(String key) {
+        return get(key, (c) -> c, true);
+    }
+
+    private <F> F get(String key, Function<String, F> func, boolean required) throws RuntimeException {
+        String value = optString(key);
+        if (value == null) {
+            if (required) {
+                throw new RuntimeException(key + " was null but is required.");
+            }
+            return null;
+        }
+        return func.apply(value);
+    }
+
     default int getInt(String key) {
-        String value = getString(key);
-        return Integer.parseInt(value);
+        return get(key, Integer::parseInt, true);
     }
 
     default boolean getBool(String key) {
-        String value = getString(key);
-        return value.equals("1");
-    }
-
-    default Duration getDuration(String key) {
-        String value = getString(key);
-        return DurationFormatter.parse(value);
+        return get(key, (value) -> value.equals("1"), true);
     }
 
     default Integer optInt(String key) {
-        String value = optString(key);
-        if (value == null) {
-            return null;
-        }
-        return Integer.parseInt(value);
+        return get(key, Integer::parseInt, false);
     }
 
     default Long optLong(String key) {
-        String value = optString(key);
-        if (value == null) {
-            return null;
-        }
-        return Long.parseLong(value);
+        return get(key, Long::parseLong, false);
     }
 }
