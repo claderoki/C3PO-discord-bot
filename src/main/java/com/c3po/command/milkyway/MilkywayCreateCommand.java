@@ -1,15 +1,18 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.command.Command;
+import com.c3po.connection.repository.ItemRepository;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.model.MilkywaySettings;
+import com.c3po.model.PurchaseType;
 import com.c3po.service.MilkywayService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MilkywayCreateCommand extends Command {
     @Override
@@ -34,6 +37,21 @@ public class MilkywayCreateCommand extends Command {
 
         List<MilkywayItem> items = MilkywayService.getItems();
 
+        //TODO: humanId.
+        Map<Integer, Integer> itemAmounts = ItemRepository.db().getItemAmounts(1,
+            items.stream().map(MilkywayItem::getItemId).toArray(Integer[]::new));
+
+        for(MilkywayItem item: items) {
+            Integer amount = itemAmounts.get(item.getItemId());
+            if (amount > 0) {
+                availablePurchases.add(AvailablePurchase.builder()
+                    .amount(amount)
+                    .daysWorth(item.getDaysWorth() * amount)
+                    .purchaseType(PurchaseType.ITEM)
+                    .build());
+            }
+        }
+
         return availablePurchases;
     }
 
@@ -43,6 +61,7 @@ public class MilkywayCreateCommand extends Command {
 //        GuildRewardsSettings rewardsSettings = GuildRewardService.getSettings(target);
         MilkywaySettings milkywaySettings = MilkywayService.getSettings(target);
         validate(milkywaySettings);
+        getAvailablePurchases();
 
         /*
             1. Check what purchase options are available. and (optionally) let them choose. If only 1, continue without asking.
