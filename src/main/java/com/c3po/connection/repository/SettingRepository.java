@@ -3,6 +3,7 @@ package com.c3po.connection.repository;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.DataType;
+import com.c3po.helper.PlaceholderList;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.validation.Condition;
 import com.c3po.helper.setting.validation.SettingValidation;
@@ -90,18 +91,10 @@ public class SettingRepository extends Repository {
         query.append(" WHERE `setting`.`category` = ? ");
         params.add(new StringParameter(category));
 
-        for (int i = 0; i < settingIds.length; i++) {
-            Integer key = settingIds[i];
-            if (i == 0) {
-                query.append(" AND `setting`.`id` IN (");
-            }
-
-            if (i == settingIds.length-1) {
-                query.append("?) ");
-            } else {
-                query.append("?,");
-            }
-            params.add(new LongParameter(key));
+        if (settingIds.length > 0) {
+            PlaceholderList placeholderList = PlaceholderList.fromArray(settingIds);
+            query.append(" AND `setting`.`id` IN (%s)".formatted(placeholderList.getQuestionMarks()));
+            params.addAll(placeholderList.getParameters());
         }
 
         query.append(" GROUP BY `setting`.`id`");
