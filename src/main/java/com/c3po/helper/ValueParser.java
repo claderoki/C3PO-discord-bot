@@ -5,34 +5,43 @@ import java.util.function.Function;
 public interface ValueParser {
     String optString(String key);
 
-    default String getString(String key) {
-        return get(key, (c) -> c, true);
-    }
-
-    private <F> F get(String key, Function<String, F> func, boolean required) throws RuntimeException {
+    private <F> F get(String key, Function<String, F> func) throws RuntimeException {
         String value = optString(key);
         if (value == null) {
-            if (required) {
-                throw new RuntimeException(key + " was null but is required.");
-            }
-            return null;
+            throw new RuntimeException(key + " was null but is required.");
         }
         return func.apply(value);
     }
 
+    private <F> F getOr(String key, Function<String, F> func, F defaultValue) throws RuntimeException {
+        String value = optString(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return func.apply(value);
+    }
+
+    private <F> F opt(String key, Function<String, F> func) throws RuntimeException {
+        return getOr(key, func, null);
+    }
+
+    default String getString(String key) {
+        return get(key, (c) -> c);
+    }
+
     default int getInt(String key) {
-        return get(key, Integer::parseInt, true);
+        return get(key, Integer::parseInt);
     }
 
     default boolean getBool(String key) {
-        return get(key, (value) -> value.equals("1"), true);
+        return get(key, (value) -> value.equals("1"));
     }
 
     default Integer optInt(String key) {
-        return get(key, Integer::parseInt, false);
+        return opt(key, Integer::parseInt);
     }
 
     default Long optLong(String key) {
-        return get(key, Long::parseLong, false);
+        return opt(key, Long::parseLong);
     }
 }
