@@ -30,8 +30,8 @@ public class MilkywayService {
 
     public static List<MilkywayItem> getItems() {
         return List.of(
-            MilkywayItem.builder().itemId(33).itemName("Milkyway").daysWorth(7).build(),
-            MilkywayItem.builder().itemId(54).itemName("Orion's belt").daysWorth(1).build()
+            MilkywayItem.builder().itemId(33).itemName("Milkyway").emoji("\uD83C\uDF0C").daysWorth(7).build(),
+            MilkywayItem.builder().itemId(54).itemName("Orion's belt").emoji("\uD83C\uDF20").daysWorth(1).build()
         );
     }
 

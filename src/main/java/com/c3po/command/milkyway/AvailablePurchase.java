@@ -11,4 +11,5 @@ public class AvailablePurchase {
     private int amount;
     private int daysWorth;
     private String label;
+    private String emoji;
 }

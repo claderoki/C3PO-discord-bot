@@ -107,7 +107,7 @@ public class CommandListener {
                         try {
                             return command.handle(event);
                         } catch (PublicException e) {
-                            return event.reply().withContent(e.getMessage()).then();
+                            return event.createFollowup().withContent(e.getMessage()).then();
                         } catch (Exception e) {
                             LogHelper.logException(e);
                         }
