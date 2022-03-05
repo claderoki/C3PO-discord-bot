@@ -6,6 +6,9 @@ import com.c3po.errors.PublicException;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.model.MilkywaySettings;
 import com.c3po.model.PurchaseType;
+import com.c3po.processors.MilkywayProcessor;
+import com.c3po.service.GuildRewardService;
+import com.c3po.service.HumanService;
 import com.c3po.service.MilkywayService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
@@ -20,48 +23,10 @@ public class MilkywayCreateCommand extends Command {
         return "milkyway create";
     }
 
-    public void validate(MilkywaySettings settings) throws PublicException {
-        if (!settings.isEnabled()) {
-            throw new PublicException("This server has to have milkyways enabled first. Ask an admin to enable it first.");
-        }
-        if (settings.getCategoryId() == null) {
-            throw new PublicException("This server has to have a milkyway category set first. Ask an admin to set it first.");
-        }
-        if (settings.getLogChannelId() == null) {
-            throw new PublicException("This server has to have a milkyway log channel set first. Ask an admin to set it first.");
-        }
-    }
-
-    public List<AvailablePurchase> getAvailablePurchases() {
-        List<AvailablePurchase> availablePurchases = new ArrayList<>();
-
-        List<MilkywayItem> items = MilkywayService.getItems();
-
-        //TODO: humanId.
-        Map<Integer, Integer> itemAmounts = ItemRepository.db().getItemAmounts(1,
-            items.stream().map(MilkywayItem::getItemId).toArray(Integer[]::new));
-
-        for(MilkywayItem item: items) {
-            Integer amount = itemAmounts.get(item.getItemId());
-            if (amount > 0) {
-                availablePurchases.add(AvailablePurchase.builder()
-                    .amount(amount)
-                    .daysWorth(item.getDaysWorth() * amount)
-                    .purchaseType(PurchaseType.ITEM)
-                    .build());
-            }
-        }
-
-        return availablePurchases;
-    }
-
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
-        SettingScopeTarget target = SettingScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
-//        GuildRewardsSettings rewardsSettings = GuildRewardService.getSettings(target);
-        MilkywaySettings milkywaySettings = MilkywayService.getSettings(target);
-        validate(milkywaySettings);
-        getAvailablePurchases();
+        MilkywayProcessor processor = new MilkywayProcessor(event, false);
+        processor.create();
 
         /*
             1. Check what purchase options are available. and (optionally) let them choose. If only 1, continue without asking.

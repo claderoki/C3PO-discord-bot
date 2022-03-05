@@ -93,7 +93,7 @@ public class SettingGroup {
         };
     }
 
-    public Mono<Void> handle(ChatInputInteractionEvent event) throws SQLException {
+    public Mono<Void> handle(ChatInputInteractionEvent event) {
         Setting setting = SettingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
         if (!CommandSettingValidation.validate(commandSettings, event)) {

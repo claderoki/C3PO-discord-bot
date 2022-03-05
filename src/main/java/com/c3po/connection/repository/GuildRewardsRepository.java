@@ -22,8 +22,8 @@ public class GuildRewardsRepository extends Repository {
 
     public Integer getProfileId(SettingScopeTarget target) {
         Result result = getOne("SELECT `id` FROM `guild_rewards_profile` WHERE `guild_id` = ? AND `user_id` = ?",
-            new LongParameter(target.getGuildId()),
-            new LongParameter(target.getUserId())
+                new LongParameter(target.getGuildId()),
+                new LongParameter(target.getUserId())
         );
         if (result == null) {
             return null;
@@ -52,7 +52,7 @@ public class GuildRewardsRepository extends Repository {
         if (result == null) {
             return null;
         }
-        return result.getInt("id");
+        return result.getInt("points");
     }
 
 }

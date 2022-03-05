@@ -88,6 +88,8 @@ public class CommandListener {
                     HashMap<Integer, SettingValue> values = SettingRepository.db().getHydratedSettingValues(target, category);
                     String content = valuesToView(values);
                     return event.reply().withContent("```\n%s```".formatted(content));
+                } else if (settingKey.equals(SettingTransformer.configOptionName)) {
+                    String a = "";
                 } else {
                     SettingGroup settingGroup = new SettingGroup(category, settingKey);
                     return settingGroup.handle(event);

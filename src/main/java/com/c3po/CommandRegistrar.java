@@ -2,6 +2,9 @@ package com.c3po;
 
 
 import com.c3po.connection.repository.SettingRepository;
+import com.c3po.helper.environment.Configuration;
+import com.c3po.helper.environment.ConfigurationLoader;
+import com.c3po.helper.environment.Mode;
 import com.c3po.helper.setting.Setting;
 import com.c3po.helper.setting.SettingTransformer;
 import discord4j.common.JacksonResources;
@@ -40,7 +43,7 @@ public class CommandRegistrar {
         return builder.build();
     }
 
-    protected void registerCommands(List<String> fileNames) throws IOException, SQLException {
+    protected void registerCommands(List<String> fileNames) throws IOException {
         final JacksonResources d4jMapper = JacksonResources.create();
 
         final ApplicationService applicationService = restClient.getApplicationService();
@@ -52,8 +55,7 @@ public class CommandRegistrar {
         }
 
         for (String json: getCommandsJson(fileNames)) {
-            ApplicationCommandRequest request = d4jMapper.getObjectMapper()
-                    .readValue(json, ApplicationCommandRequest.class);
+            ApplicationCommandRequest request = d4jMapper.getObjectMapper().readValue(json, ApplicationCommandRequest.class);
             ApplicationCommandRequest existingCommand = commands.get(request.name());
             if (existingCommand != null) {
                 commands.put(existingCommand.name(), combineCommands(request, existingCommand));
@@ -62,18 +64,20 @@ public class CommandRegistrar {
             }
         }
 
-//        applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, new ArrayList<>()).subscribe();
-
-        Long[] guildIds = {
+        if (ConfigurationLoader.instance().getMode().equals(Mode.DEVELOPMENT)) {
+            Long[] guildIds = {
                 729843647347949638L,
                 761624318291476482L,
                 944339782002163732L,
-        };
-        for (Long guildId: guildIds) {
-            applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands.values().stream().toList())
+            };
+            for (Long guildId: guildIds) {
+                applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands.values().stream().toList())
                     .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
                     .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
                     .subscribe();
+            }
+        } else {
+            applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands.values().stream().toList()).subscribe();
         }
     }
 

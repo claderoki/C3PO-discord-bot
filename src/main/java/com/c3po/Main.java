@@ -1,5 +1,6 @@
 package com.c3po;
 
+import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.ConfigurationLoader;
 import com.c3po.listener.CommandListener;
@@ -29,6 +30,7 @@ public class Main {
                     .then(client.onDisconnect())
                     .block();
         } catch (Exception e) {
+            LogHelper.logException(e);
             System.exit(0);
         }
     }

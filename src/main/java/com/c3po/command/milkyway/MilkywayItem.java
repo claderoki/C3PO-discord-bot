@@ -8,4 +8,5 @@ import lombok.Getter;
 public class MilkywayItem {
     private int itemId;
     private int daysWorth;
+    private String itemName;
 }

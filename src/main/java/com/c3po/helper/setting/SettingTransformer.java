@@ -12,6 +12,7 @@ import java.util.List;
 
 public class SettingTransformer {
     public static String viewOptionName = "viewsettings";
+    public static String configOptionName = "config";
 
     private static void hydrateFinalSettingOption(ImmutableApplicationCommandOptionData.Builder builder, Setting setting) {
         builder.name(setting.getKey().replace("_id", ""));
@@ -43,8 +44,8 @@ public class SettingTransformer {
 
         for (Setting setting: settings) {
             String name = "set" + setting.getKey()
-                    .replace("_id", "")
-                    .replace("_", "");
+                .replace("_id", "")
+                .replace("_", "");
 
             // TODO: move side effect here that adds data to the command listener to somewhere more logical.
             CommandListener.addSettingGroup(category, name, setting.getKey());
@@ -52,21 +53,28 @@ public class SettingTransformer {
             hydrateFinalSettingOption(finalOption, setting);
 
             request.addOption(ApplicationCommandOptionData.builder()
-                    .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
-                    .description(setting.getDescription() != null ? setting.getDescription() : "No description")
-                    .name(name)
-                    .addOption(finalOption.build())
-                    .build());
+                .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
+                .description(setting.getDescription() != null ? setting.getDescription() : "No description")
+                .name(name)
+                .addOption(finalOption.build())
+                .build());
         }
 
         request.addOption(ApplicationCommandOptionData.builder()
-                .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
-                .description("View current settings")
-                .name(viewOptionName)
-                .build());
+            .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
+            .description("View current settings")
+            .name(viewOptionName)
+            .build());
+
+//        request.addOption(ApplicationCommandOptionData.builder()
+//            .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
+//            .description("CONFIGURE")
+//            .name(configOptionName)
+//            .build());
 
         // TODO: move side effect here that adds data to the command listener to somewhere more logical.
         CommandListener.addSettingGroup(category, viewOptionName, viewOptionName);
+//        CommandListener.addSettingGroup(category, configOptionName, configOptionName);
 
         return request.build();
     }

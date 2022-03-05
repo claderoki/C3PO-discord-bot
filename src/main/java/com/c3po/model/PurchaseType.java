@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PurchaseType {
-    GOLD("gold"),
+    POINT("point"),
     ITEM("item"),
     NONE("none");
 
