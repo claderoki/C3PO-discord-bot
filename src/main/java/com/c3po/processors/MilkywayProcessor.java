@@ -173,11 +173,7 @@ public class MilkywayProcessor {
             .withComponents().block();
 
         ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser).blockOptional().orElseThrow();
-
-        if (result.getType().equals(ResultType.ERROR)) {
-            throw new PublicException("Error(s): " + String.join(", ", result.getErrors()));
-        }
-        return result.getValue();
+        return result.getValueOrThrow();
     }
 
     public void create() throws PublicException {
@@ -188,7 +184,7 @@ public class MilkywayProcessor {
         AvailablePurchase chosenPurchase = chooseAvailablePurchase(availablePurchases).blockOptional().orElseThrow();
         Integer daysChosen = chooseDays(chosenPurchase);
 
-        event.createFollowup().withEmbeds(EmbedHelper.normal("OK").build()).block();
+        event.editReply().withEmbeds(EmbedHelper.normal("OK, " + daysChosen).build()).block();
 
         String a = "";
     }

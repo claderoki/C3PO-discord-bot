@@ -9,6 +9,8 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.presence.ClientPresence;
+import discord4j.core.spec.UserEditSpec;
 
 import java.util.List;
 
@@ -19,8 +21,10 @@ public class Main {
             Configuration config = ConfigurationLoader.instance();
 
             final GatewayDiscordClient client = DiscordClientBuilder.create(config.getToken()).build()
-                    .login()
-                    .block();
+                .gateway().setInitialPresence((c) -> ClientPresence.invisible())
+                .login()
+                .block()
+                ;
 
             List<String> commands = List.of("milkyway.json");
             assert client != null;

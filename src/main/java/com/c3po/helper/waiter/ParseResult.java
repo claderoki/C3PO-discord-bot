@@ -1,5 +1,6 @@
 package com.c3po.helper.waiter;
 
+import com.c3po.errors.PublicException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +16,12 @@ public class ParseResult<T> {
 
     public void addError(String message) {
         errors.add(message);
+    }
+
+    public T getValueOrThrow() throws PublicException {
+        if (type.equals(ResultType.ERROR)) {
+            throw new PublicException("Error(s): " + String.join(", ", errors));
+        }
+        return value;
     }
 }

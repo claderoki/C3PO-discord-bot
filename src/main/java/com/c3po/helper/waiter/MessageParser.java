@@ -5,6 +5,11 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 
 public abstract class MessageParser<T> extends EventParser<T, MessageCreateEvent> {
+
+    protected void finish(MessageCreateEvent event) {
+        event.getMessage().delete().subscribe();
+    }
+
     @Override
     protected boolean preValidate(MessageCreateEvent event) {
         Message message = event.getMessage();

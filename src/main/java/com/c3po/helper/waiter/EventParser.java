@@ -13,6 +13,9 @@ public abstract class EventParser<T, F extends Event> {
     protected abstract boolean preValidate(F event);
     protected abstract T parseValue(F event);
     protected abstract void validateValue(T value);
+    protected void finish(F event) {
+
+    }
 
     public ParseResult<T> parse(F event) {
         if (!preValidate(event)) {
@@ -33,6 +36,7 @@ public abstract class EventParser<T, F extends Event> {
             result.setType(ResultType.SUCCESS);
         }
 
+        finish(event);
         return result;
     }
 
