@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class MilkywayProcessor {
     private MilkywaySettings settings;
     private final ChatInputInteractionEvent event;
-    private boolean godmode;
+    private final boolean godmode;
     private SettingScopeTarget memberTarget;
 
     public MilkywayProcessor(ChatInputInteractionEvent event, boolean godmode) {
