@@ -12,4 +12,5 @@ public class AvailablePurchase {
     private int daysWorth;
     private String label;
     private String emoji;
+    private MilkywayItem item;
 }

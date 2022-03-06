@@ -1,5 +1,6 @@
 package com.c3po.connection.repository;
 
+import com.c3po.command.milkyway.MilkywayItem;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.PlaceholderList;
@@ -37,6 +38,10 @@ public class ItemRepository extends Repository {
         return items;
     }
 
+    public Map<Integer, Integer> getItemAmounts(Integer humanId, List<Integer> itemIds) {
+        return getItemAmounts(humanId, itemIds.toArray(Integer[]::new));
+    }
+
     public Map<Integer, Integer> getItemAmounts(Integer humanId, Integer... itemIds) {
         Map<Integer, Integer> amounts = new HashMap<>();
         PlaceholderList placeholderList = PlaceholderList.fromArray(itemIds);
@@ -63,6 +68,18 @@ public class ItemRepository extends Repository {
         }
 
         return amounts;
+    }
+
+    public void spendItem(int humanId, int itemId, int amount) {
+        String query = """
+            UPDATE `human_item` SET `amount` = `amount` - ?
+            WHERE `human_item`.`human_id` = ? AND `human_item`.`item_id` = ?
+        """;
+        update(query, new IntParameter(amount), new IntParameter(humanId), new IntParameter(itemId));
+    }
+
+    public void addItem(int humanId, int itemId, int amount) {
+        spendItem(humanId, itemId, -amount);
     }
 
 }

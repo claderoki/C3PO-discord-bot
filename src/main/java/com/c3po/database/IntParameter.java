@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 @AllArgsConstructor
-public class LongParameter extends Parameter {
-    final long value;
+public class IntParameter extends Parameter {
+    final int value;
 
     @Override
     public void bind(PreparedStatement preparedStatement, int index) throws SQLException {
-        preparedStatement.setLong(index, value);
+        preparedStatement.setInt(index, value);
     }
 
     @Override

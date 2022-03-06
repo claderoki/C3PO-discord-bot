@@ -41,6 +41,9 @@ public class MilkywayProcessor {
     private final boolean godmode;
     private SettingScopeTarget memberTarget;
 
+    private Integer humanId;
+    private Integer profileId;
+
     public MilkywayProcessor(ChatInputInteractionEvent event, boolean godmode) {
         this.event = event;
         this.godmode = godmode;
@@ -73,12 +76,7 @@ public class MilkywayProcessor {
 
         List<AvailablePurchase> availablePurchases = new ArrayList<>();
 
-        List<MilkywayItem> items = MilkywayService.getItems();
-
-        Integer humanId = HumanService.getHumanId(memberTarget.getUserId());
-        Integer profileId = GuildRewardService.getProfileId(memberTarget);
         Integer points = GuildRewardsRepository.db().getPoints(profileId);
-
         int maxDays = points / settings.getCostPerDay();
         if (maxDays > 0) {
             availablePurchases.add(AvailablePurchase.builder()
@@ -90,14 +88,16 @@ public class MilkywayProcessor {
                 .build());
         }
 
+        List<MilkywayItem> items = MilkywayService.getItems();
         Map<Integer, Integer> itemAmounts = ItemRepository.db().getItemAmounts(humanId,
-            items.stream().map(MilkywayItem::getItemId).toArray(Integer[]::new));
+            items.stream().map(MilkywayItem::getItemId).toList());
 
         for(MilkywayItem item: items) {
             Integer amount = itemAmounts.get(item.getItemId());
             if (amount > 0) {
                 availablePurchases.add(AvailablePurchase.builder()
                     .amount(amount)
+                    .item(item)
                     .label(item.getItemName())
                     .daysWorth(item.getDaysWorth() * amount)
                     .emoji(item.getEmoji())
@@ -153,6 +153,12 @@ public class MilkywayProcessor {
 
         settings = MilkywayService.getSettings(SettingScopeTarget.guild(guildId));
         memberTarget = SettingScopeTarget.member(userId, guildId);
+
+        if (!godmode) {
+            // No point grabbing these since they wont be used if godmode is on anyway.
+            humanId = HumanService.getHumanId(memberTarget.getUserId());
+            profileId = GuildRewardService.getProfileId(memberTarget);
+        }
     }
 
     protected Integer chooseDays(AvailablePurchase chosenPurchase) {
@@ -161,19 +167,36 @@ public class MilkywayProcessor {
         }
 
         Waiter waiter = new Waiter(event);
+        waiter.setPrompt("You chose " + chosenPurchase.getLabel() + ", how many days worth would you like to spend?");
 
         IntParser parser = IntParser.builder().min(1).max(chosenPurchase.getDaysWorth()).build();
         parser.setEvent(event);
 
-        String message = "You chose " + chosenPurchase.getLabel() + ", how many days worth would you like to spend?";
-        event.editReply()
-            .withEmbeds(EmbedHelper.normal(message)
-                .footer("min: " + parser.getMin() + " max:" + parser.getMax(), null)
-                .build())
-            .withComponents().block();
-
         ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser).blockOptional().orElseThrow();
         return result.getValueOrThrow();
+    }
+
+    private Integer getAmount(AvailablePurchase chosenPurchase, Integer daysChosen) {
+        switch (chosenPurchase.getPurchaseType()) {
+            case POINT -> {
+                return daysChosen * settings.getCostPerDay();
+            }
+            case ITEM -> {
+                return daysChosen / chosenPurchase.getItem().getDaysWorth();
+            }
+        }
+        return null;
+    }
+
+    private void takePayment(AvailablePurchase chosenPurchase, Integer amount) {
+        switch (chosenPurchase.getPurchaseType()) {
+            case POINT -> GuildRewardsRepository.db().incrementPoints(profileId, -amount);
+            case ITEM -> ItemRepository.db().spendItem(humanId, chosenPurchase.getItem().getItemId(), amount);
+        }
+    }
+
+    private void givebackPayment(AvailablePurchase chosenPurchase, Integer daysChosen) {
+        takePayment(chosenPurchase, -daysChosen);
     }
 
     public void create() throws PublicException {
@@ -183,6 +206,9 @@ public class MilkywayProcessor {
         List<AvailablePurchase> availablePurchases = getAvailablePurchases();
         AvailablePurchase chosenPurchase = chooseAvailablePurchase(availablePurchases).blockOptional().orElseThrow();
         Integer daysChosen = chooseDays(chosenPurchase);
+
+//        Integer amount = getAmount(chosenPurchase, daysChosen);
+//        takePayment(chosenPurchase, amount);
 
         event.editReply().withEmbeds(EmbedHelper.normal("OK, " + daysChosen).build()).block();
 

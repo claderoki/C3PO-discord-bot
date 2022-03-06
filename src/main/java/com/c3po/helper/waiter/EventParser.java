@@ -17,6 +17,10 @@ public abstract class EventParser<T, F extends Event> {
 
     }
 
+    public String getPromptFooter() {
+        return null;
+    }
+
     public ParseResult<T> parse(F event) {
         if (!preValidate(event)) {
             result.setType(ResultType.SKIP);

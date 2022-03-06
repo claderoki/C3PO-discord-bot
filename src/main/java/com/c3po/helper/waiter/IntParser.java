@@ -11,6 +11,10 @@ public class IntParser extends MessageParser<Integer> {
     private Integer min;
     private Integer max;
 
+    public String getPromptFooter() {
+        return "min: " + min + " max:" + max;
+    }
+
     @Override
     protected Integer parseValue(MessageCreateEvent event) {
         Message message = event.getMessage();
