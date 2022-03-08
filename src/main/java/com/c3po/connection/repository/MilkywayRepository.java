@@ -2,13 +2,17 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.helper.PlaceholderList;
 import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.model.milkyway.ExpiredMilkyway;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.model.milkyway.PurchaseType;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MilkywayRepository extends Repository {
     protected static MilkywayRepository DB;
@@ -109,6 +113,31 @@ public class MilkywayRepository extends Repository {
             new LongParameter(guildId),
             new LongParameter(identifier)
         );
+    }
+
+    public List<ExpiredMilkyway> getExpiredMilkyways() {
+        String query = "SELECT `id`, `channel_id` FROM `milkyway` WHERE `status` = 'accepted' AND `expires_at` > UTC_TIMESTAMP()";
+        List<ExpiredMilkyway> milkyways = new ArrayList<>();
+        for( Result result: query(query)) {
+            milkyways.add(ExpiredMilkyway.builder()
+                .channelId(result.getLong("channel_id"))
+                .id(result.getInt("id"))
+                .build());
+        }
+        return milkyways;
+    }
+
+    public void expire(List<Integer> ids) {
+        if (ids.isEmpty()) {
+            return;
+        }
+
+        PlaceholderList placeholderList = PlaceholderList.of(ids.toArray());
+        String query = """
+            UPDATE `milkyway` SET status = 'expired'
+            WHERE `id` IN (%s)
+        """.formatted(placeholderList.getQuestionMarks());
+        update(query, placeholderList.getParameters().toArray(Parameter[]::new));
     }
 
 }

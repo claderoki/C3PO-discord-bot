@@ -18,24 +18,23 @@ public class Waiter {
         this.event = event;
     }
 
+    protected  <T, F extends Event> Mono<ParseResult<T>> _wait(Class<F> cls, EventParser<T, F> parser) {
+        return this.event.getClient().on(cls, event -> Mono.just(parser.parse(event)))
+            .timeout(Duration.ofSeconds(30))
+            .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
+            .filter(c -> !c.getType().equals(ResultType.SKIP))
+            .next();
+    }
+
     public <T, F extends Event> Mono<ParseResult<T>> wait(Class<F> cls, EventParser<T, F> parser) throws PublicException {
         if (prompt != null) {
             return event.editReply()
                 .withEmbeds(EmbedHelper.normal(prompt)
                     .footer(parser.getPromptFooter(), null)
                     .build())
-                .withComponents().then(this.event.getClient().on(cls, event -> Mono.just(parser.parse(event)))
-                    .timeout(Duration.ofSeconds(30))
-                    .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-                    .filter(c -> !c.getType().equals(ResultType.SKIP))
-                    .next());
+                .withComponents().then(_wait(cls,parser));
         } else {
-            return this.event.getClient().on(cls, event -> Mono.just(parser.parse(event)))
-                .timeout(Duration.ofSeconds(30))
-                .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-                .filter(c -> !c.getType().equals(ResultType.SKIP))
-                .next()
-                ;
+            return _wait(cls,parser);
         }
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -21,7 +22,7 @@ public class PlaceholderList {
         parameters.add(0, parameter);
     }
 
-    public static PlaceholderList fromArray(Object[] values) {
+    public static PlaceholderList of(Object[] values) {
         List<Parameter> parameters = new ArrayList<>();
         StringBuilder questionMarks = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
@@ -36,6 +37,10 @@ public class PlaceholderList {
         }
 
         return new PlaceholderList(parameters, questionMarks.toString());
+    }
+
+    public static PlaceholderList of(Collection<Object> values) {
+        return of(values.toArray());
     }
 
 }
