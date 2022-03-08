@@ -5,10 +5,10 @@ import discord4j.rest.util.Color;
 
 public class EmbedHelper {
 
-    public static EmbedCreateSpec.Builder normal(String message) {
+    public static EmbedCreateSpec.Builder normal(String description) {
         return EmbedCreateSpec.builder()
             .color(Color.of(242, 180, 37))
-            .description(message);
+            .description(description);
     }
 
 }

@@ -1,6 +1,7 @@
-package com.c3po.model;
+package com.c3po.model.milkyway;
 
 import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.model.BaseSettings;
 import lombok.Getter;
 
 @Getter

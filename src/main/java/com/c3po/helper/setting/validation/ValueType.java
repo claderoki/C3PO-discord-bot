@@ -1,17 +1,14 @@
 package com.c3po.helper.setting.validation;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum ValueType {
-    SETTING("setting")
-    ;
+    SETTING("setting");
 
     private final String type;
-    ValueType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
-    }
 
     public static ValueType find(String type) {
         for(ValueType value: values()) {

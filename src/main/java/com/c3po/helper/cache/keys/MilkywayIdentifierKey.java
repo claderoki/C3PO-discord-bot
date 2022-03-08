@@ -1,15 +1,14 @@
 package com.c3po.helper.cache.keys;
 
+import com.c3po.helper.cache.CacheKey;
 import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.milkyway.MilkywaySettings;
+import lombok.AllArgsConstructor;
 
 import java.time.Duration;
 
-public class MilkywaySettingsKey extends SettingGroupCacheKey<MilkywaySettings> {
-
-    public MilkywaySettingsKey(SettingScopeTarget target) {
-        super(target);
-    }
+@AllArgsConstructor
+public class MilkywayIdentifierKey extends CacheKey<Long> {
+    private SettingScopeTarget target;
 
     @Override
     public String getKeyAffix() {
@@ -18,7 +17,6 @@ public class MilkywaySettingsKey extends SettingGroupCacheKey<MilkywaySettings> 
 
     @Override
     public Duration getTimeToLive() {
-        return Duration.ofHours(1);
+        return null;
     }
-
 }

@@ -1,4 +1,4 @@
-package com.c3po.model;
+package com.c3po.model.milkyway;
 
 import lombok.Getter;
 

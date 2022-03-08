@@ -1,6 +1,5 @@
 package com.c3po.connection.repository;
 
-import com.c3po.command.milkyway.MilkywayItem;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.PlaceholderList;

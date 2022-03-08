@@ -1,6 +1,5 @@
-package com.c3po.command.milkyway;
+package com.c3po.model.milkyway;
 
-import com.c3po.model.PurchaseType;
 import lombok.Builder;
 import lombok.Getter;
 

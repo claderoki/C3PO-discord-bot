@@ -11,8 +11,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class SettingTransformer {
-    public static String viewOptionName = "viewsettings";
-    public static String configOptionName = "config";
+    public static final String viewOptionName = "viewsettings";
+    public static final String configOptionName = "config";
 
     private static void hydrateFinalSettingOption(ImmutableApplicationCommandOptionData.Builder builder, Setting setting) {
         builder.name(setting.getKey().replace("_id", ""));

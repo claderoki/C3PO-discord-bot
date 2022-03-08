@@ -1,21 +1,16 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.command.Command;
-import com.c3po.connection.repository.ItemRepository;
-import com.c3po.errors.PublicException;
-import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.MilkywaySettings;
-import com.c3po.model.PurchaseType;
+import com.c3po.command.option.OptionContainer;
+import com.c3po.helper.EmbedHelper;
+import com.c3po.model.milkyway.Milkyway;
 import com.c3po.processors.MilkywayProcessor;
-import com.c3po.service.GuildRewardService;
-import com.c3po.service.HumanService;
-import com.c3po.service.MilkywayService;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class MilkywayCreateCommand extends Command {
     @Override
@@ -24,15 +19,29 @@ public class MilkywayCreateCommand extends Command {
     }
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) throws Exception {
+    public Mono<Void> handle(ChatInputInteractionEvent event, OptionContainer options) throws RuntimeException {
+        String name = options.getString("name");
+        String description = options.optString("description");
+
         MilkywayProcessor processor = new MilkywayProcessor(event, false);
-        processor.create();
+        Milkyway milkyway = processor.create(name, description);
 
-        /*
-            1. Check what purchase options are available. and (optionally) let them choose. If only 1, continue without asking.
-            2. Ask how many days they want to buy a channel for, or how many items they want to spend.
-         */
+        Channel channel = event.getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).blockOptional().orElseThrow();
+        Member member = event.getInteraction().getMember().orElseThrow();
 
-        return Mono.empty();
+        String text = "A milkyway has been requested for " + milkyway.getDaysPending() + " day(s)" +
+            "\nName: **" + milkyway.getName() + "**" +
+            "\nDescription: **" + milkyway.getDescription() + "**";
+
+        String footerText = "Use '/milkyway deny %s' to deny this request.\nUse '/milkyway accept %s' to accept this request.";
+
+        EmbedCreateSpec embed = EmbedHelper.normal(text)
+            .footer(footerText.formatted(milkyway.getIdentifier(), milkyway.getIdentifier()), null)
+            .author(member.getUsername() + "#" + member.getDiscriminator(), null, member.getAvatarUrl())
+            .build();
+
+        return channel.getRestChannel().createMessage(embed.asRequest()).then(
+            event.editReply().withEmbeds(EmbedHelper.normal("OK, request has been sent to the admins. Your Milkyway ID is " + milkyway.getIdentifier()).build()).then()
+        );
     }
 }

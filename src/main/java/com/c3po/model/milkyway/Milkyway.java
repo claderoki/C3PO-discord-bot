@@ -1,8 +1,10 @@
-package com.c3po.model;
+package com.c3po.model.milkyway;
 
 import com.c3po.helper.setting.SettingScopeTarget;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -11,8 +13,8 @@ public class Milkyway {
     private int id = 0;
     private SettingScopeTarget target;
     private Long channelId;
-    private Integer identifier;
-    private String expiresAt;
+    private Long identifier;
+    private LocalDateTime expiresAt;
     private String description;
     private String name;
     private MilkywayStatus status;

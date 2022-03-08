@@ -10,7 +10,6 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.presence.ClientPresence;
-import discord4j.core.spec.UserEditSpec;
 
 import java.util.List;
 

@@ -2,10 +2,13 @@ package com.c3po.listener;
 
 import com.c3po.command.Command;
 import com.c3po.command.CommandSettingValidation;
+import com.c3po.command.milkyway.MilkywayAcceptCommand;
 import com.c3po.command.milkyway.MilkywayCreateCommand;
 import com.c3po.command.SettingGroup;
+import com.c3po.command.milkyway.MilkywayDenyCommand;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.errors.PublicException;
+import com.c3po.helper.EventHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.*;
 import com.c3po.service.SettingService;
@@ -21,7 +24,9 @@ import java.util.List;
 
 public class CommandListener {
     private final static List<Command> commands = List.of(
-            new MilkywayCreateCommand()
+        new MilkywayCreateCommand(),
+        new MilkywayAcceptCommand(),
+        new MilkywayDenyCommand()
     );
 
     private final static HashMap<String, HashMap<String, String>> settingMap = new HashMap<>();
@@ -73,7 +78,7 @@ public class CommandListener {
         return table;
     }
 
-    private static Mono<Void> subhandle(ChatInputInteractionEvent event) throws Exception {
+    private static Mono<Void> subhandle(ChatInputInteractionEvent event) throws RuntimeException {
         HashMap<String, String> settings = settingMap.get(event.getCommandName());
         if (settings != null) {
             for(ApplicationCommandInteractionOption option: event.getOptions()) {
@@ -105,9 +110,9 @@ public class CommandListener {
                 .flatMap(command -> {
                     if (CommandSettingValidation.validate(command.getSettings(), event)) {
                         try {
-                            return command.handle(event);
+                            return command.handle(event, EventHelper.getOptionContainer(event));
                         } catch (PublicException e) {
-                            return event.createFollowup().withContent(e.getMessage()).then();
+                            return event.reply().withContent(e.getMessage()).then();
                         } catch (Exception e) {
                             LogHelper.logException(e);
                         }

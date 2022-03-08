@@ -1,12 +1,14 @@
 package com.c3po.connection.repository;
 
-import com.c3po.command.milkyway.MilkywayItem;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import com.c3po.model.Milkyway;
+import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.model.milkyway.Milkyway;
+import com.c3po.model.milkyway.MilkywayStatus;
+import com.c3po.model.milkyway.PurchaseType;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 public class MilkywayRepository extends Repository {
     protected static MilkywayRepository DB;
@@ -22,43 +24,91 @@ public class MilkywayRepository extends Repository {
         super(dataSource);
     }
 
-    private Integer getIncrementIdentifier() {
-        return 0;
+    public Long getIncrementIdentifier(long guildId) {
+        Result result = getOne("SELECT MAX(`identifier`) as `identifier` FROM `milkyway` WHERE `guild_id` = ?", new LongParameter(guildId));
+        if (result == null) {
+            return 1L;
+        }
+        return result.getLong("identifier")+1;
     }
 
     public void create(Milkyway milkyway) {
         String query = """
-                INSERT INTO
-                    (`guild_id`, `user_id`, `identifier`, `description`,
-                    `name`, `status`, `purchase_type`,
-                    `item_id`, `amount`, `days_pending`)
+                INSERT INTO `milkyway`
+                    (`guild_id`, `user_id`, `identifier`,`description`,
+                    `name`, `status`, `purchase_type`, `item_id`, `amount`, `days_pending`)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         update(query,
-                new LongParameter(milkyway.getTarget().getGuildId()),
-                new LongParameter(milkyway.getTarget().getUserId()),
-                new LongParameter(milkyway.getIdentifier()),
-                new StringParameter(milkyway.getDescription()),
-                new StringParameter(milkyway.getName()),
-                new StringParameter(milkyway.getStatus().getType()),
-                Parameter.from(milkyway.getItemId()),
-                new LongParameter(milkyway.getAmount()),
-                new LongParameter(milkyway.getDaysPending()),
-                new LongParameter(milkyway.getAmount())
+            new LongParameter(milkyway.getTarget().getGuildId()),
+            new LongParameter(milkyway.getTarget().getUserId()),
+            new LongParameter(milkyway.getIdentifier()),
+            new StringParameter(milkyway.getDescription()),
+            new StringParameter(milkyway.getName()),
+            new StringParameter(milkyway.getStatus().getType()),
+            new StringParameter(milkyway.getPurchaseType().getType()),
+            Parameter.from(milkyway.getItemId()),
+            new LongParameter(milkyway.getAmount()),
+            new LongParameter(milkyway.getDaysPending())
         );
     }
 
-    public ArrayList<MilkywayItem> getAvailableItems() {
-        ArrayList<MilkywayItem> items = new ArrayList<>();
-        for(Result result: query("SELECT `item_id`,`days_worth` FROM `milkyway_item`")) {
-            items.add(MilkywayItem.builder()
-                .itemId(result.getInt("item_id"))
-                .daysWorth(result.getInt("days_worth"))
-                .build());
+    public Milkyway get(long guildId, long identifier) {
+        String query = "SELECT * FROM `milkyway` WHERE `guild_id` = ? AND `identifier` = ?";
+        Result result = getOne(query, new LongParameter(guildId), new LongParameter(identifier));
+        if (result == null) {
+            return null;
         }
-        return items;
-
+        return Milkyway.builder()
+            .id(result.getInt("id"))
+            .name(result.getString("name"))
+            .description(result.getString("description"))
+            .itemId(result.optInt("item_id"))
+            .target(SettingScopeTarget.member(result.getLong("user_id"), result.getLong("guild_id")))
+            .status(MilkywayStatus.find(result.getString("status")))
+            .identifier(identifier)
+            .daysPending(result.optInt("days_pending"))
+            .purchaseType(PurchaseType.find(result.getString("purchase_type")))
+            .amount(result.getInt("amount"))
+            .channelId(result.optLong("channel_id"))
+            .denyReason(result.optString("deny_reason"))
+            .expiresAt(result.optDateTime("expires_at"))
+            .totalDays(result.optInt("total_days"))
+            .build();
     }
 
+    public void accept(long guildId, long identifier, long channelId, LocalDateTime expiresAt) {
+        String query = """
+            UPDATE `milkyway` SET
+                `status` = 'accepted',
+                `expires_at` = ?,
+                `channel_id` = ?,
+                `total_days` = `days_pending`,
+                `days_pending` = 0
+            WHERE
+                `guild_id` = ?
+            AND
+                `identifier` = ?
+        """;
+        update(query,
+            new DateTimeParameter(expiresAt),
+            new LongParameter(channelId),
+            new LongParameter(guildId),
+            new LongParameter(identifier)
+        );
+    }
+
+    public void deny(long guildId, long identifier, String reason) {
+        String query = """
+            UPDATE `milkyway` SET status = 'denied', `deny_reason` = ?
+            WHERE `guild_id` = ?
+            AND `identifier` = ?
+        """;
+        update(query,
+            new StringParameter(reason),
+            new LongParameter(guildId),
+            new LongParameter(identifier)
+        );
+    }
 
 }

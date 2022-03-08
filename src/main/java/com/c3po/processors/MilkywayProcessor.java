@@ -1,18 +1,20 @@
 package com.c3po.processors;
 
-import com.c3po.command.milkyway.AvailablePurchase;
-import com.c3po.command.milkyway.MilkywayItem;
+import com.c3po.model.milkyway.AvailablePurchase;
+import com.c3po.model.milkyway.MilkywayItem;
 import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.connection.repository.ItemRepository;
+import com.c3po.connection.repository.MilkywayRepository;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.waiter.IntParser;
 import com.c3po.helper.waiter.ParseResult;
-import com.c3po.helper.waiter.ResultType;
 import com.c3po.helper.waiter.Waiter;
-import com.c3po.model.MilkywaySettings;
-import com.c3po.model.PurchaseType;
+import com.c3po.model.milkyway.Milkyway;
+import com.c3po.model.milkyway.MilkywaySettings;
+import com.c3po.model.milkyway.MilkywayStatus;
+import com.c3po.model.milkyway.PurchaseType;
 import com.c3po.service.GuildRewardService;
 import com.c3po.service.HumanService;
 import com.c3po.service.MilkywayService;
@@ -22,8 +24,8 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.reaction.ReactionEmoji;
+import lombok.Getter;
 import lombok.NonNull;
-import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -32,15 +34,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+@Getter
 public class MilkywayProcessor {
-    private MilkywaySettings settings;
     private final ChatInputInteractionEvent event;
     private final boolean godmode;
-    private SettingScopeTarget memberTarget;
 
+    private MilkywaySettings settings;
+    private SettingScopeTarget memberTarget;
     private Integer humanId;
     private Integer profileId;
 
@@ -119,8 +120,7 @@ public class MilkywayProcessor {
             })
             .timeout(Duration.ofSeconds(50))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .next()
-            .flatMap(Mono::just);
+            .next();
     }
 
     @NonNull
@@ -155,7 +155,7 @@ public class MilkywayProcessor {
         memberTarget = SettingScopeTarget.member(userId, guildId);
 
         if (!godmode) {
-            // No point grabbing these since they wont be used if godmode is on anyway.
+            // No point grabbing these since they won't be used if godmode is on anyway.
             humanId = HumanService.getHumanId(memberTarget.getUserId());
             profileId = GuildRewardService.getProfileId(memberTarget);
         }
@@ -172,11 +172,13 @@ public class MilkywayProcessor {
         IntParser parser = IntParser.builder().min(1).max(chosenPurchase.getDaysWorth()).build();
         parser.setEvent(event);
 
-        ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser).blockOptional().orElseThrow();
+        ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser)
+            .blockOptional()
+            .orElseThrow();
         return result.getValueOrThrow();
     }
 
-    private Integer getAmount(AvailablePurchase chosenPurchase, Integer daysChosen) {
+    private int getAmount(AvailablePurchase chosenPurchase, Integer daysChosen) {
         switch (chosenPurchase.getPurchaseType()) {
             case POINT -> {
                 return daysChosen * settings.getCostPerDay();
@@ -185,7 +187,7 @@ public class MilkywayProcessor {
                 return daysChosen / chosenPurchase.getItem().getDaysWorth();
             }
         }
-        return null;
+        return chosenPurchase.getDaysWorth();
     }
 
     private void takePayment(AvailablePurchase chosenPurchase, Integer amount) {
@@ -195,11 +197,7 @@ public class MilkywayProcessor {
         }
     }
 
-    private void givebackPayment(AvailablePurchase chosenPurchase, Integer daysChosen) {
-        takePayment(chosenPurchase, -daysChosen);
-    }
-
-    public void create() throws PublicException {
+    public Milkyway create(String name, String description) throws PublicException {
         load();
         validate();
 
@@ -207,12 +205,25 @@ public class MilkywayProcessor {
         AvailablePurchase chosenPurchase = chooseAvailablePurchase(availablePurchases).blockOptional().orElseThrow();
         Integer daysChosen = chooseDays(chosenPurchase);
 
-//        Integer amount = getAmount(chosenPurchase, daysChosen);
-//        takePayment(chosenPurchase, amount);
+        int amount = getAmount(chosenPurchase, daysChosen);
+        Integer itemId = chosenPurchase.getPurchaseType().equals(PurchaseType.ITEM) ? chosenPurchase.getItem().getItemId() : null;
 
-        event.editReply().withEmbeds(EmbedHelper.normal("OK, " + daysChosen).build()).block();
+        Milkyway milkyway = Milkyway.builder()
+            .amount(amount)
+            .purchaseType(chosenPurchase.getPurchaseType())
+            .daysPending(daysChosen)
+            .identifier(MilkywayService.getIncrementIdentifier(memberTarget.getGuildId()))
+            .name(name)
+            .description(description != null ? description : name)
+            .status(MilkywayStatus.PENDING)
+            .itemId(itemId)
+            .target(memberTarget)
+            .build();
 
-        String a = "";
+        MilkywayRepository.db().create(milkyway);
+        takePayment(chosenPurchase, amount);
+
+        return milkyway;
     }
 
 }

@@ -1,13 +1,15 @@
 package com.c3po.service;
 
-import com.c3po.command.milkyway.MilkywayItem;
+import com.c3po.model.milkyway.MilkywayItem;
+import com.c3po.connection.repository.MilkywayRepository;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.keys.MilkywayIdentifierKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
 import com.c3po.helper.setting.KnownCategory;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.setting.SettingValue;
-import com.c3po.model.MilkywaySettings;
+import com.c3po.model.milkyway.MilkywaySettings;
 
 import java.util.List;
 
@@ -26,6 +28,19 @@ public class MilkywayService {
         }
         Cache.set(key, settings);
         return settings;
+    }
+
+    public static long getIncrementIdentifier(long guildId) {
+        MilkywayIdentifierKey key = new MilkywayIdentifierKey(SettingScopeTarget.guild(guildId));
+        Long identifier = Cache.get(key);
+        if (identifier != null) {
+            Cache.set(key, ++identifier);
+            return identifier;
+        }
+
+        identifier = MilkywayRepository.db().getIncrementIdentifier(guildId);
+        Cache.set(key, identifier);
+        return identifier;
     }
 
     public static List<MilkywayItem> getItems() {

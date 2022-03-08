@@ -1,8 +1,10 @@
 package com.c3po.command;
 
+import com.c3po.command.option.CommandOption;
+import com.c3po.command.option.OptionContainer;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.DataType;
-import com.c3po.helper.InteractionHelper;
+import com.c3po.helper.EventHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
@@ -14,12 +16,10 @@ import com.c3po.helper.setting.validation.SettingValidator;
 import com.c3po.helper.setting.validation.ValueType;
 import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,11 +36,12 @@ public class SettingGroup {
     }
 
     protected String getValueFromEvent(ChatInputInteractionEvent event) {
-        ApplicationCommandInteractionOptionValue value = InteractionHelper.getOptionValue(event, settingParam);
+        OptionContainer options = EventHelper.getOptionContainer(event);
+        CommandOption<?> value = options.get(settingParam);
         if (value == null) {
             return null;
         }
-        return value.getRaw();
+        return value.getRaw().getRaw();
     }
 
     protected EmbedCreateSpec createEmbedFor(SettingValue settingValue) {

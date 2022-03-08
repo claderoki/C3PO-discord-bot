@@ -5,7 +5,53 @@
     {
       "name": "create",
       "description": "Create a milkyway channel for this server.",
-      "type": 1
+      "type": 1,
+      "options": [
+        {
+          "name": "name",
+          "description": "Choose a channel name.",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "description",
+          "description": "Choose a channel description.",
+          "type": 3,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "accept",
+      "description": "Accept and create a milkyway channel.",
+      "type": 1,
+      "options": [
+        {
+          "name": "id",
+          "description": "The ID of the milkyway.",
+          "type": 4,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deny",
+      "description": "Denied a pending milkyway channel.",
+      "type": 1,
+      "options": [
+        {
+          "name": "id",
+          "description": "The ID of the milkyway.",
+          "type": 4,
+          "required": true
+        },
+        {
+          "name": "reason",
+          "description": "Enter the reason why this milkyway was not accepted.",
+          "type": 3,
+          "required": true
+        }
+      ]
     }
   ]
 }

@@ -2,7 +2,6 @@ package com.c3po;
 
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.ConfigurationLoader;
 import com.c3po.helper.environment.Mode;
 import com.c3po.helper.setting.Setting;
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,10 +63,11 @@ public class CommandRegistrar {
         }
 
         if (ConfigurationLoader.instance().getMode().equals(Mode.DEVELOPMENT)) {
+            //729843647347949638
             Long[] guildIds = {
                 729843647347949638L,
-                761624318291476482L,
-                944339782002163732L,
+//                761624318291476482L,
+//                944339782002163732L,
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands.values().stream().toList())

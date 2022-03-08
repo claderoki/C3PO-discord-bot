@@ -1,6 +1,7 @@
 package com.c3po.processors;
 
 import com.c3po.connection.repository.GuildRewardsRepository;
+import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.model.GuildRewardsSettings;
@@ -53,6 +54,7 @@ public class GuildRewardsRewardProcessor extends GuildRewardsProcessor {
             Integer profileId = GuildRewardService.getProfileId(target);
             if (profileId != null) {
                 reward(profileId);
+                lastRewards.put(target.toString(), DateTimeHelper.offsetNow());
             }
         }
     }

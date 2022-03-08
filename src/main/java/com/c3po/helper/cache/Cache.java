@@ -6,7 +6,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 
 public class Cache {
-    public static HashMap<String, Object> cache = new HashMap<>();
+    public static final HashMap<String, Object> cache = new HashMap<>();
     private static final HashMap<String, OffsetDateTime> expiryDates = new HashMap<>();
 
     public static <T> T get(CacheKey<T> key) {
