@@ -43,7 +43,7 @@ public class ItemRepository extends Repository {
 
     public Map<Integer, Integer> getItemAmounts(Integer humanId, Integer... itemIds) {
         Map<Integer, Integer> amounts = new HashMap<>();
-        PlaceholderList placeholderList = PlaceholderList.fromArray(itemIds);
+        PlaceholderList placeholderList = PlaceholderList.of(itemIds);
         placeholderList.addBefore(new LongParameter(humanId));
 
         String query = """

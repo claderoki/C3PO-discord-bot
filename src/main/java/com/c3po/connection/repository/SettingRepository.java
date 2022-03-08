@@ -92,7 +92,7 @@ public class SettingRepository extends Repository {
         params.add(new StringParameter(category));
 
         if (settingIds.length > 0) {
-            PlaceholderList placeholderList = PlaceholderList.fromArray(settingIds);
+            PlaceholderList placeholderList = PlaceholderList.of(settingIds);
             query.append(" AND `setting`.`id` IN (%s)".formatted(placeholderList.getQuestionMarks()));
             params.addAll(placeholderList.getParameters());
         }
