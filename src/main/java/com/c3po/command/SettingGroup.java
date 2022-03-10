@@ -8,6 +8,7 @@ import com.c3po.helper.EventHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
+import com.c3po.helper.cache.keys.SettingGroupCacheKey;
 import com.c3po.helper.setting.*;
 import com.c3po.helper.setting.validation.SettingValidationCache;
 import com.c3po.helper.setting.validation.SettingValidation;
@@ -124,13 +125,20 @@ public class SettingGroup {
         }
         SettingRepository.db().save(settingValue);
         if (settingValue.changed()) {
-            if (category.equals(KnownCategory.GUILDREWARDS)) {
-                Cache.remove(new GuildRewardSettingsKey(target));
-            } else if (category.equals(KnownCategory.MILKYWAY)) {
-                Cache.remove(new MilkywaySettingsKey(target));
+            SettingGroupCacheKey<?> cacheKey = getCacheKey(target);
+            if (cacheKey != null) {
+                Cache.remove(cacheKey);
             }
         }
         return event.reply().withEmbeds(createEmbedFor(settingValue)).then();
+    }
+
+    protected SettingGroupCacheKey<?> getCacheKey(SettingScopeTarget target) {
+        return switch (category) {
+            case KnownCategory.GUILDREWARDS -> new GuildRewardSettingsKey(target);
+            case KnownCategory.MILKYWAY -> new MilkywaySettingsKey(target);
+            default -> null;
+        };
     }
 
     protected void setValue(SettingValue settingValue, String value) {

@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.Duration;
 
 @Getter
-public class GuildRewardsSettings extends BaseSettings {
+public class GuildRewardSettings extends BaseSettings {
     private final SettingScopeTarget target;
 
     private boolean enabled;
@@ -19,7 +19,7 @@ public class GuildRewardsSettings extends BaseSettings {
 
     private int maxPointsPerMessage;
 
-    public GuildRewardsSettings(SettingScopeTarget target) {
+    public GuildRewardSettings(SettingScopeTarget target) {
         this.target = target;
     }
 

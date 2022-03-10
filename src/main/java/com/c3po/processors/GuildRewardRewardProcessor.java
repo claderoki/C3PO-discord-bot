@@ -4,7 +4,7 @@ import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.GuildRewardsSettings;
+import com.c3po.model.GuildRewardSettings;
 import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 
@@ -13,10 +13,10 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Random;
 
-public class GuildRewardsRewardProcessor extends GuildRewardsProcessor {
+public class GuildRewardRewardProcessor extends GuildRewardProcessor {
     private static final HashMap<String, OffsetDateTime> lastRewards = new HashMap<>();
 
-    public GuildRewardsRewardProcessor(GuildRewardsSettings settings, MessageCreateEvent event) {
+    public GuildRewardRewardProcessor(GuildRewardSettings settings, MessageCreateEvent event) {
         super(settings, event);
     }
 

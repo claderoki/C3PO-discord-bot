@@ -1,7 +1,5 @@
 package com.c3po.helper.environment;
 
-import lombok.SneakyThrows;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -29,7 +27,7 @@ public class ConfigurationLoader {
         return map;
     }
 
-    private static Configuration load() throws Exception {
+    public static Configuration load(Mode mode) throws Exception {
         HashMap<String, String> map = getEnvironmentalVariables();
         return Configuration.builder()
                 .databaseCredentials(DatabaseCredentials.builder()
@@ -39,19 +37,9 @@ public class ConfigurationLoader {
                         .password(map.get("mysql_password"))
                         .port(Integer.parseInt(map.get("mysql_port")))
                         .build())
-                .mode(Mode.DEVELOPMENT)
-                .token(map.get("discord_token"))
+                .mode(mode)
+                .token(map.get("discord_token_" + mode.getType()))
                 .build();
-    }
-
-    private static Configuration INSTANCE;
-
-    @SneakyThrows
-    public static Configuration instance() {
-        if (INSTANCE == null) {
-            INSTANCE = ConfigurationLoader.load();
-        }
-        return INSTANCE;
     }
 
 }

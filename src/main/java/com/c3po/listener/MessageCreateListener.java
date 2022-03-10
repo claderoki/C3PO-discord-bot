@@ -2,8 +2,8 @@ package com.c3po.listener;
 
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.GuildRewardsSettings;
-import com.c3po.processors.GuildRewardsRewardProcessor;
+import com.c3po.model.GuildRewardSettings;
+import com.c3po.processors.GuildRewardRewardProcessor;
 import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
@@ -18,8 +18,8 @@ public class MessageCreateListener {
         if (event.getGuildId().isPresent()) {
             long guildId = event.getGuildId().get().asLong();
             SettingScopeTarget target = SettingScopeTarget.guild(guildId);
-            GuildRewardsSettings guildRewardsSettings = GuildRewardService.getSettings(target);
-            GuildRewardsRewardProcessor guildRewardsProcessor = new GuildRewardsRewardProcessor(guildRewardsSettings, event);
+            GuildRewardSettings guildRewardsSettings = GuildRewardService.getSettings(target);
+            GuildRewardRewardProcessor guildRewardsProcessor = new GuildRewardRewardProcessor(guildRewardsSettings, event);
             guildRewardsProcessor.run();
         }
 

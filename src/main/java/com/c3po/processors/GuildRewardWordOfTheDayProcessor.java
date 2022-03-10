@@ -1,12 +1,12 @@
 package com.c3po.processors;
 
 import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.GuildRewardsSettings;
+import com.c3po.model.GuildRewardSettings;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 
-public class GuildRewardsWordOfTheDayProcessor extends GuildRewardsProcessor {
+public class GuildRewardWordOfTheDayProcessor extends GuildRewardProcessor {
 
-    public GuildRewardsWordOfTheDayProcessor(GuildRewardsSettings settings, MessageCreateEvent event) {
+    public GuildRewardWordOfTheDayProcessor(GuildRewardSettings settings, MessageCreateEvent event) {
         super(settings, event);
     }
 

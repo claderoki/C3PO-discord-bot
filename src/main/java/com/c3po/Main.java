@@ -3,6 +3,7 @@ package com.c3po;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.ConfigurationLoader;
+import com.c3po.helper.environment.Mode;
 import com.c3po.listener.CommandListener;
 import com.c3po.listener.MessageCreateListener;
 import discord4j.common.ReactorResources;
@@ -17,27 +18,37 @@ import java.util.List;
 
 public class Main {
 
+    private static void run(Mode mode) throws Exception {
+        Configuration.initiate(mode);
+        Configuration config = Configuration.instance();
+
+        ReactorResources reactorResources = ReactorResources.builder()
+            .timerTaskScheduler(Schedulers.newParallel("my-scheduler"))
+            .blockingTaskScheduler(Schedulers.boundedElastic())
+            .build();
+
+        final GatewayDiscordClient client = DiscordClientBuilder.create(config.getToken()).setReactorResources(reactorResources).build()
+            .gateway().setInitialPresence((c) -> ClientPresence.invisible())
+            .login()
+            .blockOptional().orElseThrow();
+
+        List<String> commands = List.of("milkyway.json");
+        new CommandRegistrar(client.getRestClient()).registerCommands(commands);
+        client.on(MessageCreateEvent.class, MessageCreateListener::handle).subscribe();
+        client.on(ChatInputInteractionEvent.class, CommandListener::handle)
+            .then(client.onDisconnect())
+            .block();
+    }
+
     public static void main(String[] args) {
         try {
-            Configuration config = ConfigurationLoader.instance();
-
-            ReactorResources reactorResources = ReactorResources.builder()
-                .timerTaskScheduler(Schedulers.newParallel("my-scheduler"))
-                .blockingTaskScheduler(Schedulers.boundedElastic())
-                .build();
-
-            final GatewayDiscordClient client = DiscordClientBuilder.create(config.getToken()).setReactorResources(reactorResources).build()
-                .gateway().setInitialPresence((c) -> ClientPresence.invisible())
-                .login()
-                .block();
-
-            List<String> commands = List.of("milkyway.json");
-            assert client != null;
-            new CommandRegistrar(client.getRestClient()).registerCommands(commands);
-            client.on(MessageCreateEvent.class, MessageCreateListener::handle).subscribe();
-            client.on(ChatInputInteractionEvent.class, CommandListener::handle)
-                    .then(client.onDisconnect())
-                    .block();
+            Mode mode;
+            if (args.length == 0) {
+                mode = Mode.DEVELOPMENT;
+            } else {
+                mode = Mode.find(args[0]);
+            }
+            run(mode);
         } catch (Exception e) {
             LogHelper.logException(e);
             System.exit(0);

@@ -140,7 +140,7 @@ public class MilkywayProcessor {
                 );
                 options.put(customId, availablePurchase);
             }
-            event.reply()
+            event.editReply()
                 .withEmbeds(EmbedHelper.normal("Choose a payment type.").build())
                 .withComponents(ActionRow.of(buttons)).block();
             return waitFor(options);

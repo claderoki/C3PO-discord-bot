@@ -1,12 +1,14 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.command.Command;
+import com.c3po.command.CommandSettings;
 import com.c3po.command.option.OptionContainer;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.processors.MilkywayProcessor;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -18,12 +20,20 @@ public class MilkywayCreateCommand extends Command {
         return "milkyway create";
     }
 
+    public CommandSettings getSettings() {
+        return CommandSettings.builder().guildOnly(true).build();
+    }
+
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event, OptionContainer options) throws RuntimeException {
         String name = options.getString("name");
         String description = options.optString("description");
 
         MilkywayProcessor processor = new MilkywayProcessor(event, false);
+
+        event.reply()
+            .withEmbeds(EmbedHelper.normal("Working...").build()).block();
+
         Milkyway milkyway = processor.create(name, description);
 
         Channel channel = event.getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).blockOptional().orElseThrow();

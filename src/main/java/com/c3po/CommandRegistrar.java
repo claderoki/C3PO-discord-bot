@@ -1,8 +1,7 @@
 package com.c3po;
 
-
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.environment.ConfigurationLoader;
+import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.Mode;
 import com.c3po.helper.setting.Setting;
 import com.c3po.helper.setting.SettingTransformer;
@@ -45,7 +44,7 @@ public class CommandRegistrar {
         final JacksonResources d4jMapper = JacksonResources.create();
 
         final ApplicationService applicationService = restClient.getApplicationService();
-        final long applicationId = restClient.getApplicationId().block();
+        final long applicationId = restClient.getApplicationId().blockOptional().orElseThrow();
 
         Map<String, ApplicationCommandRequest> commands = new HashMap<>();
         for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
@@ -62,21 +61,23 @@ public class CommandRegistrar {
             }
         }
 
-        if (ConfigurationLoader.instance().getMode().equals(Mode.DEVELOPMENT)) {
-            //729843647347949638
+        List<ApplicationCommandRequest> requests = commands.values().stream().toList();
+        if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
             Long[] guildIds = {
                 729843647347949638L,
-//                761624318291476482L,
-//                944339782002163732L,
+                761624318291476482L,
+                944339782002163732L,
             };
             for (Long guildId: guildIds) {
-                applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, commands.values().stream().toList())
-                    .doOnNext(cmd -> System.out.println("Successfully registered Global Command " + cmd.name()))
-                    .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
+                applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)
+                    .doOnError(e -> System.out.println("Failed to register guild commands" + e.getMessage()))
                     .subscribe();
             }
         } else {
-            applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands.values().stream().toList()).subscribe();
+            applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, requests)
+                .doOnNext(cmd -> System.out.println("Successfully registered global Command " + cmd.name()))
+                .doOnError(e -> System.out.println("Failed to register global commands" + e.getMessage()))
+                .subscribe();
         }
     }
 

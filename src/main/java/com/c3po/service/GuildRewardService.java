@@ -8,17 +8,17 @@ import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.setting.KnownCategory;
 import com.c3po.helper.setting.SettingScopeTarget;
 import com.c3po.helper.setting.SettingValue;
-import com.c3po.model.GuildRewardsSettings;
+import com.c3po.model.GuildRewardSettings;
 
 public class GuildRewardService extends Service {
-    public static GuildRewardsSettings getSettings(SettingScopeTarget target) {
+    public static GuildRewardSettings getSettings(SettingScopeTarget target) {
         GuildRewardSettingsKey key = new GuildRewardSettingsKey(target);
-        GuildRewardsSettings settings = Cache.get(key);
+        GuildRewardSettings settings = Cache.get(key);
         if (settings != null) {
             return settings;
         }
 
-        settings = new GuildRewardsSettings(target);
+        settings = new GuildRewardSettings(target);
         for(SettingValue value: SettingRepository.db().getHydratedSettingValues(target, KnownCategory.GUILDREWARDS).values()) {
             String settingKey = SettingService.getCode(value.getSettingId());
             settings.set(settingKey, value.getValue());
