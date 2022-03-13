@@ -1,16 +1,17 @@
 package com.c3po.command.milkyway;
 
-import com.c3po.command.Command;
-import com.c3po.command.option.OptionContainer;
+import com.c3po.core.command.CommandGroup;
+import com.c3po.core.command.Context;
 import com.c3po.connection.repository.MilkywayRepository;
+import com.c3po.core.command.SubCommand;
 import com.c3po.errors.PublicException;
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
+import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.service.MilkywayService;
 import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.TextChannelCreateSpec;
@@ -21,16 +22,19 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-public class MilkywayAcceptCommand extends Command {
-    @Override
-    public String getName() {
-        return "milkyway accept";
+public class MilkywayAcceptCommand extends SubCommand {
+    protected MilkywayAcceptCommand(CommandGroup group) {
+        super(group, "accept", "Accept a milkyway.");
+        this.addOption(option -> option.name("id")
+            .description("The identifier to accept")
+            .required(true)
+            .type(DiscordCommandOptionType.INTEGER.getValue()));
     }
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event, OptionContainer options) throws RuntimeException {
-        long guildId = event.getInteraction().getGuildId().orElseThrow().asLong();
-        long identifier = options.getLong("id");
+    public Mono<Void> execute(Context context) throws RuntimeException {
+        long guildId = context.getEvent().getInteraction().getGuildId().orElseThrow().asLong();
+        long identifier = context.getOptions().getLong("id");
 
         Milkyway milkyway = MilkywayRepository.db().get(guildId, identifier);
         if (milkyway.getStatus() == null) {
@@ -39,8 +43,8 @@ public class MilkywayAcceptCommand extends Command {
             throw new PublicException("This milkyway can't be accepted anymore.");
         }
 
-        MilkywaySettings settings = MilkywayService.getSettings(SettingScopeTarget.guild(guildId));
-        Guild guild = event.getInteraction().getGuild().blockOptional().orElseThrow();
+        MilkywaySettings settings = MilkywayService.getSettings(ScopeTarget.guild(guildId));
+        Guild guild = context.getEvent().getInteraction().getGuild().blockOptional().orElseThrow();
 
         LocalDateTime expiresAt = OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime().plus(Duration.ofDays(milkyway.getDaysPending()));
         TextChannel channel = guild.createTextChannel(TextChannelCreateSpec.builder()
@@ -51,10 +55,10 @@ public class MilkywayAcceptCommand extends Command {
 
         MilkywayRepository.db().accept(guildId, identifier, channel.getId().asLong(), expiresAt);
 
-        event.getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
+        context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
             "Your milkyway request has been accepted."
         ).then());
 
-        return event.reply().withContent("OK.").then();
+        return context.getEvent().reply().withContent("OK.");
     }
 }

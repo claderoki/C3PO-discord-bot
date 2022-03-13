@@ -1,19 +1,21 @@
 package com.c3po.listener;
 
-import com.c3po.command.Command;
-import com.c3po.command.CommandSettingValidation;
-import com.c3po.command.milkyway.MilkywayAcceptCommand;
-import com.c3po.command.milkyway.MilkywayCreateCommand;
+import com.c3po.command.SettingInfo;
+import com.c3po.command.milkyway.MilkywayCommandGroup;
+import com.c3po.core.DataFormatter;
+import com.c3po.core.Scope;
+import com.c3po.core.ScopeTarget;
+import com.c3po.core.command.Command;
+import com.c3po.core.command.CommandManager;
+import com.c3po.core.command.CommandSettingValidation;
+import com.c3po.core.command.Context;
 import com.c3po.command.SettingGroup;
-import com.c3po.command.milkyway.MilkywayDenyCommand;
 import com.c3po.connection.repository.SettingRepository;
+import com.c3po.core.property.PropertyValue;
 import com.c3po.errors.PublicException;
-import com.c3po.helper.EventHelper;
 import com.c3po.helper.LogHelper;
-import com.c3po.helper.setting.*;
+import com.c3po.core.setting.*;
 import com.c3po.service.SettingService;
-import com.c3po.ui.table.Row;
-import com.c3po.ui.table.Table;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import reactor.core.publisher.Flux;
@@ -22,12 +24,15 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 
-public class CommandListener {
+public class CommandListener implements EventListener<ChatInputInteractionEvent> {
     private final static List<Command> commands = List.of(
-        new MilkywayCreateCommand(),
-        new MilkywayAcceptCommand(),
-        new MilkywayDenyCommand()
+        new MilkywayCommandGroup()
     );
+    private final CommandManager commandManager;
+
+    public CommandListener(CommandManager commandManager) {
+        this.commandManager = commandManager;
+    }
 
     private final static HashMap<String, HashMap<String, String>> settingMap = new HashMap<>();
 
@@ -55,10 +60,10 @@ public class CommandListener {
         return base.toString();
     }
 
-    private static String valuesToView(HashMap<Integer, SettingValue> settingValues) {
+    private static String valuesToView(HashMap<Integer, PropertyValue> settingValues) {
         StringBuilder builder = new StringBuilder();
-        for (SettingValue settingValue: settingValues.values()) {
-            String key = SettingService.getCode(settingValue.getSettingId());
+        for (PropertyValue settingValue: settingValues.values()) {
+            String key = SettingService.getCode(settingValue.getParentId());
             builder.append(key)
                     .append("\t\t\t")
                     .append(DataFormatter.prettify(settingValue.getType(), settingValue.getValue()))
@@ -67,66 +72,64 @@ public class CommandListener {
         return builder.toString();
     }
 
-    private static Table valuesToTable(HashMap<Integer, SettingValue> settingValues) {
-        Table table = new Table();
-
-        for (SettingValue settingValue: settingValues.values()) {
-            String key = SettingService.getCode(settingValue.getSettingId());
-            table.addRow(new Row(key, DataFormatter.prettify(settingValue.getType(), settingValue.getValue())));
+    private Mono<?> executeSettingGroup(ChatInputInteractionEvent event, String category, String settingKey) {
+        if (settingKey.equals(SettingTransformer.viewOptionName)) {
+            ScopeTarget target = SettingGroup.scopeToTarget(Scope.GUILD, event);
+            HashMap<Integer, PropertyValue> values = SettingRepository.db().getHydratedPropertyValues(target, category);
+            String content = valuesToView(values);
+            return event.reply().withContent("```\n%s```".formatted(content));
         }
-
-        return table;
+        SettingGroup settingGroup = new SettingGroup(category, settingKey);
+        LogHelper.log("Setting group " + settingKey + " is being started");
+        Mono<?> commandResult = settingGroup.handle(event);
+        LogHelper.log("Setting group " + settingKey + " is finished");
+        return commandResult;
     }
 
-    private static Mono<Void> subhandle(ChatInputInteractionEvent event) throws RuntimeException {
-        HashMap<String, String> settings = settingMap.get(event.getCommandName());
-        if (settings != null) {
-            for(ApplicationCommandInteractionOption option: event.getOptions()) {
-                String settingKey = settings.get(option.getName());
-                String category = event.getCommandName();
-                if (settingKey == null) {
-                    break;
-                }
+    public Mono<?> execute(ChatInputInteractionEvent event) throws RuntimeException {
+        String fullName = getFullyQualifiedCommandName(event);
+        SettingInfo settingInfo = commandManager.matchSettingInfo(fullName);
+        if (settingInfo != null) {
+            return executeSettingGroup(event, settingInfo.getCategory(), settingInfo.getSettingKey())
+                .onErrorResume(this::handleError);
+        }
 
-                if (settingKey.equals(SettingTransformer.viewOptionName)) {
-                    SettingScopeTarget target = SettingGroup.scopeToTarget(SettingScope.GUILD, event);
-                    HashMap<Integer, SettingValue> values = SettingRepository.db().getHydratedSettingValues(target, category);
-                    String content = valuesToView(values);
-                    return event.reply().withContent("```\n%s```".formatted(content));
-                } else if (settingKey.equals(SettingTransformer.configOptionName)) {
-                    String a = "";
-                } else {
-                    SettingGroup settingGroup = new SettingGroup(category, settingKey);
-                    return settingGroup.handle(event);
-                }
+        Command command = commandManager.matchCommand(fullName);
+        if (command != null) {
+            Context context = new Context(event);
+            if (CommandSettingValidation.validate(command.getSettings(), event)) {
+                return processCommand(command, context)
+                    .onErrorResume(this::handleError);
             }
+
         }
-
-        String fullyQualifiedCommandName = getFullyQualifiedCommandName(event);
-
-        return Flux.fromIterable(commands)
-                .filter(command -> command.getName().equals(fullyQualifiedCommandName))
-                .next()
-                .flatMap(command -> {
-                    if (CommandSettingValidation.validate(command.getSettings(), event)) {
-                        try {
-                            return command.handle(event, EventHelper.getOptionContainer(event));
-                        } catch (PublicException e) {
-                            return event.reply().withContent(e.getMessage()).then();
-                        } catch (Exception e) {
-                            LogHelper.logException(e);
-                        }
-                    }
-                    return Mono.empty();
-                });
+        return Mono.empty();
     }
 
-    public static Mono<Void> handle(ChatInputInteractionEvent event) {
+    private <T> Mono<T> handleError(Throwable e) {
+        LogHelper.log("Interesting that this crashed, isn't it?");
+        LogHelper.log(e);
+        return Mono.empty();
+    }
+
+    private Mono<?> processCommand(Command command, Context context) {
         try {
-            return subhandle(event);
+            LogHelper.log("Command " +command.getName() + " starting.");
+            Mono<?> commandResult = command.execute(context);
+            LogHelper.log("Command " +command.getName() + " finished.");
+            return commandResult;
+        } catch (PublicException e) {
+            LogHelper.log(e.getMessage());
+            return context.getEvent().reply().withContent(e.getMessage()).then();
         } catch (Exception e) {
-            LogHelper.logException(e);
+            LogHelper.log(e);
             return Mono.empty();
         }
     }
+
+    @Override
+    public Class<ChatInputInteractionEvent> getEventType() {
+        return ChatInputInteractionEvent.class;
+    }
+
 }

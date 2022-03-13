@@ -1,20 +1,26 @@
 package com.c3po.command;
 
-import com.c3po.command.option.CommandOption;
-import com.c3po.command.option.OptionContainer;
+import com.c3po.core.DataFormatter;
+import com.c3po.core.Scope;
+import com.c3po.core.ScopeTarget;
+import com.c3po.core.command.option.CommandOption;
+import com.c3po.core.command.option.OptionContainer;
 import com.c3po.connection.repository.SettingRepository;
+import com.c3po.core.command.CommandSettingValidation;
+import com.c3po.core.command.CommandSettings;
+import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.DataType;
 import com.c3po.helper.EventHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
 import com.c3po.helper.cache.keys.SettingGroupCacheKey;
-import com.c3po.helper.setting.*;
-import com.c3po.helper.setting.validation.SettingValidationCache;
-import com.c3po.helper.setting.validation.SettingValidation;
-import com.c3po.helper.setting.validation.SettingValidationResult;
-import com.c3po.helper.setting.validation.SettingValidator;
-import com.c3po.helper.setting.validation.ValueType;
+import com.c3po.core.setting.*;
+import com.c3po.core.setting.validation.SettingValidationCache;
+import com.c3po.core.setting.validation.SettingValidation;
+import com.c3po.core.setting.validation.SettingValidationResult;
+import com.c3po.core.setting.validation.SettingValidator;
+import com.c3po.core.setting.validation.ValueType;
 import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -45,7 +51,7 @@ public class SettingGroup {
         return value.getRaw().getRaw();
     }
 
-    protected EmbedCreateSpec createEmbedFor(SettingValue settingValue) {
+    protected EmbedCreateSpec createEmbedFor(PropertyValue settingValue) {
         EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder()
                 .color(Color.of(242, 180, 37))
         ;
@@ -76,7 +82,7 @@ public class SettingGroup {
         return requiredSettings;
     }
 
-    public static CommandSettings scopeToSettings(SettingScope scope) {
+    public static CommandSettings scopeToSettings(Scope scope) {
         return switch (scope) {
             case GUILD -> CommandSettings.builder().guildOnly(true).adminOnly(true).build();
             case USER -> CommandSettings.builder().guildOnly(false).adminOnly(false).build();
@@ -84,18 +90,18 @@ public class SettingGroup {
         };
     }
 
-    public static SettingScopeTarget scopeToTarget(SettingScope scope, ChatInputInteractionEvent event) {
+    public static ScopeTarget scopeToTarget(Scope scope, ChatInputInteractionEvent event) {
         return switch (scope) {
-            case GUILD ->SettingScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
-            case USER -> SettingScopeTarget.user(event.getInteraction().getUser().getId().asLong());
-            case MEMBER -> SettingScopeTarget.member(
+            case GUILD -> ScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
+            case USER -> ScopeTarget.user(event.getInteraction().getUser().getId().asLong());
+            case MEMBER -> ScopeTarget.member(
                     event.getInteraction().getUser().getId().asLong(),
                     event.getInteraction().getGuildId().orElseThrow().asLong()
             );
         };
     }
 
-    public Mono<Void> handle(ChatInputInteractionEvent event) {
+    public Mono<?> handle(ChatInputInteractionEvent event) {
         Setting setting = SettingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
         if (!CommandSettingValidation.validate(commandSettings, event)) {
@@ -107,20 +113,20 @@ public class SettingGroup {
             return Mono.empty();
         }
 
-        SettingScopeTarget target = scopeToTarget(setting.getScope(), event);
+        ScopeTarget target = scopeToTarget(setting.getScope(), event);
         ArrayList<Integer> requiredSettings = new ArrayList<>();
         ArrayList<SettingValidation> validations = SettingValidationCache.get().get(settingId);
         requiredSettings.add(settingId);
         requiredSettings.addAll(getRequiredSettings(validations));
-        HashMap<Integer, SettingValue> settingValues = SettingRepository.db().getHydratedSettingValues(target, category, requiredSettings);
-        SettingValue settingValue = settingValues.get(settingId);
+        HashMap<Integer, PropertyValue> settingValues = SettingRepository.db().getHydratedPropertyValues(target, category, requiredSettings);
+        PropertyValue settingValue = settingValues.get(settingId);
         setValue(settingValue, value);
         if (validations != null) {
             SettingValidator settingValidator = new SettingValidator(validations, settingValues);
             SettingValidationResult result = settingValidator.validate();
             ArrayList<String> errors = result.getErrors();
             if (!errors.isEmpty()) {
-                return event.reply().withContent("Error(s): " + String.join("\n", errors));
+                return event.reply().withContent("Error(s): " + String.join("\n", errors)).then();
             }
         }
         SettingRepository.db().save(settingValue);
@@ -130,10 +136,15 @@ public class SettingGroup {
                 Cache.remove(cacheKey);
             }
         }
-        return event.reply().withEmbeds(createEmbedFor(settingValue)).then();
+
+        return event.reply().withEmbeds(createEmbedFor(settingValue));
+//        return Mono.empty();
+
+//        event.reply().withEmbeds(createEmbedFor(settingValue)).block();
+//        return Mono.empty();
     }
 
-    protected SettingGroupCacheKey<?> getCacheKey(SettingScopeTarget target) {
+    protected SettingGroupCacheKey<?> getCacheKey(ScopeTarget target) {
         return switch (category) {
             case KnownCategory.GUILDREWARDS -> new GuildRewardSettingsKey(target);
             case KnownCategory.MILKYWAY -> new MilkywaySettingsKey(target);
@@ -141,11 +152,11 @@ public class SettingGroup {
         };
     }
 
-    protected void setValue(SettingValue settingValue, String value) {
+    protected void setValue(PropertyValue settingValue, String value) {
         settingValue.setValue(parseValue(settingValue, value));
     }
 
-    protected String parseValue(SettingValue settingValue, String value) {
+    protected String parseValue(PropertyValue settingValue, String value) {
         if (settingValue.getType().equals(DataType.BOOLEAN)) {
             return value.equals("true") ? "1" : "0";
         }

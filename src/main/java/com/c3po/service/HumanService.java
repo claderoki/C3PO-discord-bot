@@ -3,12 +3,12 @@ package com.c3po.service;
 import com.c3po.connection.repository.HumanRepository;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.HumanIdKey;
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 
 public class HumanService extends Service {
 
     public static Integer getHumanId(long userId) {
-        HumanIdKey key = new HumanIdKey(SettingScopeTarget.user(userId));
+        HumanIdKey key = new HumanIdKey(ScopeTarget.user(userId));
 
         Integer humanId = Cache.get(key);
         if (humanId != null) {

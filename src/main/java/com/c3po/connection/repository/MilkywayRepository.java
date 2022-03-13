@@ -3,7 +3,7 @@ package com.c3po.connection.repository;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.PlaceholderList;
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 import com.c3po.model.milkyway.ExpiredMilkyway;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
@@ -33,7 +33,7 @@ public class MilkywayRepository extends Repository {
         if (result == null) {
             return 1L;
         }
-        return result.getLong("identifier")+1;
+        return result.getLongOr("identifier", 0L)+1;
     }
 
     public void create(Milkyway milkyway) {
@@ -43,14 +43,14 @@ public class MilkywayRepository extends Repository {
                     `name`, `status`, `purchase_type`, `item_id`, `amount`, `days_pending`)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        update(query,
+        execute(query,
             new LongParameter(milkyway.getTarget().getGuildId()),
             new LongParameter(milkyway.getTarget().getUserId()),
             new LongParameter(milkyway.getIdentifier()),
             new StringParameter(milkyway.getDescription()),
             new StringParameter(milkyway.getName()),
-            new StringParameter(milkyway.getStatus().getType()),
-            new StringParameter(milkyway.getPurchaseType().getType()),
+            new StringParameter(milkyway.getStatus().toString()),
+            new StringParameter(milkyway.getPurchaseType().toString()),
             Parameter.from(milkyway.getItemId()),
             new LongParameter(milkyway.getAmount()),
             new LongParameter(milkyway.getDaysPending())
@@ -68,11 +68,11 @@ public class MilkywayRepository extends Repository {
             .name(result.getString("name"))
             .description(result.getString("description"))
             .itemId(result.optInt("item_id"))
-            .target(SettingScopeTarget.member(result.getLong("user_id"), result.getLong("guild_id")))
-            .status(MilkywayStatus.find(result.getString("status")))
+            .target(ScopeTarget.member(result.getLong("user_id"), result.getLong("guild_id")))
+            .status(MilkywayStatus.valueOf(result.getString("status").toUpperCase()))
             .identifier(identifier)
             .daysPending(result.optInt("days_pending"))
-            .purchaseType(PurchaseType.find(result.getString("purchase_type")))
+            .purchaseType(PurchaseType.valueOf(result.getString("purchase_type")))
             .amount(result.getInt("amount"))
             .channelId(result.optLong("channel_id"))
             .denyReason(result.optString("deny_reason"))
@@ -94,7 +94,7 @@ public class MilkywayRepository extends Repository {
             AND
                 `identifier` = ?
         """;
-        update(query,
+        execute(query,
             new DateTimeParameter(expiresAt),
             new LongParameter(channelId),
             new LongParameter(guildId),
@@ -108,7 +108,7 @@ public class MilkywayRepository extends Repository {
             WHERE `guild_id` = ?
             AND `identifier` = ?
         """;
-        update(query,
+        execute(query,
             new StringParameter(reason),
             new LongParameter(guildId),
             new LongParameter(identifier)
@@ -137,7 +137,7 @@ public class MilkywayRepository extends Repository {
             UPDATE `milkyway` SET status = 'expired'
             WHERE `id` IN (%s)
         """.formatted(placeholderList.getQuestionMarks());
-        update(query, placeholderList.getParameters().toArray(Parameter[]::new));
+        execute(query, placeholderList.getParameters().toArray(Parameter[]::new));
     }
 
 }

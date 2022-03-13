@@ -1,6 +1,6 @@
 package com.c3po.model;
 
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Getter
 public class GuildRewardSettings extends BaseSettings {
-    private final SettingScopeTarget target;
+    private final ScopeTarget target;
 
     private boolean enabled;
 
@@ -19,7 +19,7 @@ public class GuildRewardSettings extends BaseSettings {
 
     private int maxPointsPerMessage;
 
-    public GuildRewardSettings(SettingScopeTarget target) {
+    public GuildRewardSettings(ScopeTarget target) {
         this.target = target;
     }
 

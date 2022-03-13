@@ -9,8 +9,8 @@ public class Configuration {
 
     private static Configuration INSTANCE;
 
-    public static void initiate(Mode mode) throws Exception {
-        INSTANCE = ConfigurationLoader.load(mode);
+    public static void initiate(Configuration configuration) throws Exception {
+        INSTANCE = configuration;
     }
 
     public static Configuration instance() {

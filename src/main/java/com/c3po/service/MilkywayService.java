@@ -6,15 +6,15 @@ import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.MilkywayIdentifierKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
-import com.c3po.helper.setting.KnownCategory;
-import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.helper.setting.SettingValue;
+import com.c3po.core.setting.KnownCategory;
+import com.c3po.core.ScopeTarget;
+import com.c3po.core.property.PropertyValue;
 import com.c3po.model.milkyway.MilkywaySettings;
 
 import java.util.List;
 
 public class MilkywayService {
-    public static MilkywaySettings getSettings(SettingScopeTarget target) {
+    public static MilkywaySettings getSettings(ScopeTarget target) {
         MilkywaySettingsKey key = new MilkywaySettingsKey(target);
         MilkywaySettings settings = Cache.get(key);
         if (settings != null) {
@@ -22,8 +22,8 @@ public class MilkywayService {
         }
 
         settings = new MilkywaySettings(target);
-        for(SettingValue value: SettingRepository.db().getHydratedSettingValues(target, KnownCategory.MILKYWAY).values()) {
-            String settingKey = SettingService.getCode(value.getSettingId());
+        for(PropertyValue value: SettingRepository.db().getHydratedPropertyValues(target, KnownCategory.MILKYWAY).values()) {
+            String settingKey = SettingService.getCode(value.getParentId());
             settings.set(settingKey, value.getValue());
         }
         Cache.set(key, settings);
@@ -31,7 +31,7 @@ public class MilkywayService {
     }
 
     public static long getIncrementIdentifier(long guildId) {
-        MilkywayIdentifierKey key = new MilkywayIdentifierKey(SettingScopeTarget.guild(guildId));
+        MilkywayIdentifierKey key = new MilkywayIdentifierKey(ScopeTarget.guild(guildId));
         Long identifier = Cache.get(key);
         if (identifier != null) {
             Cache.set(key, ++identifier);

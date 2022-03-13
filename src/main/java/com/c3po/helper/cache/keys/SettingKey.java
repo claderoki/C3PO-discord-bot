@@ -1,7 +1,7 @@
 package com.c3po.helper.cache.keys;
 
 import com.c3po.helper.cache.CacheKey;
-import com.c3po.helper.setting.Setting;
+import com.c3po.core.setting.Setting;
 import lombok.AllArgsConstructor;
 
 import java.time.Duration;

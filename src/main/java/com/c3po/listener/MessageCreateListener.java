@@ -1,37 +1,48 @@
 package com.c3po.listener;
 
 import com.c3po.helper.LogHelper;
-import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.model.GuildRewardSettings;
-import com.c3po.processors.GuildRewardRewardProcessor;
-import com.c3po.service.GuildRewardService;
+import com.c3po.processors.Processor;
+import com.c3po.processors.message.GuildRewardProcessor;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class MessageCreateListener {
-    private static Mono<Void> _handle(MessageCreateEvent event) {
-        //TODO: when message events start piling up, turn these into async handlers similar to CommandListener.
-        if (event.getMember().isPresent() && event.getMember().get().isBot()) {
+import java.util.List;
+
+public class MessageCreateListener implements EventListener<MessageCreateEvent> {
+    private List<Processor<MessageCreateEvent>> processors;
+
+    public MessageCreateListener() {
+        processors = List.of(
+            new GuildRewardProcessor()
+        );
+    }
+
+    @Override
+    public Class<MessageCreateEvent> getEventType() {
+        return MessageCreateEvent.class;
+    }
+
+    public Mono<?> run(MessageCreateEvent event) throws Exception {
+        if (event.getMember().isEmpty() || event.getMember().get().isBot()) {
             return Mono.empty();
         }
 
-        if (event.getGuildId().isPresent()) {
-            long guildId = event.getGuildId().get().asLong();
-            SettingScopeTarget target = SettingScopeTarget.guild(guildId);
-            GuildRewardSettings guildRewardsSettings = GuildRewardService.getSettings(target);
-            GuildRewardRewardProcessor guildRewardsProcessor = new GuildRewardRewardProcessor(guildRewardsSettings, event);
-            guildRewardsProcessor.run();
-        }
-
-        return Mono.empty();
+        return Flux.fromIterable(processors)
+            .next()
+            .filter((c) -> c.shouldProcess(event))
+            .flatMap((c) -> c.execute(event))
+            .then()
+        ;
     }
 
-    public static Mono<Void> handle(MessageCreateEvent event) {
+    public Mono<?> execute(MessageCreateEvent event) {
         try {
-            return _handle(event);
+            return run(event);
         } catch (Exception e) {
-            LogHelper.logException(e);
+            LogHelper.log(e);
             return Mono.empty();
         }
     }
+
 }

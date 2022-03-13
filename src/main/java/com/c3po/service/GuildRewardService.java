@@ -1,17 +1,15 @@
 package com.c3po.service;
 
-import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.cache.Cache;
-import com.c3po.helper.cache.keys.GuildRewardProfileIdKey;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
-import com.c3po.helper.setting.KnownCategory;
-import com.c3po.helper.setting.SettingScopeTarget;
-import com.c3po.helper.setting.SettingValue;
+import com.c3po.core.setting.KnownCategory;
+import com.c3po.core.ScopeTarget;
+import com.c3po.core.property.PropertyValue;
 import com.c3po.model.GuildRewardSettings;
 
 public class GuildRewardService extends Service {
-    public static GuildRewardSettings getSettings(SettingScopeTarget target) {
+    public static GuildRewardSettings getSettings(ScopeTarget target) {
         GuildRewardSettingsKey key = new GuildRewardSettingsKey(target);
         GuildRewardSettings settings = Cache.get(key);
         if (settings != null) {
@@ -19,34 +17,11 @@ public class GuildRewardService extends Service {
         }
 
         settings = new GuildRewardSettings(target);
-        for(SettingValue value: SettingRepository.db().getHydratedSettingValues(target, KnownCategory.GUILDREWARDS).values()) {
-            String settingKey = SettingService.getCode(value.getSettingId());
+        for(PropertyValue value: SettingRepository.db().getHydratedPropertyValues(target, KnownCategory.GUILDREWARDS).values()) {
+            String settingKey = SettingService.getCode(value.getParentId());
             settings.set(settingKey, value.getValue());
         }
         Cache.set(key, settings);
         return settings;
     }
-
-    public static Integer getProfileId(SettingScopeTarget target) {
-        GuildRewardProfileIdKey key = new GuildRewardProfileIdKey(target);
-        Integer profileId = Cache.get(key);
-        if (profileId != null) {
-            return profileId;
-        }
-
-        profileId = GuildRewardsRepository.db().getProfileId(target);
-        if (profileId != null) {
-            Cache.set(key, profileId);
-            return profileId;
-        }
-
-        GuildRewardsRepository.db().createProfile(target);
-        profileId = GuildRewardsRepository.db().getProfileId(target);
-        if (profileId != null) {
-            Cache.set(key, profileId);
-            return profileId;
-        }
-        return profileId;
-    }
-
 }

@@ -43,7 +43,7 @@ public class Repository {
         return statement;
     }
 
-    protected void update(Connection connection, String query, Parameter... params) {
+    protected void execute(Connection connection, String query, Parameter... params) {
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -51,7 +51,7 @@ public class Repository {
         }
     }
 
-    protected void update(String query, Parameter... params) {
+    protected void execute(String query, Parameter... params) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = preparedStatement(connection, query, params)) {
                 statement.executeUpdate();

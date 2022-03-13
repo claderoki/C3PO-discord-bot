@@ -25,18 +25,6 @@ public class ItemRepository extends Repository {
         super(dataSource);
     }
 
-    public ArrayList<SimpleItem> getAllSimpleItems() {
-        ArrayList<SimpleItem> items = new ArrayList<>();
-        for(Result result: query("SELECT `item`.`id`, `item.name`,`item.code` FROM `item`")) {
-            items.add(SimpleItem.builder()
-                .code(result.getString("code"))
-                .id(result.getInt("id"))
-                .name(result.getString("name"))
-                .build());
-        }
-        return items;
-    }
-
     public Map<Integer, Integer> getItemAmounts(Integer humanId, List<Integer> itemIds) {
         return getItemAmounts(humanId, itemIds.toArray(Integer[]::new));
     }
@@ -74,7 +62,7 @@ public class ItemRepository extends Repository {
             UPDATE `human_item` SET `amount` = `amount` - ?
             WHERE `human_item`.`human_id` = ? AND `human_item`.`item_id` = ?
         """;
-        update(query, new IntParameter(amount), new IntParameter(humanId), new IntParameter(itemId));
+        execute(query, new IntParameter(amount), new IntParameter(humanId), new IntParameter(itemId));
     }
 
     public void addItem(int humanId, int itemId, int amount) {

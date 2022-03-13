@@ -1,13 +1,15 @@
 package com.c3po.processors;
 
+import com.c3po.connection.repository.AttributeRepository;
+import com.c3po.core.attribute.KnownAttribute;
+import com.c3po.core.property.PropertyValue;
 import com.c3po.model.milkyway.AvailablePurchase;
 import com.c3po.model.milkyway.MilkywayItem;
-import com.c3po.connection.repository.GuildRewardsRepository;
 import com.c3po.connection.repository.ItemRepository;
 import com.c3po.connection.repository.MilkywayRepository;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 import com.c3po.helper.waiter.IntParser;
 import com.c3po.helper.waiter.ParseResult;
 import com.c3po.helper.waiter.Waiter;
@@ -15,7 +17,7 @@ import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.model.milkyway.PurchaseType;
-import com.c3po.service.GuildRewardService;
+import com.c3po.service.AttributeService;
 import com.c3po.service.HumanService;
 import com.c3po.service.MilkywayService;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
@@ -41,9 +43,9 @@ public class MilkywayProcessor {
     private final boolean godmode;
 
     private MilkywaySettings settings;
-    private SettingScopeTarget memberTarget;
+    private ScopeTarget memberTarget;
     private Integer humanId;
-    private Integer profileId;
+    private PropertyValue cloverAttributeValue;
 
     public MilkywayProcessor(ChatInputInteractionEvent event, boolean godmode) {
         this.event = event;
@@ -77,8 +79,8 @@ public class MilkywayProcessor {
 
         List<AvailablePurchase> availablePurchases = new ArrayList<>();
 
-        Integer points = GuildRewardsRepository.db().getPoints(profileId);
-        int maxDays = points / settings.getCostPerDay();
+        Long points = cloverAttributeValue.getParsedValue();
+        int maxDays = (int) (points / settings.getCostPerDay());
         if (maxDays > 0) {
             availablePurchases.add(AvailablePurchase.builder()
                 .amount(points)
@@ -151,13 +153,13 @@ public class MilkywayProcessor {
         long guildId = event.getInteraction().getGuildId().orElseThrow().asLong();
         long userId = event.getInteraction().getUser().getId().asLong();
 
-        settings = MilkywayService.getSettings(SettingScopeTarget.guild(guildId));
-        memberTarget = SettingScopeTarget.member(userId, guildId);
+        settings = MilkywayService.getSettings(ScopeTarget.guild(guildId));
+        memberTarget = ScopeTarget.member(userId, guildId);
 
         if (!godmode) {
             // No point grabbing these since they won't be used if godmode is on anyway.
             humanId = HumanService.getHumanId(memberTarget.getUserId());
-            profileId = GuildRewardService.getProfileId(memberTarget);
+            cloverAttributeValue = AttributeService.getAttributeValue(memberTarget, AttributeService.getId(KnownAttribute.CLOVERS));
         }
     }
 
@@ -192,7 +194,10 @@ public class MilkywayProcessor {
 
     private void takePayment(AvailablePurchase chosenPurchase, Integer amount) {
         switch (chosenPurchase.getPurchaseType()) {
-            case POINT -> GuildRewardsRepository.db().incrementPoints(profileId, -amount);
+            case POINT -> {
+                cloverAttributeValue.increment(-amount);
+                AttributeRepository.db().save(cloverAttributeValue);
+            }
             case ITEM -> ItemRepository.db().spendItem(humanId, chosenPurchase.getItem().getItemId(), amount);
         }
     }

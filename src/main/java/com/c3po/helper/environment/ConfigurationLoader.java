@@ -38,7 +38,7 @@ public class ConfigurationLoader {
                         .port(Integer.parseInt(map.get("mysql_port")))
                         .build())
                 .mode(mode)
-                .token(map.get("discord_token_" + mode.getType()))
+                .token(map.get("discord_token_" + mode.name().toLowerCase()))
                 .build();
     }
 

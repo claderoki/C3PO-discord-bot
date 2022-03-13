@@ -1,12 +1,12 @@
 package com.c3po.model.milkyway;
 
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 import com.c3po.model.BaseSettings;
 import lombok.Getter;
 
 @Getter
 public class MilkywaySettings extends BaseSettings {
-    private final SettingScopeTarget target;
+    private final ScopeTarget target;
     private boolean enabled;
     private int costPerDay;
     private Long categoryId;
@@ -14,7 +14,7 @@ public class MilkywaySettings extends BaseSettings {
     private int activeLimit;
     private boolean godmode;
 
-    public MilkywaySettings(SettingScopeTarget target) {
+    public MilkywaySettings(ScopeTarget target) {
         this.target = target;
     }
 

@@ -1,23 +1,27 @@
 package com.c3po.command.milkyway;
 
-import com.c3po.command.Command;
-import com.c3po.command.CommandSettings;
-import com.c3po.command.option.OptionContainer;
+import com.c3po.core.command.*;
+import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.processors.MilkywayProcessor;
 import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
 
-public class MilkywayCreateCommand extends Command {
-    @Override
-    public String getName() {
-        return "milkyway create";
+public class MilkywayCreateCommand extends SubCommand {
+    protected MilkywayCreateCommand(CommandGroup group) {
+        super(group, "create", "Create a milkway");
+        this.addOption(option -> option.name("name")
+            .description("The name")
+            .required(true)
+            .type(DiscordCommandOptionType.STRING.getValue()));
+        this.addOption(option -> option.name("description")
+            .description("The description")
+            .required(false)
+            .type(DiscordCommandOptionType.STRING.getValue()));
     }
 
     public CommandSettings getSettings() {
@@ -25,19 +29,18 @@ public class MilkywayCreateCommand extends Command {
     }
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event, OptionContainer options) throws RuntimeException {
-        String name = options.getString("name");
-        String description = options.optString("description");
+    public Mono<Void> execute(Context context) throws RuntimeException {
+        String name = context.getOptions().getString("name");
+        String description = context.getOptions().optString("description");
 
-        MilkywayProcessor processor = new MilkywayProcessor(event, false);
+        MilkywayProcessor processor = new MilkywayProcessor(context.getEvent(), false);
 
-        event.reply()
-            .withEmbeds(EmbedHelper.normal("Working...").build()).block();
+        context.getEvent().reply().withEmbeds(EmbedHelper.normal("Working...").build()).block();
 
         Milkyway milkyway = processor.create(name, description);
 
-        Channel channel = event.getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).blockOptional().orElseThrow();
-        Member member = event.getInteraction().getMember().orElseThrow();
+        Channel channel = context.getEvent().getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).blockOptional().orElseThrow();
+        Member member = context.getEvent().getInteraction().getMember().orElseThrow();
 
         String text = "A milkyway has been requested for " + milkyway.getDaysPending() + " day(s)" +
             "\nName: **" + milkyway.getName() + "**" +
@@ -51,7 +54,7 @@ public class MilkywayCreateCommand extends Command {
             .build();
 
         return channel.getRestChannel().createMessage(embed.asRequest()).then(
-            event.editReply().withEmbeds(EmbedHelper.normal("OK, request has been sent to the admins. Your Milkyway ID is " + milkyway.getIdentifier()).build()).then()
+            context.getEvent().editReply().withEmbeds(EmbedHelper.normal("OK, request has been sent to the admins. Your Milkyway ID is " + milkyway.getIdentifier()).build()).then()
         );
     }
 }

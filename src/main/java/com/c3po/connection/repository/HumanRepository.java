@@ -29,7 +29,7 @@ public class HumanRepository extends Repository {
     }
 
     public void createHumanFor(Long userId) {
-        update("INSERT INTO `human` (`user_id`) VALUES (?)", new LongParameter(userId));
+        execute("INSERT INTO `human` (`user_id`) VALUES (?)", new LongParameter(userId));
     }
 
 }

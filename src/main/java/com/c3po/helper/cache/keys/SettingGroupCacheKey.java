@@ -1,17 +1,17 @@
 package com.c3po.helper.cache.keys;
 
 import com.c3po.helper.cache.CacheKey;
-import com.c3po.helper.setting.SettingScopeTarget;
+import com.c3po.core.ScopeTarget;
 import com.c3po.model.BaseSettings;
 
 public abstract class SettingGroupCacheKey<T extends BaseSettings> extends CacheKey<T> {
-    protected final SettingScopeTarget target;
+    protected final ScopeTarget target;
 
-    protected SettingGroupCacheKey(SettingScopeTarget target) {
+    protected SettingGroupCacheKey(ScopeTarget target) {
         this.target = target;
     }
 
-    public SettingScopeTarget getTarget() {
+    public ScopeTarget getTarget() {
         return target;
     }
 

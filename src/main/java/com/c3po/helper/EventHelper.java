@@ -1,6 +1,6 @@
 package com.c3po.helper;
 
-import com.c3po.command.option.*;
+import com.c3po.core.command.option.*;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;

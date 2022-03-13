@@ -1,6 +1,7 @@
 package com.c3po.processors;
 
 import com.c3po.connection.repository.MilkywayRepository;
+import com.c3po.helper.LogHelper;
 import com.c3po.model.milkyway.ExpiredMilkyway;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
@@ -14,7 +15,7 @@ public class MilkywayExpirationChecker implements Runnable {
     private DiscordClient client;
 
     public void run() {
-        System.out.println("OK");
+        LogHelper.log("OK");
 //        List<Integer> ids = new ArrayList<>();
 //        for (ExpiredMilkyway milkyway: MilkywayRepository.db().getExpiredMilkyways()) {
 //            this.client.getChannelById(Snowflake.of(milkyway.getChannelId())).delete("Expired milkyway").then();

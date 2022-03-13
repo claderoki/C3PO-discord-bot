@@ -5,7 +5,7 @@ import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.SettingCodeKey;
 import com.c3po.helper.cache.keys.SettingIdKey;
 import com.c3po.helper.cache.keys.SettingKey;
-import com.c3po.helper.setting.Setting;
+import com.c3po.core.setting.Setting;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class AvailablePurchase {
     private PurchaseType purchaseType;
-    private int amount;
+    private long amount;
     private int daysWorth;
     private String label;
     private String emoji;
