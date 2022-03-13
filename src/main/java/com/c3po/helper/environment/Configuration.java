@@ -9,7 +9,7 @@ public class Configuration {
 
     private static Configuration INSTANCE;
 
-    public static void initiate(Configuration configuration) throws Exception {
+    public static void initiate(Configuration configuration) {
         INSTANCE = configuration;
     }
 

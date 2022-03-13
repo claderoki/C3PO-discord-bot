@@ -6,5 +6,5 @@ public enum DataType {
     BOOLEAN,
     CHANNEL,
     DATETIME,
-    CATEGORY;
+    CATEGORY
 }

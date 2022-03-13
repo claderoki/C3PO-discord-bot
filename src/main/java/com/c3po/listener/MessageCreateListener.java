@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public class MessageCreateListener implements EventListener<MessageCreateEvent> {
-    private List<Processor<MessageCreateEvent>> processors;
+    private final List<Processor<MessageCreateEvent>> processors;
 
     public MessageCreateListener() {
         processors = List.of(
@@ -23,7 +23,7 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
         return MessageCreateEvent.class;
     }
 
-    public Mono<?> run(MessageCreateEvent event) throws Exception {
+    public Mono<?> run(MessageCreateEvent event) {
         if (event.getMember().isEmpty() || event.getMember().get().isBot()) {
             return Mono.empty();
         }

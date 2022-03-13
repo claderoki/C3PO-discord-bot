@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 public abstract class CommandGroup extends Command {
-    private List<SubCommand> commands = new ArrayList<>();
+    private final List<SubCommand> commands = new ArrayList<>();
 
     protected CommandGroup(CommandCategory category, String name, String description, DiscordCommandOptionType type) {
         super(category, name, description, type);

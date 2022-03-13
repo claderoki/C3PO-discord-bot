@@ -6,5 +6,5 @@ import lombok.Getter;
 public enum PurchaseType {
     POINT,
     ITEM,
-    NONE;
+    NONE
 }
