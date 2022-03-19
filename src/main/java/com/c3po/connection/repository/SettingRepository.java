@@ -221,4 +221,9 @@ public class SettingRepository extends Repository {
 
         return validations;
     }
+
+    public void delete(PropertyValue propertyValue) {
+        String query = "DELETE FROM `setting_value` WHERE `setting_value`.`id` = ?";
+        execute(query, new IntParameter(propertyValue.getId()));
+    }
 }

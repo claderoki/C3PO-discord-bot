@@ -18,9 +18,31 @@ public class DataFormatter {
         return value;
     }
 
+    public static String toRaw(Object value) {
+        if (value instanceof Boolean v) {
+            return v ? "1" : "0";
+        }
+
+        return value.toString();
+    }
+
+    public static String prettify(Object value) {
+        return prettify(getDataType(value), toRaw(value));
+    }
+
+    public static DataType getDataType(Object value) {
+        if (value instanceof Long || value instanceof Integer) {
+            return DataType.INTEGER;
+        } else if (value instanceof Boolean) {
+            return DataType.BOOLEAN;
+        }
+
+        return DataType.STRING;
+    }
+
     public static Object parse(DataType type, String value) {
         return switch (type) {
-            case INTEGER, CHANNEL, CATEGORY -> Long.parseLong(value);
+            case INTEGER, CHANNEL, CATEGORY, ROLE -> Long.parseLong(value);
             case STRING -> value;
             case BOOLEAN -> value.equals("1") || value.equalsIgnoreCase("true");
             case DATETIME -> LocalDateTime.parse(value, DateTimeHelper.DEFAULT_FORMATTER);

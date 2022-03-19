@@ -6,7 +6,7 @@ import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.LogHelper;
-import com.c3po.model.GuildRewardSettings;
+import com.c3po.model.guildreward.GuildRewardSettings;
 import com.c3po.processors.Processor;
 import com.c3po.service.AttributeService;
 import com.c3po.service.GuildRewardService;

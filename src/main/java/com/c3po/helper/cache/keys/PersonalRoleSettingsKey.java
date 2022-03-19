@@ -2,12 +2,13 @@ package com.c3po.helper.cache.keys;
 
 import com.c3po.core.ScopeTarget;
 import com.c3po.model.guildreward.GuildRewardSettings;
+import com.c3po.model.personalrole.PersonalRoleSettings;
 
 import java.time.Duration;
 
-public class GuildRewardSettingsKey extends SettingGroupCacheKey<GuildRewardSettings> {
+public class PersonalRoleSettingsKey extends SettingGroupCacheKey<PersonalRoleSettings> {
 
-    public GuildRewardSettingsKey(ScopeTarget target) {
+    public PersonalRoleSettingsKey(ScopeTarget target) {
         super(target);
     }
 

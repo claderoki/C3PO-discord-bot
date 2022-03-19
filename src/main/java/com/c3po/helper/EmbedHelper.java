@@ -10,5 +10,10 @@ public class EmbedHelper {
             .color(Color.of(242, 180, 37))
             .description(description);
     }
+    public static EmbedCreateSpec.Builder error(String description) {
+        return EmbedCreateSpec.builder()
+            .color(Color.of(255, 0, 0))
+            .description(description);
+    }
 
 }

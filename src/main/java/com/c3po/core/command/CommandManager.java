@@ -2,6 +2,9 @@ package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
+import com.c3po.command.personalrole.PersonalRoleCommandGroup;
+import com.c3po.command.poll.PollCommandGroup;
+import com.c3po.command.poll.PollCreateCommand;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.setting.Setting;
 import com.c3po.core.setting.SettingTransformer;
@@ -60,6 +63,8 @@ public class CommandManager {
 
     private void registerCommands() {
         register(new MilkywayCommandGroup());
+        register(new PersonalRoleCommandGroup());
+        register(new PollCommandGroup());
     }
 
     private void registerSettings() {

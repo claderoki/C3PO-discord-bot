@@ -4,6 +4,9 @@ import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 
@@ -18,8 +21,36 @@ public class Waiter {
         this.event = event;
     }
 
+    protected boolean validate(MessageCreateEvent event) {
+        Message message = event.getMessage();
+
+        if (message.getAuthor().isPresent()) {
+            User user1 = this.event.getInteraction().getUser();
+            User user2 = message.getAuthor().get();
+
+            if (!this.event.getInteraction().getChannelId().equals(message.getChannelId())) {
+                return false;
+            }
+
+            if (!user1.getId().equals(user2.getId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected boolean validate(Event event) {
+        if (event instanceof MessageCreateEvent messageCreateEvent) {
+            return validate(messageCreateEvent);
+        } {
+            return true;
+        }
+    }
+
     protected  <T, F extends Event> Mono<ParseResult<T>> _wait(Class<F> cls, EventParser<T, F> parser) {
-        return this.event.getClient().on(cls, event -> Mono.just(parser.parse(event)))
+        return this.event.getClient().on(cls)
+            .filter(this::validate)
+            .flatMap((c) -> Mono.just(parser.parse(c)))
             .timeout(Duration.ofSeconds(30))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .filter(c -> !c.getType().equals(ResultType.SKIP))

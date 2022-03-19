@@ -4,6 +4,7 @@ public enum DataType {
     INTEGER,
     STRING,
     BOOLEAN,
+    ROLE,
     CHANNEL,
     DATETIME,
     CATEGORY

@@ -7,10 +7,15 @@ import com.c3po.core.command.SubCommand;
 import com.c3po.errors.PublicException;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.DiscordCommandOptionType;
+import com.c3po.helper.LogHelper;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.service.MilkywayService;
+import com.c3po.ui.input.*;
+import com.c3po.ui.input.base.Menu;
+import com.c3po.ui.input.base.MenuManager;
+import com.c3po.ui.input.base.SubMenu;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.TextChannel;
@@ -31,7 +36,6 @@ public class MilkywayAcceptCommand extends SubCommand {
             .type(DiscordCommandOptionType.INTEGER.getValue()));
     }
 
-    @Override
     public Mono<Void> execute(Context context) throws RuntimeException {
         long guildId = context.getEvent().getInteraction().getGuildId().orElseThrow().asLong();
         long identifier = context.getOptions().getLong("id");

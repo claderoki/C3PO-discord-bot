@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 
 public class C3PO {
     private final Mode mode;
@@ -53,6 +54,8 @@ public class C3PO {
 
         register(gateway, new CommandListener(commandManager));
         register(gateway, new MessageCreateListener());
+
+        LogHelper.log("Bot started up.");
         return gateway.onDisconnect();
     }
 
@@ -60,7 +63,8 @@ public class C3PO {
         gateway.getEventDispatcher()
             .on(eventListener.getEventType())
             .flatMap(event -> eventListener.execute(event)
-                .timeout(Duration.ofSeconds(10), Mono.error(new RuntimeException("TIMED OUT"))))
+                .timeout(Duration.ofSeconds(360), Mono.error(new RuntimeException("TIMED OUT"))))
+            .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .subscribe(null, (e) -> LogHelper.log(e, eventListener.getEventType().getName()))
         ;
     }

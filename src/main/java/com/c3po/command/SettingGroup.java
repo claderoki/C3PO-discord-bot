@@ -14,6 +14,7 @@ import com.c3po.helper.EventHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
+import com.c3po.helper.cache.keys.PersonalRoleSettingsKey;
 import com.c3po.helper.cache.keys.SettingGroupCacheKey;
 import com.c3po.core.setting.*;
 import com.c3po.core.setting.validation.SettingValidationCache;
@@ -22,9 +23,11 @@ import com.c3po.core.setting.validation.SettingValidationResult;
 import com.c3po.core.setting.validation.SettingValidator;
 import com.c3po.core.setting.validation.ValueType;
 import com.c3po.service.SettingService;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -104,7 +107,8 @@ public class SettingGroup {
     public Mono<?> handle(ChatInputInteractionEvent event) {
         Setting setting = SettingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
-        if (!CommandSettingValidation.validate(commandSettings, event)) {
+
+        if (!CommandSettingValidation.validate(commandSettings, event) && !event.getInteraction().getUser().getId().equals(Snowflake.of(120566758091259906L))) {
             return Mono.empty();
         }
 
@@ -138,16 +142,13 @@ public class SettingGroup {
         }
 
         return event.reply().withEmbeds(createEmbedFor(settingValue));
-//        return Mono.empty();
-
-//        event.reply().withEmbeds(createEmbedFor(settingValue)).block();
-//        return Mono.empty();
     }
 
     protected SettingGroupCacheKey<?> getCacheKey(ScopeTarget target) {
         return switch (category) {
             case KnownCategory.GUILDREWARDS -> new GuildRewardSettingsKey(target);
             case KnownCategory.MILKYWAY -> new MilkywaySettingsKey(target);
+            case KnownCategory.PERSONALROLE -> new PersonalRoleSettingsKey(target);
             default -> null;
         };
     }

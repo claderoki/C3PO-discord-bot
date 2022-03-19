@@ -1,6 +1,7 @@
 package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
+import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;
@@ -28,7 +29,11 @@ public class AttributeRepository extends Repository {
     }
 
     private void create(ScopeTarget target, int attributeId, String value) {
-        String query = "INSERT INTO `attribute_value` (`user_id`, `guild_id`, `value`, `attribute_id`) VALUES (?, ?, ?, ?)";
+        String query = """
+            INSERT INTO `attribute_value`
+                (`user_id`, `guild_id`, `value`, `attribute_id`, `date_created`)
+            VALUES (?, ?, ?, ?, UTC_TIMESTAMP())
+        """;
         execute(query,
             Parameter.from(target.getUserId()),
             Parameter.from(target.getGuildId()),
@@ -45,7 +50,12 @@ public class AttributeRepository extends Repository {
         if (attributeValueId == 0) {
             return;
         }
-        String query = "UPDATE `attribute_value` SET `attribute_value`.`value` = ? WHERE `attribute_value`.`id` = ?";
+        String query = """
+            UPDATE `attribute_value`
+                SET `attribute_value`.`value` = ?,
+                `date_updated` = UTC_TIMESTAMP()
+            WHERE `attribute_value`.`id` = ?
+            """;
         execute(query, new StringParameter(value), new IntParameter(attributeValueId));
     }
 
@@ -168,4 +178,27 @@ public class AttributeRepository extends Repository {
 
         return identifiers;
     }
+
+    public void delete(PropertyValue propertyValue) {
+        String query = "DELETE FROM `attribute_value` WHERE `attribute_value`.`id` = ?";
+        execute(query, new IntParameter(propertyValue.getId()));
+    }
+
+    public String getOldestValueFor(Long guildId, Integer attributeId) {
+        String query = """
+            SELECT `value` FROM `attribute_value`
+            WHERE `attribute_value`.`guild_id` = ?
+            AND`attribute_value`.`attribute_id` = ?
+            ORDER BY date_created ASC
+            LIMIT 1
+            """;
+
+        Result result = getOne(query, new LongParameter(guildId), new IntParameter(attributeId));
+        if (result == null) {
+            return null;
+        }
+
+        return result.getString("value");
+    }
+
 }

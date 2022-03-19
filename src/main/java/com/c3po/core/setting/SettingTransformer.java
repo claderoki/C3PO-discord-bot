@@ -36,6 +36,8 @@ public class SettingTransformer {
                 builder.type(DiscordCommandOptionType.CHANNEL.getValue());
                 builder.addAllChannelTypes(List.of(4));
             }
+            case ROLE -> builder.type(DiscordCommandOptionType.ROLE.getValue());
+
         }
     }
 

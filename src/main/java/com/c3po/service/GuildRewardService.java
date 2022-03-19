@@ -6,7 +6,7 @@ import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.core.setting.KnownCategory;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.model.GuildRewardSettings;
+import com.c3po.model.guildreward.GuildRewardSettings;
 
 public class GuildRewardService extends Service {
     public static GuildRewardSettings getSettings(ScopeTarget target) {
