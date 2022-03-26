@@ -3,7 +3,9 @@ package com.c3po.core;
 import com.c3po.helper.DataType;
 import com.c3po.helper.DateTimeHelper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class DataFormatter {
     public static String prettify(DataType type, String value) {
@@ -45,7 +47,9 @@ public class DataFormatter {
             case INTEGER, CHANNEL, CATEGORY, ROLE -> Long.parseLong(value);
             case STRING -> value;
             case BOOLEAN -> value.equals("1") || value.equalsIgnoreCase("true");
-            case DATETIME -> LocalDateTime.parse(value, DateTimeHelper.DEFAULT_FORMATTER);
+            case DATETIME -> LocalDateTime.parse(value, DateTimeHelper.DATETIME_FORMATTER);
+            case DATE -> LocalDate.parse(value, DateTimeHelper.DATE_FORMATTER);
+            case TIME -> LocalTime.parse(value, DateTimeHelper.TIME_FORMATTER);
         };
     }
 }

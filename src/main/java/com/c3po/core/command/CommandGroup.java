@@ -3,6 +3,7 @@ package com.c3po.core.command;
 import com.c3po.helper.DiscordCommandOptionType;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +13,8 @@ import java.util.List;
 public abstract class CommandGroup extends Command {
     private final List<SubCommand> commands = new ArrayList<>();
 
-    protected CommandGroup(CommandCategory category, String name, String description, DiscordCommandOptionType type) {
-        super(category, name, description, type);
+    protected CommandGroup(CommandCategory category, String name, String description) {
+        super(category, name, description, DiscordCommandOptionType.SUB_COMMAND_GROUP);
     }
 
     public void addCommand(SubCommand command) {
@@ -32,5 +33,10 @@ public abstract class CommandGroup extends Command {
                 .build());
         }
         return Collections.unmodifiableList(options);
+    }
+
+    @Override
+    public Mono<?> execute(Context context) throws RuntimeException {
+        throw new IllegalStateException("Shouldn't be called directly.");
     }
 }

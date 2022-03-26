@@ -40,4 +40,12 @@ public class Context {
         return target;
     }
 
+    public ScopeTarget getTarget() {
+        if (event.getInteraction().getGuildId().isPresent()) {
+            return getTarget(Scope.MEMBER);
+        } else {
+            return getTarget(Scope.USER);
+        }
+    }
+
 }

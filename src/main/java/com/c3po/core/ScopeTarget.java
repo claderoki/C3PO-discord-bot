@@ -37,4 +37,15 @@ public final class ScopeTarget {
             return "";
         }
     }
+
+    public Scope getScope() {
+        if (guildId == null && userId != null) {
+            return Scope.USER;
+        } else if (guildId != null && userId != null) {
+            return Scope.MEMBER;
+        } else {
+            return Scope.GUILD;
+        }
+    }
+
 }

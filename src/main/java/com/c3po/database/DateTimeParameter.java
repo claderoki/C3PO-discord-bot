@@ -13,7 +13,7 @@ public class DateTimeParameter extends Parameter {
 
     @Override
     public void bind(PreparedStatement preparedStatement, int index) throws SQLException {
-        preparedStatement.setString(index, value.format(DateTimeHelper.DEFAULT_FORMATTER));
+        preparedStatement.setString(index, value.format(DateTimeHelper.DATETIME_FORMATTER));
     }
 
     @Override

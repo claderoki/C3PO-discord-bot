@@ -15,7 +15,7 @@ public class BooleanMenuOption extends ButtonMenuOption<Boolean> {
     }
 
     public Button.Style getButtonStyle() {
-        if (value == null || !value) {
+        if (getValue() == null || !getValue()) {
             return Button.Style.SECONDARY;
         } else {
             return Button.Style.SUCCESS;
@@ -24,7 +24,7 @@ public class BooleanMenuOption extends ButtonMenuOption<Boolean> {
 
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
-        value = value == null || !value;
+        setValue(getValue() == null || !getValue());
         return event.acknowledge();
     }
 

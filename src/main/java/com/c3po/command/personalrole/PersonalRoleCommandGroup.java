@@ -8,14 +8,9 @@ import reactor.core.publisher.Mono;
 
 public class PersonalRoleCommandGroup extends CommandGroup {
     public PersonalRoleCommandGroup() {
-        super(CommandCategory.MILKYWAY,"personalrole","Personal role",DiscordCommandOptionType.SUB_COMMAND_GROUP);
+        super(CommandCategory.MILKYWAY,"personalrole","Personal role");
         addCommand(new PersonalRoleColorCommand(this));
         addCommand(new PersonalRoleNameCommand(this));
         addCommand(new PersonalRoleDeleteCommand(this));
-    }
-
-    @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
-        throw new IllegalStateException("Shouldn't be called directly.");
     }
 }

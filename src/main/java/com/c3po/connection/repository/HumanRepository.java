@@ -32,4 +32,9 @@ public class HumanRepository extends Repository {
         execute("INSERT INTO `human` (`user_id`) VALUES (?)", new LongParameter(userId));
     }
 
+    public Long getGold(Integer humanId) {
+        Result result = getOne("SELECT `gold` FROM `human` WHERE `id` = ?", new LongParameter(humanId));
+        return result.getLong("gold");
+    }
+
 }

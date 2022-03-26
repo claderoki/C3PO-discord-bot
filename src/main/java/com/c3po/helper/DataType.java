@@ -7,5 +7,7 @@ public enum DataType {
     ROLE,
     CHANNEL,
     DATETIME,
+    DATE,
+    TIME,
     CATEGORY
 }

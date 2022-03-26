@@ -9,10 +9,7 @@ import com.c3po.helper.DataType;
 import com.c3po.helper.PlaceholderList;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 public class AttributeRepository extends Repository {
     protected static AttributeRepository DB;
@@ -62,7 +59,6 @@ public class AttributeRepository extends Repository {
     private void update(PropertyValue propertyValue) {
         if (propertyValue.changed()) {
             update(propertyValue.getId(), propertyValue.getValue());
-
         }
     }
 
@@ -76,6 +72,10 @@ public class AttributeRepository extends Repository {
         }
     }
 
+    public void save(Collection<PropertyValue> propertyValues) {
+        save(propertyValues.toArray(PropertyValue[]::new));
+    }
+
     public HashMap<Integer, PropertyValue> getHydratedPropertyValues(ScopeTarget target, Collection<Integer> ids) {
         return getHydratedPropertyValues(target, ids.toArray(new Integer[0]));
     }
@@ -87,6 +87,7 @@ public class AttributeRepository extends Repository {
         StringBuilder query = new StringBuilder("""
                 SELECT
                     IFNULL(`attribute_value`.`id`, 0) as `id`,
+                    `attribute`.`key` as `key`,
                     (CASE WHEN `attribute_value`.`id` IS NULL
                         THEN `attribute`.`default_value`
                         ELSE `attribute_value`.`value`
@@ -97,20 +98,31 @@ public class AttributeRepository extends Repository {
                 LEFT JOIN `attribute_value` ON `attribute_value`.`attribute_id` = `attribute`.`id`
                 """);
 
-        if (target.getGuildId() != null) {
-            query.append(" AND `attribute_value`.`guild_id` = ? ");
+        query.append(" AND `attribute_value`.`guild_id`");
+        if (target.getGuildId() == null) {
+            query.append(" IS NULL ");
+        } else {
             params.add(new LongParameter(target.getGuildId()));
+            query.append(" = ? ");
         }
+
         if (target.getUserId() != null) {
             query.append(" AND `attribute_value`.`user_id` = ? ");
             params.add(new LongParameter(target.getUserId()));
         }
 
+        List<String> wheres = new ArrayList<>();
+
         if (attributeIds.length > 0) {
             PlaceholderList placeholderList = PlaceholderList.of(attributeIds);
-            query.append(" WHERE `attribute`.`id` IN (%s)".formatted(placeholderList.getQuestionMarks()));
+            wheres.add(" `attribute`.`id` IN (%s)".formatted(placeholderList.getQuestionMarks()));
             params.addAll(placeholderList.getParameters());
         }
+
+        wheres.add(" `scope` = ? ");
+        query.append(" WHERE ").append(String.join(" AND ", wheres));
+
+        params.add(new StringParameter(target.getScope().name()));
 
         query.append(" GROUP BY `attribute`.`id`");
 
@@ -120,8 +132,7 @@ public class AttributeRepository extends Repository {
                 .target(target)
                 .id(id)
                 .type(DataType.valueOf(result.getString("type")))
-                .parentId(result.getInt("attribute_id"))
-                ;
+                .parentId(result.getInt("attribute_id"));
             if (id == 0) {
                 builder.newValue(result.optString("value"));
             } else {

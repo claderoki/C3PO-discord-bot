@@ -30,16 +30,17 @@ public class ConfigurationLoader {
     public static Configuration load(Mode mode) throws Exception {
         HashMap<String, String> map = getEnvironmentalVariables();
         return Configuration.builder()
-                .databaseCredentials(DatabaseCredentials.builder()
-                        .database(map.get("mysql_db_name"))
-                        .host(map.get("mysql_host"))
-                        .username(map.get("mysql_user"))
-                        .password(map.get("mysql_password"))
-                        .port(Integer.parseInt(map.get("mysql_port")))
-                        .build())
-                .mode(mode)
-                .token(map.get("discord_token_" + mode.name().toLowerCase()))
-                .build();
+            .databaseCredentials(DatabaseCredentials.builder()
+                .database(map.get("mysql_db_name"))
+                .host(map.get("mysql_host"))
+                .username(map.get("mysql_user"))
+                .password(map.get("mysql_password"))
+                .port(Integer.parseInt(map.get("mysql_port")))
+                .build())
+            .mode(mode)
+            .token(map.get("discord_token_" + mode.name().toLowerCase()))
+            .owmKey(map.get("openweathermap_key"))
+            .build();
     }
 
 }

@@ -38,7 +38,7 @@ public abstract class SelectMenuMenuOption extends MenuOption<String, SelectMenu
             cachedOptions = getOptionCache();
         }
 
-        var options = cachedOptions.entrySet().stream().map(c -> SelectMenu.Option.of(c.getValue(), c.getKey()).withDefault(c.getKey().equals(value)))
+        var options = cachedOptions.entrySet().stream().map(c -> SelectMenu.Option.of(c.getValue(), c.getKey()).withDefault(c.getKey().equals(getValue())))
             .toList();
 
         return options.size() > 25 ? options.subList(0, 25) : options;
@@ -46,10 +46,10 @@ public abstract class SelectMenuMenuOption extends MenuOption<String, SelectMenu
 
     @Override
     public Mono<?> execute(SelectMenuInteractionEvent event) {
-        String oldValue = value;
-        value = event.getValues().get(0);
-        if (!Objects.equals(oldValue, value)) {
-            label = cachedOptions.get(value);
+        String oldValue = getValue();
+        setValue(event.getValues().get(0));
+        if (!Objects.equals(oldValue, getValue())) {
+            label = cachedOptions.get(getValue());
         }
 
         return Mono.empty();

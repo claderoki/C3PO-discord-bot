@@ -20,7 +20,7 @@ public class LogHelper {
     }
 
     private static String getDate() {
-        return DateTimeHelper.now().format(DateTimeHelper.DEFAULT_FORMATTER);
+        return DateTimeHelper.now().format(DateTimeHelper.DATETIME_FORMATTER);
     }
 
     private static boolean isInScope(LogScope scope) {

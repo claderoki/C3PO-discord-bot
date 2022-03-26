@@ -32,10 +32,16 @@ public class Menu {
         List<LayoutComponent> components = new ArrayList<>();
 
         List<Button> buttons = new ArrayList<>();
+        List<Button> lastRowButtons = new ArrayList<>();
+
         for (MenuOption option: options.values()) {
             ActionComponent component = option.getComponent();
-            if (component instanceof Button) {
-                buttons.add((Button) component);
+            if (component instanceof Button button) {
+                if (option.shouldContinue()) {
+                    buttons.add(button);
+                } else {
+                    lastRowButtons.add(button);
+                }
             } else {
                 components.add(ActionRow.of(component));
             }
@@ -47,6 +53,10 @@ public class Menu {
 
         if (!buttons.isEmpty()) {
             components.add(ActionRow.of(buttons));
+        }
+
+        if (!lastRowButtons.isEmpty()) {
+            components.add(ActionRow.of(lastRowButtons));
         }
 
         return components;

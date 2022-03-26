@@ -5,6 +5,7 @@ package com.c3po.helper.environment;
 public class Configuration {
     private Mode mode;
     private String token;
+    private String owmKey;
     private DatabaseCredentials databaseCredentials;
 
     private static Configuration INSTANCE;

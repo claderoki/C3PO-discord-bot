@@ -8,14 +8,10 @@ import reactor.core.publisher.Mono;
 
 public class MilkywayCommandGroup extends CommandGroup {
     public MilkywayCommandGroup() {
-        super(CommandCategory.MILKYWAY,"milkyway","Milkies",DiscordCommandOptionType.SUB_COMMAND_GROUP);
+        super(CommandCategory.MILKYWAY,"milkyway","Milkies");
         this.addCommand(new MilkywayAcceptCommand(this));
         this.addCommand(new MilkywayDenyCommand(this));
         this.addCommand(new MilkywayCreateCommand(this));
     }
 
-    @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
-        throw new IllegalStateException("Shouldn't be called directly.");
-    }
 }

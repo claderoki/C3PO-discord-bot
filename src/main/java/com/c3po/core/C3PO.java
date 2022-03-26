@@ -34,17 +34,21 @@ public class C3PO {
         Configuration config = Configuration.instance();
 
         final DiscordClient client = DiscordClientBuilder.create(config.getToken())
-            .setReactorResources(ReactorResources.builder()
-                // https://github.com/Discord4J/Discord4J/issues/1020
-                .httpClient(HttpClient.create()
-                    .compress(true)
-                    .keepAlive(false)
-                    .followRedirect(true).secure())
-                .build())
+            .setReactorResources(getReactorResources())
             .build();
 
         client.gateway().setInitialPresence((c) -> ClientPresence.invisible())
         .withGateway(this::setupGateway).block();
+    }
+
+    private ReactorResources getReactorResources() {
+        return ReactorResources.builder()
+            // https://github.com/Discord4J/Discord4J/issues/1020
+            .httpClient(HttpClient.create()
+                .compress(true)
+                .keepAlive(false)
+                .followRedirect(true).secure())
+            .build();
     }
 
     private Mono<?> setupGateway(GatewayDiscordClient gateway) {
@@ -63,7 +67,7 @@ public class C3PO {
         gateway.getEventDispatcher()
             .on(eventListener.getEventType())
             .flatMap(event -> eventListener.execute(event)
-                .timeout(Duration.ofSeconds(360), Mono.error(new RuntimeException("TIMED OUT"))))
+                .timeout(Duration.ofSeconds(60), Mono.error(new TimeoutException("TIMED OUT"))))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .subscribe(null, (e) -> LogHelper.log(e, eventListener.getEventType().getName()))
         ;

@@ -2,6 +2,7 @@ package com.c3po.helper.waiter;
 
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
+import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -28,6 +29,10 @@ public class Waiter {
             User user1 = this.event.getInteraction().getUser();
             User user2 = message.getAuthor().get();
 
+            if (user2.isBot()) {
+                return false;
+            }
+
             if (!this.event.getInteraction().getChannelId().equals(message.getChannelId())) {
                 return false;
             }
@@ -53,6 +58,10 @@ public class Waiter {
             .flatMap((c) -> Mono.just(parser.parse(c)))
             .timeout(Duration.ofSeconds(30))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
+            .onErrorResume((e) -> {
+                LogHelper.log(e);
+                return Mono.empty();
+            })
             .filter(c -> !c.getType().equals(ResultType.SKIP))
             .next();
     }
@@ -63,7 +72,12 @@ public class Waiter {
                 .withEmbeds(EmbedHelper.normal(prompt)
                     .footer(parser.getPromptFooter(), null)
                     .build())
-                .withComponents().then(_wait(cls,parser));
+                .withComponents()
+                .onErrorResume((e) -> {
+                    LogHelper.log(e);
+                    return Mono.empty();
+                })
+                .then(_wait(cls,parser));
         } else {
             return _wait(cls,parser);
         }

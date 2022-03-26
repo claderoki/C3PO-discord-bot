@@ -7,6 +7,6 @@ import java.time.LocalDateTime;
 
 public class MilkywayHelper {
     public static String getChannelDescriptionFor(Milkyway milkyway, LocalDateTime expiresAt) {
-        return milkyway.getDescription() + ", expires at " + expiresAt.format(DateTimeHelper.DEFAULT_FORMATTER);
+        return milkyway.getDescription() + ", expires at " + expiresAt.format(DateTimeHelper.DATETIME_FORMATTER);
     }
 }

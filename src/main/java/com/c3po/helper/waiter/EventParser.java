@@ -2,9 +2,11 @@ package com.c3po.helper.waiter;
 
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
+@NoArgsConstructor
 public abstract class EventParser<T, F extends Event> {
     protected ChatInputInteractionEvent event;
 
@@ -17,9 +19,7 @@ public abstract class EventParser<T, F extends Event> {
 
     }
 
-    public String getPromptFooter() {
-        return null;
-    }
+    public abstract String getPromptFooter();
 
     public ParseResult<T> parse(F event) {
         if (!preValidate(event)) {

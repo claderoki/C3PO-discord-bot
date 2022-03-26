@@ -13,7 +13,7 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
     }
 
     public Button.Style getButtonStyle() {
-        if (value == null) {
+        if (getValue() == null) {
             return Button.Style.SECONDARY;
         } else {
             return Button.Style.SUCCESS;

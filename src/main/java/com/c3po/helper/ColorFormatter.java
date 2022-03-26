@@ -47,13 +47,16 @@ public class ColorFormatter {
     }
 
     public static Color parse(String rawColor) {
-        if (rawColor.startsWith("#")) {
-            var color = java.awt.Color.decode(rawColor);
-            return Color.of(color.getRed(), color.getGreen(), color.getBlue());
+        Color color = colorMapping.get(rawColor.toUpperCase());
+        if (color != null) {
+            return color;
         }
 
-        Color color = colorMapping.get(rawColor.toUpperCase());
-        if (color == null) {
+        var colory = java.awt.Color.decode(rawColor);
+        try {
+            color = Color.of(colory.getRed(), colory.getGreen(), colory.getBlue());
+        } catch (Exception e) {
+            LogHelper.log(e);
             return Color.BLUE;
         }
         return color;

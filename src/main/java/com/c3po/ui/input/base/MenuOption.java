@@ -9,12 +9,26 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
+
+import java.util.function.Function;
 
 public abstract class MenuOption<T, F extends ComponentInteractionEvent, K extends ActionComponent> {
     protected final String name;
 
     @Getter
-    protected T value;
+    private T value;
+
+    @Nullable
+    @Setter
+    protected Function<T, Void> setter;
+
+    protected void setValue(T value) {
+        if (setter != null) {
+            setter.apply(value);
+        }
+        this.value = value;
+    }
 
     @Setter
     @NonNull

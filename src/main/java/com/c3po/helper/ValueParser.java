@@ -1,5 +1,6 @@
 package com.c3po.helper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
@@ -60,7 +61,11 @@ public interface ValueParser extends GenericValueParser {
     }
 
     private static LocalDateTime parseDateTime(String value) {
-        return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
+        return LocalDateTime.parse(value, DateTimeHelper.DATETIME_FORMATTER);
+    }
+
+    private static LocalDate parseDate(String value) {
+        return LocalDate.parse(value, DateTimeHelper.DATE_FORMATTER);
     }
 
     default LocalDateTime optDateTime(String key) {
@@ -69,6 +74,14 @@ public interface ValueParser extends GenericValueParser {
 
     default LocalDateTime getDateTime(String key) {
         return get(key, ValueParser::parseDateTime);
+    }
+
+    default LocalDate getDate(String key) {
+        return get(key, ValueParser::parseDate);
+    }
+
+    default LocalDate optDate(String key) {
+        return opt(key, ValueParser::parseDate);
     }
 
 }
