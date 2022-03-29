@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public abstract class ApiCall {
         if (defaultParameters != null && endpointParameters != null) {
             Map<String, String> parameters = new HashMap<>(defaultParameters);
             parameters.putAll(endpointParameters);
-            return parameters;
+            return Collections.unmodifiableMap(parameters);
         }
         return (defaultParameters == null ? endpointParameters : defaultParameters);
     }
@@ -38,10 +39,17 @@ public abstract class ApiCall {
         }
 
         var uri = getBaseUri() + "/" + endpoint.getEndpoint() + (rawParameters != null ? ("?"+rawParameters) : "");
-        var request = HttpRequest.newBuilder()
-            .GET()
+
+        var builder = HttpRequest.newBuilder();
+        switch (endpoint.getMethod()) {
+            case GET -> builder.GET();
+            case POST -> builder.POST(HttpRequest.BodyPublishers.noBody());
+        }
+
+        var request = builder
             .uri(URI.create(uri))
             .build();
+
         HttpClient client = HttpClient.newBuilder().build();
 
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());

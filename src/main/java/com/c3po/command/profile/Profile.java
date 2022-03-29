@@ -5,6 +5,7 @@ import com.c3po.helper.ValueParser;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Getter
 public class Profile implements ValueParser {
@@ -12,7 +13,7 @@ public class Profile implements ValueParser {
         return value;
     }
 
-    private String timezone;
+    private ZoneId timezone;
     private String pigeonName;
     private String country;
     private LocalDate dateOfBirth;
@@ -21,7 +22,9 @@ public class Profile implements ValueParser {
 
     public void set(int attributeId, String value) {
         if (attributeId == KnownAttribute.timezoneId) {
-            this.timezone = value;
+            if (value != null) {
+                timezone = ZoneId.of(value);
+            }
         } else if (attributeId == KnownAttribute.countryId) {
             this.country = value;
         } else if (attributeId == KnownAttribute.dateOfBirthId) {
@@ -34,6 +37,8 @@ public class Profile implements ValueParser {
     public void set(String key, String value) {
         if ("gold".equals(key)) {
             this.gold = optLong(value);
+        } else if ("pigeonName".equals(key)) {
+            this.pigeonName = value;
         }
     }
 }

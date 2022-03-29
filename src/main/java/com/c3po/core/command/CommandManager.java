@@ -4,30 +4,38 @@ import com.c3po.command.SettingInfo;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.poll.PollCommandGroup;
-import com.c3po.command.poll.PollCreateCommand;
+import com.c3po.command.profile.ProfileCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.setting.Setting;
 import com.c3po.core.setting.SettingTransformer;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.Mode;
+import com.iwebpp.crypto.TweetNaclFast;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
+import lombok.NoArgsConstructor;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
+@NoArgsConstructor
 public class CommandManager {
     HashMap<String, Command> commands = new HashMap<>();
     HashMap<String, SettingInfo> settings = new HashMap<>();
     Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
-    public CommandManager() {
+    private String getCommandsHash() {
+        String all = String.join("", commands.keySet()) + String.join("", settings.keySet()).replace(" ", "");
+        return String.valueOf(all.hashCode());
+    }
+
+    private String getOldCommandsHash() {
+        // file?
+        return "";
     }
 
     public void registerAll(RestClient restClient) {
@@ -37,7 +45,10 @@ public class CommandManager {
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().blockOptional().orElseThrow();
 
-        if (true) {
+        String newHash = getCommandsHash();
+        String oldHash = newHash;
+
+        if (newHash.equals(oldHash)) {
             return;
         }
 
@@ -65,6 +76,7 @@ public class CommandManager {
         register(new MilkywayCommandGroup());
         register(new PersonalRoleCommandGroup());
         register(new PollCommandGroup());
+        register(new ProfileCommandGroup());
     }
 
     private void registerSettings() {

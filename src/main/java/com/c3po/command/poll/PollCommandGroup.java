@@ -11,9 +11,4 @@ public class PollCommandGroup extends CommandGroup {
         super(CommandCategory.POLLS,"poll","Polls");
         addCommand(new PollCreateCommand(this));
     }
-
-    @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
-        throw new IllegalStateException("Shouldn't be called directly.");
-    }
 }

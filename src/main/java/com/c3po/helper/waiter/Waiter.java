@@ -12,6 +12,7 @@ import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 @Setter
@@ -58,11 +59,21 @@ public class Waiter {
             .flatMap((c) -> Mono.just(parser.parse(c)))
             .timeout(Duration.ofSeconds(30))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .onErrorResume((e) -> {
-                LogHelper.log(e);
-                return Mono.empty();
-            })
             .filter(c -> !c.getType().equals(ResultType.SKIP))
+            .map((c) -> {
+                if (c.getType().equals(ResultType.ERROR)) {
+                    List<String> errors = c.getErrors();
+                    if (!errors.isEmpty()) {
+//                        throw new PublicException("Error(s): " + String.join(", ", errors));
+                    }
+                }
+                return c;
+            })
+            .onErrorContinue(PublicException.class, (e, c) -> {
+                event.editReply()
+                    .withEmbeds(EmbedHelper.error(e.getMessage()).build())
+                    .withComponents();
+            })
             .next();
     }
 
@@ -73,10 +84,7 @@ public class Waiter {
                     .footer(parser.getPromptFooter(), null)
                     .build())
                 .withComponents()
-                .onErrorResume((e) -> {
-                    LogHelper.log(e);
-                    return Mono.empty();
-                })
+                .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
                 .then(_wait(cls,parser));
         } else {
             return _wait(cls,parser);

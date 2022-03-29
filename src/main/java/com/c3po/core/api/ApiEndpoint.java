@@ -10,4 +10,7 @@ public abstract class ApiEndpoint<T extends ApiResponse> {
     public Map<String, String> getParameters() {
         return null;
     }
+    public HttpMethod getMethod() {
+        return HttpMethod.GET;
+    }
 }

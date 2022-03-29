@@ -9,5 +9,6 @@ public enum DataType {
     DATETIME,
     DATE,
     TIME,
+    TIMEZONE,
     CATEGORY
 }

@@ -16,7 +16,8 @@ public class ProfileService {
     private static final Integer[] editableAttributeIds = {
         KnownAttribute.countryId,
         KnownAttribute.cityId,
-        KnownAttribute.dateOfBirthId
+        KnownAttribute.dateOfBirthId,
+        KnownAttribute.timezoneId
     };
 
     private static List<PropertyValue> getProfilePropertyValues(ScopeTarget target, Integer... attributeIds) {
@@ -33,8 +34,6 @@ public class ProfileService {
     public static List<PropertyValue> getEditableProfilePropertyValues(ScopeTarget target) {
         return getProfilePropertyValues(target, editableAttributeIds);
     }
-
-
 
     public static Profile getProfile(ScopeTarget target) {
         Scope scope = target.getScope();
@@ -53,6 +52,7 @@ public class ProfileService {
         Integer humanId = HumanService.getHumanId(target.getUserId());
         Long gold = HumanRepository.db().getGold(humanId);
         profile.set("gold", gold.toString());
+        profile.set("pigeonName", PigeonService.getName(humanId));
 
         return profile;
     }

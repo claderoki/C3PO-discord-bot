@@ -1,6 +1,7 @@
 package com.c3po.core.openweatherapi.endpoints;
 
 import com.c3po.core.api.ApiEndpoint;
+import com.c3po.core.openweatherapi.responses.Temperature;
 import lombok.Builder;
 import org.json.JSONObject;
 

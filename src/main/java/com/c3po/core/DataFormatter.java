@@ -6,6 +6,7 @@ import com.c3po.helper.DateTimeHelper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 
 public class DataFormatter {
     public static String prettify(DataType type, String value) {
@@ -46,6 +47,7 @@ public class DataFormatter {
         return switch (type) {
             case INTEGER, CHANNEL, CATEGORY, ROLE -> Long.parseLong(value);
             case STRING -> value;
+            case TIMEZONE -> ZoneId.of(value);
             case BOOLEAN -> value.equals("1") || value.equalsIgnoreCase("true");
             case DATETIME -> LocalDateTime.parse(value, DateTimeHelper.DATETIME_FORMATTER);
             case DATE -> LocalDate.parse(value, DateTimeHelper.DATE_FORMATTER);
