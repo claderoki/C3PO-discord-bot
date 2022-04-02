@@ -10,28 +10,19 @@ import lombok.Setter;
 public abstract class EventParser<T, F extends Event> {
     protected ChatInputInteractionEvent event;
 
-    protected final ParseResult<T> result = new ParseResult<>();
-
-    protected abstract boolean preValidate(F event);
-    protected abstract T parseValue(F event);
-    protected abstract void validateValue(T value);
-    protected void finish(F event) {
-
-    }
+    protected abstract T parseValue(ParseResult<T> result, F event);
+    protected abstract void validateValue(ParseResult<T> result, T value);
+    protected void finish(F event) {}
 
     public abstract String getPromptFooter();
 
     public ParseResult<T> parse(F event) {
-        if (!preValidate(event)) {
-            result.setType(ResultType.SKIP);
-            return result;
-        }
-
-        T value = parseValue(event);
+        ParseResult<T> result = new ParseResult<>();
+        T value = parseValue(result, event);
 
         if (value != null) {
             result.setValue(value);
-            validateValue(value);
+            validateValue(result, value);
         }
 
         if (!result.getErrors().isEmpty()) {

@@ -11,7 +11,7 @@ import java.time.ZoneId;
 @Getter
 public class TimezoneParser extends MessageParser<ZoneId> {
     @Override
-    protected ZoneId parseValue(MessageCreateEvent event) {
+    protected ZoneId parseValue(ParseResult<ZoneId> result, MessageCreateEvent event) {
         try {
             return ZoneId.of(event.getMessage().getContent());
         } catch (Exception e) {
@@ -20,7 +20,7 @@ public class TimezoneParser extends MessageParser<ZoneId> {
     }
 
     @Override
-    protected void validateValue(ZoneId value) {}
+    protected void validateValue(ParseResult<ZoneId> result, ZoneId value) {}
 
     @Override
     public String getPromptFooter() {

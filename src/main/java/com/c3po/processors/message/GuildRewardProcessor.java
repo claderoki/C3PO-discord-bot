@@ -6,6 +6,7 @@ import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.LogHelper;
+import com.c3po.helper.LogScope;
 import com.c3po.model.guildreward.GuildRewardSettings;
 import com.c3po.processors.Processor;
 import com.c3po.service.AttributeService;
@@ -59,7 +60,7 @@ public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
             int pointsToReward = getPointsToReward(settings);
             value.increment(pointsToReward);
             AttributeRepository.db().save(value);
-            LogHelper.log("Gave %s points to %s".formatted(pointsToReward, target));
+            LogHelper.log("Gave %s points to %s".formatted(pointsToReward, target), LogScope.DEVELOPMENT);
             lastRewards.put(target.toString(), DateTimeHelper.offsetNow());
         }
 

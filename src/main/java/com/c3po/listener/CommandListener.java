@@ -16,6 +16,7 @@ import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.core.setting.*;
+import com.c3po.helper.LogScope;
 import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -83,9 +84,9 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             return event.reply().withContent("```\n%s```".formatted(content));
         }
         SettingGroup settingGroup = new SettingGroup(category, settingKey);
-        LogHelper.log("Setting group " + settingKey + " is being started");
+        LogHelper.log("Setting group " + settingKey + " is being started", LogScope.DEVELOPMENT);
         Mono<?> commandResult = settingGroup.handle(event);
-        LogHelper.log("Setting group " + settingKey + " is finished");
+        LogHelper.log("Setting group " + settingKey + " is finished", LogScope.DEVELOPMENT);
         return commandResult;
     }
 
@@ -109,16 +110,15 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
     }
 
     private <T> Mono<T> handleError(Throwable e) {
-        LogHelper.log("Interesting that this crashed, isn't it?");
         LogHelper.log(e);
         return Mono.empty();
     }
 
     private Mono<?> processCommand(Command command, Context context) {
         try {
-            LogHelper.log("Command " +command.getName() + " starting.");
+            LogHelper.log("Command " +command.getName() + " starting.", LogScope.DEVELOPMENT);
             Mono<?> commandResult = command.execute(context);
-            LogHelper.log("Command " +command.getName() + " finished.");
+            LogHelper.log("Command " +command.getName() + " finished.", LogScope.DEVELOPMENT);
             return commandResult;
         } catch (PublicException e) {
             EmbedCreateSpec embed = EmbedHelper.error(e.getMessage()).build();

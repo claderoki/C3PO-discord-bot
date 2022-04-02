@@ -8,9 +8,4 @@ public abstract class MessageParser<T> extends EventParser<T, MessageCreateEvent
         event.getMessage().delete().subscribe();
     }
 
-    @Override
-    protected boolean preValidate(MessageCreateEvent event) {
-        return true;
-    }
-
 }

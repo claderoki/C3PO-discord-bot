@@ -6,13 +6,19 @@ import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.Embed;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
+import discord4j.core.spec.EmbedCreateFields;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.discordjson.possible.Possible;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @Setter
@@ -27,6 +33,7 @@ public class Waiter {
         Message message = event.getMessage();
 
         if (message.getAuthor().isPresent()) {
+            // testing
             User user1 = this.event.getInteraction().getUser();
             User user2 = message.getAuthor().get();
 
@@ -48,46 +55,61 @@ public class Waiter {
     protected boolean validate(Event event) {
         if (event instanceof MessageCreateEvent messageCreateEvent) {
             return validate(messageCreateEvent);
-        } {
+        } else {
             return true;
         }
+    }
+
+    private <T> Possible<T> toPossible(Optional<T> option) {
+        return option.map(Possible::of).orElseGet(Possible::absent);
+    }
+
+    private EmbedCreateSpec.Builder copyEmbed(Embed embed) {
+        return EmbedCreateSpec.builder()
+            .color(toPossible(embed.getColor()))
+            .fields(embed.getFields().stream().map((f) -> EmbedCreateFields.Field.of(f.getName(), f.getValue(), f.isInline())).toList())
+            .footer(embed.getFooter().map(c -> EmbedCreateFields.Footer.of(c.getText(), c.getIconUrl().orElse(null))).orElse(null))
+        ;
     }
 
     protected  <T, F extends Event> Mono<ParseResult<T>> _wait(Class<F> cls, EventParser<T, F> parser) {
         return this.event.getClient().on(cls)
             .filter(this::validate)
             .flatMap((c) -> Mono.just(parser.parse(c)))
-            .timeout(Duration.ofSeconds(30))
+            .timeout(Duration.ofSeconds(120))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .filter(c -> !c.getType().equals(ResultType.SKIP))
             .map((c) -> {
                 if (c.getType().equals(ResultType.ERROR)) {
                     List<String> errors = c.getErrors();
                     if (!errors.isEmpty()) {
-//                        throw new PublicException("Error(s): " + String.join(", ", errors));
+                        event.editReply()
+                            .withEmbedsOrNull(List.of(EmbedHelper.error("Error(s): " + String.join(", ", errors)).build()))
+                            .delayElement(Duration.ofSeconds(3))
+                            .then(sendMessage(parser))
+                            .block();
                     }
                 }
                 return c;
             })
-            .onErrorContinue(PublicException.class, (e, c) -> {
-                event.editReply()
-                    .withEmbeds(EmbedHelper.error(e.getMessage()).build())
-                    .withComponents();
-            })
+            .filter(c -> c.getType().equals(ResultType.SUCCESS))
             .next();
     }
 
-    public <T, F extends Event> Mono<ParseResult<T>> wait(Class<F> cls, EventParser<T, F> parser) throws PublicException {
-        if (prompt != null) {
-            return event.editReply()
-                .withEmbeds(EmbedHelper.normal(prompt)
-                    .footer(parser.getPromptFooter(), null)
-                    .build())
-                .withComponents()
-                .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
-                .then(_wait(cls,parser));
-        } else {
-            return _wait(cls,parser);
+    private <T, F extends Event> Mono<?> sendMessage(EventParser<T, F> parser) {
+        if (prompt == null) {
+            return Mono.empty();
         }
+        String footer = parser.getPromptFooter();
+        return event.editReply()
+            .withEmbedsOrNull(List.of(EmbedHelper.normal(prompt)
+                .footer(footer == null ? null : EmbedCreateFields.Footer.of(footer, null))
+                .build()))
+            .withComponentsOrNull(null)
+            .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
+        ;
+    }
+
+    public <T, F extends Event> Mono<ParseResult<T>> wait(Class<F> cls, EventParser<T, F> parser) throws PublicException {
+        return sendMessage(parser).then(_wait(cls,parser));
     }
 }

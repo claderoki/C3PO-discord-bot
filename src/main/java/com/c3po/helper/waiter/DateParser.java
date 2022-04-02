@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Builder
 @Getter
@@ -20,10 +19,10 @@ public class DateParser extends MessageParser<LocalDate> {
     }
 
     @Override
-    protected LocalDate parseValue(MessageCreateEvent event) {
+    protected LocalDate parseValue(ParseResult<LocalDate> result, MessageCreateEvent event) {
         return LocalDate.parse(event.getMessage().getContent(), DateTimeHelper.DATE_FORMATTER);
     }
 
     @Override
-    protected void validateValue(LocalDate value) {}
+    protected void validateValue(ParseResult<LocalDate> result, LocalDate value) {}
 }

@@ -11,10 +11,12 @@ public abstract class Parameter {
         if (value == null) {
             return new NullParameter();
         }
-        return switch (value.getClass().toString()) {
-            case "class java.lang.Long" -> new LongParameter((long)value);
-            case "class java.lang.Integer" -> new IntParameter((int)value);
-            default -> new StringParameter(value.toString());
-        };
+        if (value instanceof Long v) {
+            return new LongParameter(v);
+        }
+        if (value instanceof Integer v) {
+            return new IntParameter(v);
+        }
+        return new StringParameter(value.toString());
     }
 }

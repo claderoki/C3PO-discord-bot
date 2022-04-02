@@ -16,7 +16,7 @@ public class IntParser extends MessageParser<Integer> {
     }
 
     @Override
-    protected Integer parseValue(MessageCreateEvent event) {
+    protected Integer parseValue(ParseResult<Integer> result, MessageCreateEvent event) {
         Message message = event.getMessage();
         try {
             return Integer.parseInt(message.getContent());
@@ -27,7 +27,7 @@ public class IntParser extends MessageParser<Integer> {
     }
 
     @Override
-    protected void validateValue(Integer value) {
+    protected void validateValue(ParseResult<Integer> result, Integer value) {
         if (min != null && value < min) {
             result.addError("Value can't be less than " + min);
         }

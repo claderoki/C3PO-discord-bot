@@ -44,6 +44,10 @@ public class DataFormatter {
     }
 
     public static Object parse(DataType type, String value) {
+        if (value == null) {
+            return null;
+        }
+
         return switch (type) {
             case INTEGER, CHANNEL, CATEGORY, ROLE -> Long.parseLong(value);
             case STRING -> value;
