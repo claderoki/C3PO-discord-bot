@@ -16,20 +16,10 @@ public class AttributeService extends Service {
 
     public static PropertyValue getAttributeValue(ScopeTarget target, int attributeId) {
         AttributeValueKey key = new AttributeValueKey(target, attributeId);
-        PropertyValue value = Cache.get(key);
-        if (value != null) {
-            return value;
-        }
-
-        Optional<PropertyValue> possibleValue = AttributeRepository.db().getHydratedPropertyValue(target, attributeId);
-        value = possibleValue.orElse(null);
-
-        if (value != null) {
-            Cache.set(key, value);
-            return value;
-        }
-
-        return null;
+        return Cache.computeIfAbsent(key, (k) -> {
+            Optional<PropertyValue> possibleValue = AttributeRepository.db().getHydratedPropertyValue(target, attributeId);
+            return possibleValue.orElse(null);
+        });
     }
 
     private static void cacheIdAndCodes() {

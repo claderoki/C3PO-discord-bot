@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class Cache {
     public static final HashMap<String, Object> cache = new HashMap<>();
@@ -40,6 +41,21 @@ public class Cache {
         String fullKey = key.getFullKey();
         cache.remove(fullKey);
         expiryDates.remove(fullKey);
+    }
+
+    public static <T> T computeIfAbsent(CacheKey<T> key, Function<CacheKey<T>, T> or) {
+        T value = get(key);
+        if (value != null) {
+            return value;
+        }
+
+        value = or.apply(key);
+        if (value != null) {
+            set(key, value);
+            return value;
+        }
+
+        return null;
     }
 
 }

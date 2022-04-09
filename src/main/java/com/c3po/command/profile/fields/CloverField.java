@@ -16,4 +16,9 @@ public class CloverField extends ProfileField<Long> {
     public String getValue() {
         return value.toString();
     }
+
+    public boolean isVisible() {
+        return value > 0;
+    }
+
 }

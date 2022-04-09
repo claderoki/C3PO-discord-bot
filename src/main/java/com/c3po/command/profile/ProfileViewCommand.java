@@ -27,10 +27,19 @@ public class ProfileViewCommand extends SubCommand {
             .type(DiscordCommandOptionType.USER.getValue()));
     }
     private Temperature getTemperatureFromProfile(Profile profile) {
-        OpenWeatherMapApi api = new OpenWeatherMapApi();
+        if (profile.getCity() == null) {
+            return null;
+        }
+
+        GetTemperature endpoint = GetTemperature.builder()
+            .cityName(profile.getCity())
+            .countryCode(profile.getCountry())
+            .build();
+
         try {
-            return api.call(GetTemperature.builder().cityName(profile.getCity()).countryCode(profile.getCountry()).build()).block();
+            return new OpenWeatherMapApi().call(endpoint).block();
         } catch (Exception ignored) {
+
         }
         return null;
     }
