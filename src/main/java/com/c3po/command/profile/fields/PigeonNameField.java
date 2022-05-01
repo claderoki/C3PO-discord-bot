@@ -9,7 +9,6 @@ public class PigeonNameField extends ProfileField<String> {
 
     @Override
     public ReactionEmoji getEmoji() {
-        // <:pigeon:767362416941203456>
         return ReactionEmoji.of(767362416941203456L, "pigeon", false);
     }
 

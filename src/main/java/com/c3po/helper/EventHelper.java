@@ -1,5 +1,7 @@
 package com.c3po.helper;
 
+import com.c3po.core.Scope;
+import com.c3po.core.ScopeTarget;
 import com.c3po.core.command.option.*;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -9,6 +11,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventHelper {
+
+    public static ScopeTarget scopeToTarget(Scope scope, ChatInputInteractionEvent event) {
+        return switch (scope) {
+            case GUILD -> ScopeTarget.guild(event.getInteraction().getGuildId().orElseThrow().asLong());
+            case USER -> ScopeTarget.user(event.getInteraction().getUser().getId().asLong());
+            case MEMBER -> ScopeTarget.member(
+                event.getInteraction().getUser().getId().asLong(),
+                event.getInteraction().getGuildId().orElseThrow().asLong()
+            );
+        };
+    }
 
     public static OptionContainer getOptionContainer(ChatInputInteractionEvent event) {
         return new OptionContainer(getOptionsFromEvent(event));

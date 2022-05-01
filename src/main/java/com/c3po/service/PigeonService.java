@@ -2,23 +2,21 @@ package com.c3po.service;
 
 import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.keys.PigeonIdKey;
 import com.c3po.helper.cache.keys.PigeonNameKey;
+import com.c3po.model.pigeon.Pigeon;
 
 public class PigeonService {
+    public static String getName(int pigeonId) {
+        return Cache.computeIfAbsent(new PigeonNameKey(pigeonId), (key) -> PigeonRepository.db().getName(pigeonId));
+    }
 
-    public static String getName(int humanId) {
-        PigeonNameKey key = new PigeonNameKey(humanId);
-        String name = Cache.get(key);
-        if (name != null) {
-            return name;
-        }
+    public static Integer getCurrentId(int humanId) {
+        return Cache.computeIfAbsent(new PigeonIdKey(humanId), (key) -> PigeonRepository.db().getActiveId(humanId));
+    }
 
-        name = PigeonRepository.db().getName(humanId);
-        if (name != null) {
-            Cache.set(key, name);
-            return name;
-        }
-
-        return null;
+    public static Pigeon getPigeon(int id) {
+        //TODO: when all pigeon functionality has been moved over, make this cache stats
+        return PigeonRepository.db().getPigeon(id);
     }
 }

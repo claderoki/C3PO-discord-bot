@@ -60,6 +60,10 @@ public interface ValueParser extends GenericValueParser {
         return get(key, (value) -> value.equals("1"));
     }
 
+    default boolean getBoolOr(String key, boolean defaultValue) {
+        return getOr(key, (value) -> value.equals("1"), defaultValue);
+    }
+
     private static LocalDateTime parseDateTime(String value) {
         return LocalDateTime.parse(value, DateTimeHelper.DATETIME_FORMATTER);
     }

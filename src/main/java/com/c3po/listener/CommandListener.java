@@ -5,15 +5,13 @@ import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
-import com.c3po.core.command.Command;
-import com.c3po.core.command.CommandManager;
-import com.c3po.core.command.CommandSettingValidation;
-import com.c3po.core.command.Context;
+import com.c3po.core.command.*;
 import com.c3po.command.SettingGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
+import com.c3po.helper.EventHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.core.setting.*;
 import com.c3po.helper.LogScope;
@@ -24,11 +22,11 @@ import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.annotation.Target;
+import java.util.*;
 
 public class CommandListener implements EventListener<ChatInputInteractionEvent> {
+
     private final static List<Command> commands = List.of(
         new MilkywayCommandGroup()
     );
@@ -69,9 +67,9 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         for (PropertyValue settingValue: settingValues.values()) {
             String key = SettingService.getCode(settingValue.getParentId());
             builder.append(key)
-                    .append("\t\t\t")
-                    .append(DataFormatter.prettify(settingValue.getType(), settingValue.getValue()))
-                    .append("\n");
+                .append("\t\t\t")
+                .append(DataFormatter.prettify(settingValue.getType(), settingValue.getValue()))
+                .append("\n");
         }
         return builder.toString();
     }
@@ -115,18 +113,25 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
     }
 
     private Mono<?> processCommand(Command command, Context context) {
-        try {
-            LogHelper.log("Command " +command.getName() + " starting.", LogScope.DEVELOPMENT);
-            Mono<?> commandResult = command.execute(context);
-            LogHelper.log("Command " +command.getName() + " finished.", LogScope.DEVELOPMENT);
-            return commandResult;
-        } catch (PublicException e) {
-            EmbedCreateSpec embed = EmbedHelper.error(e.getMessage()).build();
+        Optional<BucketManager> bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context));
+        Optional<Boolean> valid = bucketManager.map(BucketManager::validate);
+        if (valid.isPresent() && !valid.get()) {
+            LogHelper.log("BUCKET FAILED.");
+            return Mono.empty();
+        }
 
-            LogHelper.log(e.getMessage());
-            return context.getEvent().reply().withEmbeds(embed)
-                .onErrorResume((c) -> context.getEvent().editReply().withEmbedsOrNull(Collections.singleton(embed)).then());
+        try {
+            bucketManager.ifPresent(BucketManager::before);
+            Mono<?> commandResult = command.execute(context);
+            bucketManager.ifPresent(BucketManager::after);
+            return commandResult;
         } catch (Exception e) {
+            bucketManager.ifPresent(BucketManager::after);
+            if (e instanceof PublicException publicException) {
+                EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
+                return context.getEvent().reply().withEmbeds(embed)
+                    .onErrorResume((c) -> context.getEvent().editReply().withEmbedsOrNull(Collections.singleton(embed)).then());
+            }
             LogHelper.log(e);
             return Mono.empty();
         }

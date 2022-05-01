@@ -32,12 +32,7 @@ public class Context {
     }
 
     public ScopeTarget getTarget(Scope scope) {
-        ScopeTarget target = targets.get(scope);
-        if (target == null) {
-            target = getUncachedTarget(scope);
-            targets.put(scope, target);
-        }
-        return target;
+        return targets.computeIfAbsent(scope, c -> getUncachedTarget(scope));
     }
 
     public ScopeTarget getTarget() {

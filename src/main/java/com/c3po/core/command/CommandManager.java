@@ -3,6 +3,7 @@ package com.c3po.core.command;
 import com.c3po.command.SettingInfo;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
+import com.c3po.command.pigeon.PigeonCommandGroup;
 import com.c3po.command.poll.PollCommandGroup;
 import com.c3po.command.profile.ProfileCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
@@ -18,8 +19,10 @@ import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
 @NoArgsConstructor
@@ -28,14 +31,50 @@ public class CommandManager {
     HashMap<String, SettingInfo> settings = new HashMap<>();
     Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
-    private String getCommandsHash() {
-        String all = String.join("", commands.keySet()) + String.join("", settings.keySet()).replace(" ", "");
+    private String getCurrentCommandsHash() {
+        String all = String.join("", commands.keySet().stream().sorted().toList())
+            + String.join("", settings.keySet().stream().sorted().toList()).replace(" ", "");
         return String.valueOf(all.hashCode());
     }
 
-    private String getOldCommandsHash() {
-        // file?
-        return "";
+    private boolean ensureFile(File file) {
+        if (file.exists()) {
+            return true;
+        }
+        try {
+            return file.createNewFile();
+        } catch (IOException ex) {
+            LogHelper.log(ex);
+            return false;
+        }
+    }
+
+    @SneakyThrows
+    private String getPreviousCommandsHash() {
+        File file = new File(".data/commandHash");
+        if (!ensureFile(file)) {
+            return null;
+        }
+
+        String hash = null;
+        Scanner scanner = new Scanner(file);
+        while (scanner.hasNextLine()) {
+            hash = scanner.nextLine();
+        }
+        scanner.close();
+        return hash;
+    }
+
+    @SneakyThrows
+    private void saveCommandHash(String hash) {
+        File file = new File(".data/commandHash");
+        if (!ensureFile(file)) {
+            return;
+        }
+
+        FileOutputStream fos = new FileOutputStream(file, false);
+        fos.write(hash.getBytes());
+        fos.close();
     }
 
     public void registerAll(RestClient restClient) {
@@ -45,12 +84,14 @@ public class CommandManager {
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().blockOptional().orElseThrow();
 
-        String newHash = getCommandsHash();
-        String oldHash = newHash;
+        String currentHash = getCurrentCommandsHash();
+        String previousHash = getPreviousCommandsHash();
 
-        if (newHash.equals(oldHash)) {
+        if (currentHash.equals(previousHash)) {
             return;
         }
+
+        saveCommandHash(currentHash);
 
         List<ApplicationCommandRequest> requests = commandRequestList.values().stream().toList();
         if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
@@ -61,13 +102,14 @@ public class CommandManager {
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)
-                    .doOnError(e -> LogHelper.log("Failed to register guild commands" + e.getMessage()))
+                    .doOnNext(cmd -> LogHelper.log("Successfully registered guild command " + cmd.name()))
+                    .doOnError(e -> LogHelper.log("Failed to register guild commands: " + e.getMessage()))
                     .subscribe();
             }
         } else {
             applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, requests)
-                .doOnNext(cmd -> LogHelper.log("Successfully registered global Command " + cmd.name()))
-                .doOnError(e -> LogHelper.log("Failed to register global commands" + e.getMessage()))
+                .doOnNext(cmd -> LogHelper.log("Successfully registered global command " + cmd.name()))
+                .doOnError(e -> LogHelper.log("Failed to register global commands: " + e.getMessage()))
                 .subscribe();
         }
     }
@@ -77,6 +119,7 @@ public class CommandManager {
         register(new PersonalRoleCommandGroup());
         register(new PollCommandGroup());
         register(new ProfileCommandGroup());
+        register(new PigeonCommandGroup());
     }
 
     private void registerSettings() {

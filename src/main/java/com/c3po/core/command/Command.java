@@ -1,5 +1,6 @@
 package com.c3po.core.command;
 
+import com.c3po.core.Scope;
 import com.c3po.helper.DiscordCommandOptionType;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
@@ -9,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Getter
@@ -27,6 +29,10 @@ public abstract class Command {
         this.options = new ArrayList<>();
     }
 
+    public Optional<Bucket> getBucket() {
+        return Optional.of(new Bucket(Scope.USER, 1));
+    }
+
     public CommandSettings getSettings() {
         return null;
     }
@@ -41,9 +47,9 @@ public abstract class Command {
 
     public ApplicationCommandRequest asRequest() {
         return ApplicationCommandRequest.builder()
-            .name(this.getName())
-            .description(this.getDescription())
-            .addAllOptions(this.getOptions())
+            .name(getName())
+            .description(getDescription())
+            .addAllOptions(getOptions())
             .build();
     }
 

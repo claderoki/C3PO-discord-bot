@@ -22,11 +22,11 @@ import java.util.concurrent.TimeoutException;
 
 public class C3PO {
     private final Mode mode;
-    private CommandManager commandManager;
-    private GatewayDiscordClient gateway;
+    private final CommandManager commandManager;
 
     public C3PO(Mode mode) {
         this.mode = mode;
+        commandManager = new CommandManager();
     }
 
     public void run() throws Exception {
@@ -37,7 +37,8 @@ public class C3PO {
             .setReactorResources(getReactorResources())
             .build();
 
-        client.gateway().setInitialPresence((c) -> ClientPresence.invisible())
+        client.gateway()
+            //.setInitialPresence((c) -> ClientPresence.invisible())
         .withGateway(this::setupGateway).block();
     }
 
@@ -52,8 +53,6 @@ public class C3PO {
     }
 
     private Mono<?> setupGateway(GatewayDiscordClient gateway) {
-        this.gateway = gateway;
-        commandManager = new CommandManager();
         commandManager.registerAll(gateway.getRestClient());
 
         register(gateway, new CommandListener(commandManager));

@@ -10,6 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="apache.maven.plugins.shade.plugin" level="project" />
     <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.22" level="project" />
     <orderEntry type="library" name="Maven: com.discord4j:discord4j-core:3.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.discord4j:discord-json:1.6.12" level="project" />

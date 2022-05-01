@@ -1,6 +1,8 @@
 package com.c3po.listener;
 
 import com.c3po.helper.LogHelper;
+import com.c3po.helper.environment.Configuration;
+import com.c3po.helper.environment.Mode;
 import com.c3po.processors.Processor;
 import com.c3po.processors.message.GuildRewardProcessor;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -13,9 +15,13 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
     private final List<Processor<MessageCreateEvent>> processors;
 
     public MessageCreateListener() {
-        processors = List.of(
-            new GuildRewardProcessor()
-        );
+        if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
+            processors = List.of();
+        } else {
+            processors = List.of(
+                new GuildRewardProcessor()
+            );
+        }
     }
 
     @Override
