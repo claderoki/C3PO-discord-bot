@@ -3,3 +3,5 @@
 .env
 target
 /target/
+.data
+dependency-reduced-pom.xml
