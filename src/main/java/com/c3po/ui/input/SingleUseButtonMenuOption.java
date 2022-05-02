@@ -8,8 +8,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-public class VoidMenuOption extends ButtonMenuOption<Void> {
-    public VoidMenuOption(String name) {
+public class SingleUseButtonMenuOption extends ButtonMenuOption<Void> {
+    private boolean clicked = false;
+
+    public SingleUseButtonMenuOption(String name) {
         super(name);
     }
 
@@ -22,7 +24,13 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
     }
 
     @Override
+    public void modifyButton(Button button) {
+        button.disabled(clicked);
+    }
+
+    @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
+        clicked = true;
         if (executor == null) {
             return event.acknowledge();
         }

@@ -20,8 +20,12 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
         }
     }
 
-    public Button getComponent() {
-        return switch (getButtonStyle()) {
+    public void modifyButton(Button button) {
+
+    }
+
+    final public Button getComponent() {
+        Button button = switch (getButtonStyle()) {
             case PRIMARY -> Button.primary(getCustomId(), getEmoji(), getFullName());
             case SECONDARY -> Button.secondary(getCustomId(), getEmoji(), getFullName());
             case SUCCESS -> Button.success(getCustomId(), getEmoji(), getFullName());
@@ -29,5 +33,7 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
             case LINK -> Button.link(getCustomId(), getEmoji(), getFullName());
             default -> throw new IllegalStateException("Unexpected value: " + getButtonStyle());
         };
+        modifyButton(button);
+        return button;
     }
 }

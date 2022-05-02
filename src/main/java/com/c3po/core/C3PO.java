@@ -38,7 +38,7 @@ public class C3PO {
             .build();
 
         client.gateway()
-            //.setInitialPresence((c) -> ClientPresence.invisible())
+        .setInitialPresence(c -> ClientPresence.invisible())
         .withGateway(this::setupGateway).block();
     }
 
@@ -48,7 +48,8 @@ public class C3PO {
             .httpClient(HttpClient.create()
                 .compress(true)
                 .keepAlive(false)
-                .followRedirect(true).secure())
+                .followRedirect(true)
+                .secure())
             .build();
     }
 

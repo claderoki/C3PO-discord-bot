@@ -21,17 +21,20 @@ public class MenuManager {
             return Mono.just(true);
         }
         if (!option.shouldContinue()) {
-            return option.execute(event).then(Mono.just(false));
+            return option.execute(event)
+                .map(e -> { menu.incrementOptionsHandled(); return Mono.empty();})
+                .then(Mono.just(false));
         }
         return option.execute(event)
+            .map(e -> { menu.incrementOptionsHandled(); return Mono.empty();})
             .then(event.editReply()
                 .withEmbedsOrNull(Collections.singleton(embed))
                 .withComponentsOrNull(menu.getComponents()))
-            .then(Mono.just(true));
+            .then(Mono.just(menu.shouldContinue()));
     }
 
     public static Mono<?> waitForMenu(Menu menu, String message) {
-        return waitForMenu(menu, (e) -> e.description(message));
+        return waitForMenu(menu, e -> e.description(message));
     }
 
     public static Mono<?> waitForMenu(Menu menu, Consumer<EmbedCreateSpec.Builder> embedConsumer) {
@@ -44,16 +47,16 @@ public class MenuManager {
         return event.reply()
             .withEmbeds(embed.build())
             .withComponents(menu.getComponents())
-            .onErrorResume((c) -> event.editReply()
+            .onErrorResume(c -> event.editReply()
                 .withEmbedsOrNull(Collections.singleton(embed.build()))
                 .withComponentsOrNull(menu.getComponents())
                 .then())
             .then(event.getClient().on(ComponentInteractionEvent.class)
-                .filter((c) -> c.getInteraction().getUser().getId().equals(event.getInteraction().getUser().getId()))
+                .filter(c -> c.getInteraction().getUser().getId().equals(event.getInteraction().getUser().getId()))
                 .timeout(Duration.ofSeconds(360))
                 .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-                .flatMap((c) -> processEvent(c, menu, embed.build()))
-                .takeWhile((c) -> c)
+                .flatMap(c -> processEvent(c, menu, embed.build()))
+                .takeWhile(c -> c)
                 .then())
             ;
     }

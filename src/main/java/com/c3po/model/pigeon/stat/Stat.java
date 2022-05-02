@@ -9,6 +9,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public abstract class Stat {
     private long value;
+    private StatType statType;
 
     public abstract String getEmoji();
+
+    public void addValue(long value) {
+        this.value += value;
+    }
+
+    public Integer getMax() {
+        return null;
+    }
+
+    public Integer getMin() {
+        return null;
+    }
+
 }

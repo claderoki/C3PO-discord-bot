@@ -36,7 +36,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
 
     protected String emoji;
 
-    public MenuOption withEmoji(String emoji) {
+    public MenuOption<T, F, K> withEmoji(String emoji) {
         this.emoji = emoji;
         return this;
     }
@@ -51,7 +51,10 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     }
 
     protected ReactionEmoji getEmoji() {
-        return emoji != null ? ReactionEmoji.unicode(emoji) : null;
+        if (emoji == null) {
+            return null;
+        }
+        return ReactionEmoji.unicode(emoji);
     }
 
     protected String getCustomId() {

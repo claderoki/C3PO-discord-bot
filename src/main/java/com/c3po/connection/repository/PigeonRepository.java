@@ -8,10 +8,12 @@ import com.c3po.errors.PublicException;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonCondition;
 import com.c3po.model.pigeon.PigeonStatus;
+import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
 
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PigeonRepository extends Repository {
     protected static PigeonRepository DB;
@@ -63,6 +65,44 @@ public class PigeonRepository extends Repository {
         return stats;
     }
 
+    private String toMin(Integer min, String value) {
+        if (min == null) {
+            return String.valueOf(value);
+        }
+        return "GREATEST(%s, %s)".formatted(value, min);
+    }
+
+    private String toMax(Integer max, String value) {
+        if (max == null) {
+            return String.valueOf(value);
+        }
+        return "LEAST(%s, %s)".formatted(value, max);
+    }
+
+    public synchronized void updateWinnings(int pigeonId, PigeonWinnings winnings) {
+        Stat gold = winnings.getStat(StatType.GOLD);
+        Stat health = winnings.getStat(StatType.HEALTH);
+
+        StringBuilder query = new StringBuilder("UPDATE `pigeon` ");
+        if (gold.getValue() != 0) {
+            query.append("INNER JOIN `human` ON `pigeon`.`human_id` = `human`.`id` SET ");
+        }
+        if (health.getValue() != 0) {
+            query.append("`pigeon`.`condition` = (CASE WHEN `pigeon`.`health` + ").append(health.getValue()).append(" <= 0 THEN 'dead' ELSE `pigeon`.`condition` END),");
+        }
+        query.append(winnings.getStats().values().stream()
+            .filter(c -> c.getValue() != 0)
+            .map(c -> {
+            String column = c.getStatType().toString().toLowerCase();
+            return "`%s` = %s".formatted(column,
+                toMin(c.getMin(), toMax(c.getMax(), column + " + " + c.getValue()))
+            );
+        }).collect(Collectors.joining(",")));
+        query.append(" WHERE `pigeon`.`id` = ?");
+
+        execute(query.toString(), new IntParameter(pigeonId));
+    }
+
     public synchronized Pigeon getPigeon(int id) {
         String query = """
             SELECT
@@ -106,6 +146,7 @@ public class PigeonRepository extends Repository {
         query.append("(`human`.`gold` >= ?) AS `has_gold_needed`, ");
         parameters.add(new IntParameter(validation.getGoldNeeded()));
         query.append("(`pigeon`.`id`) AS `pigeon_id`, ");
+        query.append("(`human`.`id`) AS `human_id`, ");
 
         if (validation.getRequiredPigeonStatus() != null) {
             query.append("(`pigeon`.`status` IS NOT NULL AND `pigeon`.`status` = ?) AS `has_required_status`, ");
@@ -126,8 +167,10 @@ public class PigeonRepository extends Repository {
         Result result = getOne(query.toString(), parameters);
         return PigeonValidationResult.builder()
             .pigeonId(result.optInt("pigeon_id"))
+            .humanId(result.optInt("human_id"))
             .hasAvailablePvpAction(result.getBoolOr("has_available_pvp_action", true))
             .hasGoldNeeded(result.getBool("has_gold_needed"))
+            .hasRequiredStatus(result.getBoolOr("has_required_status", true))
             .shouldNotifyDeath(result.getBool("should_notify_death"))
             .hasPvpEnabled(result.getBool("has_pvp_enabled"))
             .build();
@@ -135,5 +178,30 @@ public class PigeonRepository extends Repository {
 
     public void setDeathNotified(Integer id) {
         execute("UPDATE `pigeon` SET `death_notified` = 1 WHERE `id` = ?", new IntParameter(id));
+    }
+
+    public synchronized List<PigeonWinnings> getWinnings(int explorationId) {
+        String query = "SELECT * FROM `exploration_winnings` WHERE `exploration_id` = ?";
+        return query(query, new IntParameter(explorationId)).stream()
+            .map(result -> {
+                PigeonWinnings winnings = new PigeonWinnings();
+                Integer itemId = result.optInt("item_id");
+                if (itemId != null) {
+                    winnings.addItemId(itemId);
+                }
+                LinkedHashMap<StatType, Stat> stats = new LinkedHashMap<>(result.getColumns().stream()
+                    .map(c -> {
+                        try {
+                            StatType statType = StatType.valueOf(c.toUpperCase());
+                            return StatFactory.create(statType, result.getInt(c));
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Stat::getStatType, g -> g)));
+                winnings.setStats(stats);
+                return winnings;
+            }).toList();
     }
 }

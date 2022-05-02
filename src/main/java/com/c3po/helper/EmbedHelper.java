@@ -8,9 +8,13 @@ public class EmbedHelper {
     public static final Color COLOR = Color.of(242, 180, 37);
 
     public static EmbedCreateSpec.Builder normal(String description) {
-        return EmbedCreateSpec.builder()
-            .color(COLOR)
+        return base()
             .description(description == null ? Possible.absent() : Possible.of(description));
+    }
+
+    public static EmbedCreateSpec.Builder base() {
+        return EmbedCreateSpec.builder()
+            .color(COLOR);
     }
 
     public static EmbedCreateSpec.Builder normal() {

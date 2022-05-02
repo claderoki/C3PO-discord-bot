@@ -1,23 +1,35 @@
 package com.c3po.ui.input.base;
 
 import com.c3po.core.command.Context;
+import com.c3po.helper.LogHelper;
 import discord4j.core.object.component.ActionComponent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Menu {
     private final Map<String, MenuOption> options = new HashMap<>();
     @Getter
     private final Context context;
+    @Getter
+    @Setter
+    private Integer maximumOptionsAllowed;
+
+    @Getter
+    private int optionsHandled;
+
+    public void incrementOptionsHandled() {
+        optionsHandled++;
+    }
 
     public void addOption(MenuOption option) {
         option.setContext(context);
@@ -60,5 +72,12 @@ public class Menu {
         }
 
         return components;
+    }
+
+    public boolean shouldContinue() {
+        if (maximumOptionsAllowed == null) {
+            return true;
+        }
+        return maximumOptionsAllowed > (optionsHandled+1);
     }
 }

@@ -8,5 +8,10 @@ public class PigeonCommandGroup extends CommandGroup {
         super(CommandCategory.PIGEON,"pigeon","Pigeons");
         addCommand(new PigeonProfileCommand(this));
         addCommand(new PigeonExploreCommand(this));
+        addCommand(new PigeonSpaceCommand(this));
+        addCommand(new PigeonCleanCommand(this));
+        addCommand(new PigeonPlayCommand(this));
+        addCommand(new PigeonFeedCommand(this));
+        addCommand(new PigeonHealCommand(this));
     }
 }

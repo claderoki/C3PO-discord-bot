@@ -1,7 +1,5 @@
 package com.c3po.model.pigeon;
 
-import java.util.Locale;
-
 public enum PigeonStatus {
     IDLE,
     MAILING,
