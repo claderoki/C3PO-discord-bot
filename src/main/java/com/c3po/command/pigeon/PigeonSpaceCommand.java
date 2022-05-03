@@ -9,15 +9,16 @@ import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.RandomHelper;
 import com.c3po.model.exploration.*;
+import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.service.ExplorationService;
+import com.c3po.service.PigeonService;
 import com.c3po.ui.input.SingleUseButtonMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.spec.EmbedCreateFields;
-import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -64,7 +65,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         return List.of();
     }
 
-    private Mono<?> finalSequence(Context context, PigeonValidationResult result, Exploration exploration, List<PigeonWinnings> totalWinnings) {
+    private Mono<?> finalSequence(Context context, Pigeon pigeon, Exploration exploration, List<PigeonWinnings> totalWinnings) {
         PigeonWinnings winnings = PigeonWinnings.merge(totalWinnings.toArray(PigeonWinnings[]::new));
 
         LocalDateTime now = DateTimeHelper.now();
@@ -74,23 +75,25 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         var embed = EmbedHelper.normal("After %s of exploring %s, your pigeon finally returns home.".formatted(delta.format(), "Luna"))
             .addField(EmbedCreateFields.Field.of("Stats", winnings.format(), false));
         //TODO: add bonus fields here
-        PigeonRepository.db().updateWinnings(result.getPigeonId(), winnings);
-        HumanRepository.db().addItems(winnings.getItemIds(), result.getHumanId());
+        PigeonRepository.db().updateWinnings(pigeon.getId(), winnings);
+        HumanRepository.db().addItems(winnings.getItemIds(), pigeon.getHumanId());
         return context.getEvent().createFollowup().withEmbeds(embed.build()).then();
     }
 
-    private Mono<?> executeScenarios(PigeonValidationResult result, Context context, Exploration exploration) {
+    private Mono<?> executeScenarios(int pigeonId, Context context, Exploration exploration) {
         FullExplorationLocation location = ExplorationService.getAllLocations().get(exploration.getLocationId());
         Menu menu = new Menu(context);
         menu.setMaximumOptionsAllowed(exploration.getActionsRemaining());
-            List<ExplorationScenarioWinnings> totalWinnings = new ArrayList<>();
-
+        List<ExplorationScenarioWinnings> totalWinnings = new ArrayList<>();
+        Pigeon pigeon = PigeonService.getPigeon(pigeonId);
         for (var action: location.actions()) {
             SingleUseButtonMenuOption menuOption = new SingleUseButtonMenuOption(action.name());
             menuOption.withEmoji(action.symbol());
             menuOption.setExecutor(c -> {
                 ExplorationScenario scenario = RandomHelper.choice(action.scenarios());
                 PigeonWinnings winnings = toWinnings(scenario);
+                Stat gold = winnings.getStat(StatType.GOLD);
+                gold.setValue((long) (gold.getValue() * pigeon.getGoldModifier()));
                 totalWinnings.add(new ExplorationScenarioWinnings(winnings, action.id()));
                 return c.createFollowup().withEmbeds(EmbedHelper.base()
                     .title(action.symbol() + " " + action.name())
@@ -115,13 +118,13 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         int actionsRemaining = exploration.getActionsRemaining() - menu.getOptionsHandled();
         if (actionsRemaining == 0) {
             if (totalWinnings.size() == exploration.getTotalActions()) {
-                finalSequence(context, result, exploration, totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList()).block();
+                finalSequence(context, pigeon, exploration, totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList()).block();
             } else {
                 List<PigeonWinnings> winnings = new ArrayList<>(PigeonRepository.db().getWinnings(exploration.getId()));
                 winnings.addAll(totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList());
-                finalSequence(context, result, exploration, winnings).block();
+                finalSequence(context, pigeon, exploration, winnings).block();
             }
-            PigeonRepository.db().updateStatus(result.getPigeonId(), PigeonStatus.IDLE);
+            PigeonRepository.db().updateStatus(pigeon.getId(), PigeonStatus.IDLE);
             ExplorationRepository.db().finish(exploration.getId());
         } else {
             ExplorationRepository.db().updateActionsRemaining(exploration.getId(), actionsRemaining);
@@ -142,7 +145,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         LocalDateTime now = DateTimeHelper.now();
 
         if (now.isAfter(exploration.getArrivalDate())) {
-            return executeScenarios(result, context, exploration);
+            return executeScenarios(result.getPigeonId(), context, exploration);
         } else {
             return context.getEvent().reply().withContent("not there yet");
         }

@@ -88,4 +88,7 @@ public interface ValueParser extends GenericValueParser {
         return opt(key, ValueParser::parseDate);
     }
 
+    default Double getDouble(String key) {
+        return get(key, Double::parseDouble);
+    }
 }

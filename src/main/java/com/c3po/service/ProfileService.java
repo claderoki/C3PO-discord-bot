@@ -8,6 +8,7 @@ import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.model.pigeon.Pigeon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,11 @@ public class ProfileService {
         Integer humanId = HumanService.getHumanId(target.getUserId());
         Long gold = HumanRepository.db().getGold(humanId);
         profile.set("gold", gold.toString());
-        profile.set("pigeonName", PigeonService.getName(humanId));
+        Integer pigeonId = PigeonService.getCurrentId(humanId);
+        if (pigeonId != null) {
+            Pigeon pigeon = PigeonService.getPigeon(pigeonId);
+            profile.set("pigeonName", pigeon.getName());
+        }
 
         return profile;
     }

@@ -54,7 +54,7 @@ public class C3PO {
     }
 
     private Mono<?> setupGateway(GatewayDiscordClient gateway) {
-        commandManager.registerAll(gateway.getRestClient());
+        commandManager.registerAll(gateway.getRestClient(), false);
 
         register(gateway, new CommandListener(commandManager));
         register(gateway, new MessageCreateListener());

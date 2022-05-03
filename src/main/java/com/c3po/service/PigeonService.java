@@ -3,14 +3,9 @@ package com.c3po.service;
 import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.PigeonIdKey;
-import com.c3po.helper.cache.keys.PigeonNameKey;
 import com.c3po.model.pigeon.Pigeon;
 
 public class PigeonService {
-    public static String getName(int pigeonId) {
-        return Cache.computeIfAbsent(new PigeonNameKey(pigeonId), (key) -> PigeonRepository.db().getName(pigeonId));
-    }
-
     public static Integer getCurrentId(int humanId) {
         return Cache.computeIfAbsent(new PigeonIdKey(humanId), (key) -> PigeonRepository.db().getActiveId(humanId));
     }

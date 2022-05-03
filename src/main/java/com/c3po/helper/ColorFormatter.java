@@ -2,49 +2,48 @@ package com.c3po.helper;
 
 import discord4j.rest.util.Color;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ColorFormatter {
-    private static final Map<String, Color> colorMapping = new HashMap<>();
-
-    static {
-        colorMapping.put("WHITE", Color.WHITE);
-        colorMapping.put("DISCORD_WHITE", Color.DISCORD_WHITE);
-        colorMapping.put("LIGHT_GRAY", Color.LIGHT_GRAY);
-        colorMapping.put("GRAY", Color.GRAY);
-        colorMapping.put("DARK_GRAY", Color.DARK_GRAY);
-        colorMapping.put("BLACK", Color.BLACK);
-        colorMapping.put("DISCORD_BLACK", Color.DISCORD_BLACK);
-        colorMapping.put("RED", Color.RED);
-        colorMapping.put("PINK", Color.PINK);
-        colorMapping.put("ORANGE", Color.ORANGE);
-        colorMapping.put("YELLOW", Color.YELLOW);
-        colorMapping.put("GREEN", Color.GREEN);
-        colorMapping.put("MAGENTA", Color.MAGENTA);
-        colorMapping.put("CYAN", Color.CYAN);
-        colorMapping.put("BLUE", Color.BLUE);
-        colorMapping.put("LIGHT_SEA_GREEN", Color.LIGHT_SEA_GREEN);
-        colorMapping.put("MEDIUM_SEA_GREEN", Color.MEDIUM_SEA_GREEN);
-        colorMapping.put("SUMMER_SKY", Color.SUMMER_SKY);
-        colorMapping.put("DEEP_LILAC", Color.DEEP_LILAC);
-        colorMapping.put("RUBY", Color.RUBY);
-        colorMapping.put("MOON_YELLOW", Color.MOON_YELLOW);
-        colorMapping.put("TAHITI_GOLD", Color.TAHITI_GOLD);
-        colorMapping.put("CINNABAR", Color.CINNABAR);
-        colorMapping.put("SUBMARINE", Color.SUBMARINE);
-        colorMapping.put("HOKI", Color.HOKI);
-        colorMapping.put("DEEP_SEA", Color.DEEP_SEA);
-        colorMapping.put("SEA_GREEN", Color.SEA_GREEN);
-        colorMapping.put("ENDEAVOUR", Color.ENDEAVOUR);
-        colorMapping.put("VIVID_VIOLET", Color.VIVID_VIOLET);
-        colorMapping.put("JAZZBERRY_JAM", Color.JAZZBERRY_JAM);
-        colorMapping.put("DARK_GOLDENROD", Color.DARK_GOLDENROD);
-        colorMapping.put("RUST", Color.RUST);
-        colorMapping.put("BROWN", Color.BROWN);
-        colorMapping.put("GRAY_CHATEAU", Color.GRAY_CHATEAU);
-        colorMapping.put("BISMARK", Color.BISMARK);
-    }
+    private static final Map<String, Color> colorMapping = Map.ofEntries(
+        Map.entry("WHITE", Color.WHITE),
+        Map.entry("DISCORD_WHITE",Color.DISCORD_WHITE),
+        Map.entry("LIGHT_GRAY", Color.LIGHT_GRAY),
+        Map.entry("GRAY", Color.GRAY),
+        Map.entry("DARK_GRAY", Color.DARK_GRAY),
+        Map.entry("BLACK", Color.BLACK),
+        Map.entry("DISCORD_BLACK", Color.DISCORD_BLACK),
+        Map.entry("RED", Color.RED),
+        Map.entry("PINK", Color.PINK),
+        Map.entry("ORANGE", Color.ORANGE),
+        Map.entry("YELLOW", Color.YELLOW),
+        Map.entry("GREEN", Color.GREEN),
+        Map.entry("MAGENTA", Color.MAGENTA),
+        Map.entry("CYAN", Color.CYAN),
+        Map.entry("BLUE", Color.BLUE),
+        Map.entry("LIGHT_SEA_GREEN", Color.LIGHT_SEA_GREEN),
+        Map.entry("MEDIUM_SEA_GREEN", Color.MEDIUM_SEA_GREEN),
+        Map.entry("SUMMER_SKY", Color.SUMMER_SKY),
+        Map.entry("DEEP_LILAC", Color.DEEP_LILAC),
+        Map.entry("RUBY", Color.RUBY),
+        Map.entry("MOON_YELLOW", Color.MOON_YELLOW),
+        Map.entry("TAHITI_GOLD", Color.TAHITI_GOLD),
+        Map.entry("CINNABAR", Color.CINNABAR),
+        Map.entry("SUBMARINE", Color.SUBMARINE),
+        Map.entry("HOKI", Color.HOKI),
+        Map.entry("DEEP_SEA", Color.DEEP_SEA),
+        Map.entry("SEA_GREEN", Color.SEA_GREEN),
+        Map.entry("ENDEAVOUR", Color.ENDEAVOUR),
+        Map.entry("VIVID_VIOLET", Color.VIVID_VIOLET),
+        Map.entry("JAZZBERRY_JAM", Color.JAZZBERRY_JAM),
+        Map.entry("DARK_GOLDENROD", Color.DARK_GOLDENROD),
+        Map.entry("RUST", Color.RUST),
+        Map.entry("BROWN", Color.BROWN),
+        Map.entry("GRAY_CHATEAU", Color.GRAY_CHATEAU),
+        Map.entry("BISMARK", Color.BISMARK)
+    );
 
     public static Color parse(String rawColor) {
         Color color = colorMapping.get(rawColor.toUpperCase());
@@ -52,9 +51,8 @@ public class ColorFormatter {
             return color;
         }
 
-        var colory = java.awt.Color.decode(rawColor);
         try {
-            color = Color.of(colory.getRed(), colory.getGreen(), colory.getBlue());
+            color = Color.of(java.awt.Color.decode(rawColor).getRGB());
         } catch (Exception e) {
             LogHelper.log(e);
             return Color.BLUE;

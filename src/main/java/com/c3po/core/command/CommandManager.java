@@ -77,9 +77,11 @@ public class CommandManager {
         fos.close();
     }
 
-    public void registerAll(RestClient restClient) {
-        registerCommands();
-        registerSettings();
+    public void registerAll(RestClient restClient, boolean clear) {
+        if (!clear) {
+            registerCommands();
+            registerSettings();
+        }
 
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().blockOptional().orElseThrow();

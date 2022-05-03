@@ -4,7 +4,6 @@ import com.c3po.command.pigeon.PigeonValidation;
 import com.c3po.command.pigeon.PigeonValidationResult;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import com.c3po.errors.PublicException;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonCondition;
 import com.c3po.model.pigeon.PigeonStatus;
@@ -27,15 +26,6 @@ public class PigeonRepository extends Repository {
 
     protected PigeonRepository(DataSource dataSource) {
         super(dataSource);
-    }
-
-    public synchronized String getName(int id) {
-        Result result = getOne("SELECT `name` FROM `pigeon` WHERE id = ?", new IntParameter(id));
-        if (result == null) {
-            return null;
-        }
-
-        return result.getString("name");
     }
 
     public synchronized Integer getActiveId(int humanId) {
@@ -84,10 +74,11 @@ public class PigeonRepository extends Repository {
         Stat health = winnings.getStat(StatType.HEALTH);
 
         StringBuilder query = new StringBuilder("UPDATE `pigeon` ");
-        if (gold.getValue() != 0) {
-            query.append("INNER JOIN `human` ON `pigeon`.`human_id` = `human`.`id` SET ");
+        if (gold != null && gold.getValue() != 0) {
+            query.append("INNER JOIN `human` ON `pigeon`.`human_id` = `human`.`id` ");
         }
-        if (health.getValue() != 0) {
+        query.append(" SET ");
+        if (health != null && health.getValue() < 0) {
             query.append("`pigeon`.`condition` = (CASE WHEN `pigeon`.`health` + ").append(health.getValue()).append(" <= 0 THEN 'dead' ELSE `pigeon`.`condition` END),");
         }
         query.append(winnings.getStats().values().stream()
@@ -106,6 +97,8 @@ public class PigeonRepository extends Repository {
     public synchronized Pigeon getPigeon(int id) {
         String query = """
             SELECT
+                `pigeon`.`id`,
+                `pigeon`.`human_id`,
                 `pigeon`.`name`,
                 `pigeon`.`health`,
                 `pigeon`.`happiness`,
@@ -113,7 +106,8 @@ public class PigeonRepository extends Repository {
                 `pigeon`.`experience`,
                 `pigeon`.`food`,
                 `pigeon`.`status`,
-                `pigeon`.`condition`
+                `pigeon`.`condition`,
+                `pigeon`.`gold_modifier`
             FROM
                 `pigeon`
             WHERE `pigeon`.`id` = ?
@@ -126,10 +120,13 @@ public class PigeonRepository extends Repository {
         }
 
         return Pigeon.builder()
-            .stats(getStats(result))
+            .id(result.getInt("id"))
+            .humanId(result.getInt("human_id"))
             .name(result.getString("name"))
+            .stats(getStats(result))
             .status(PigeonStatus.valueOf(result.getString("status").toUpperCase()))
             .condition(PigeonCondition.valueOf(result.getString("condition").toUpperCase()))
+            .goldModifier(result.getDouble("gold_modifier"))
             .build();
     }
 
@@ -203,5 +200,10 @@ public class PigeonRepository extends Repository {
                 winnings.setStats(stats);
                 return winnings;
             }).toList();
+    }
+
+    public Double getGoldModifier(int pigeonId) {
+        return getOne("SELECT `gold_modifier` FROM `pigeon` WHERE `pigeon`.`id` = ?", new IntParameter(pigeonId))
+            .getDouble("gold_modifier");
     }
 }

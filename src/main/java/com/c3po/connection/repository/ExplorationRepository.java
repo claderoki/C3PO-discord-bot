@@ -4,7 +4,6 @@ import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.model.exploration.*;
 import com.c3po.model.pigeon.PigeonWinnings;
-import com.c3po.model.pigeon.stat.Stat;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;

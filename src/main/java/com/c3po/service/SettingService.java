@@ -58,17 +58,13 @@ public class SettingService extends Service {
     }
 
     public static Setting getSetting(Integer id) {
-        SettingKey key = new SettingKey(id);
-        Setting setting = Cache.get(key);
-        if (setting != null) {
+        return Cache.computeIfAbsent(new SettingKey(id), key -> {
+            Setting setting = SettingRepository.db().getSetting(id);
+            if (setting != null) {
+                Cache.set(key, setting);
+            }
             return setting;
-        }
-
-        setting = SettingRepository.db().getSetting(id);
-        if (setting != null) {
-            Cache.set(key, setting);
-        }
-        return setting;
+        });
     }
 
 }

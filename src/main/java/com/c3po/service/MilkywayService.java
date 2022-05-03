@@ -15,19 +15,14 @@ import java.util.List;
 
 public class MilkywayService {
     public static MilkywaySettings getSettings(ScopeTarget target) {
-        MilkywaySettingsKey key = new MilkywaySettingsKey(target);
-        MilkywaySettings settings = Cache.get(key);
-        if (settings != null) {
+        return Cache.computeIfAbsent(new MilkywaySettingsKey(target), key -> {
+            MilkywaySettings settings = new MilkywaySettings(target);
+            for(PropertyValue value: SettingRepository.db().getHydratedPropertyValues(target, KnownCategory.MILKYWAY).values()) {
+                String settingKey = SettingService.getCode(value.getParentId());
+                settings.set(settingKey, value.getValue());
+            }
             return settings;
-        }
-
-        settings = new MilkywaySettings(target);
-        for(PropertyValue value: SettingRepository.db().getHydratedPropertyValues(target, KnownCategory.MILKYWAY).values()) {
-            String settingKey = SettingService.getCode(value.getParentId());
-            settings.set(settingKey, value.getValue());
-        }
-        Cache.set(key, settings);
-        return settings;
+        });
     }
 
     public static long getIncrementIdentifier(long guildId) {
