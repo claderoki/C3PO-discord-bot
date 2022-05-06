@@ -31,6 +31,20 @@ public class CommandManager {
     HashMap<String, SettingInfo> settings = new HashMap<>();
     Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
+    private void registerCommands() {
+        register(new MilkywayCommandGroup());
+        register(new PersonalRoleCommandGroup());
+        register(new PollCommandGroup());
+        register(new ProfileCommandGroup());
+        register(new PigeonCommandGroup());
+    }
+
+    private void registerSettings() {
+        for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
+            register(entrySet.getKey(), entrySet.getValue().values());
+        }
+    }
+
     private String getCurrentCommandsHash() {
         String all = String.join("", commands.keySet().stream().sorted().toList())
             + String.join("", settings.keySet().stream().sorted().toList()).replace(" ", "");
@@ -113,20 +127,6 @@ public class CommandManager {
                 .doOnNext(cmd -> LogHelper.log("Successfully registered global command " + cmd.name()))
                 .doOnError(e -> LogHelper.log("Failed to register global commands: " + e.getMessage()))
                 .subscribe();
-        }
-    }
-
-    private void registerCommands() {
-        register(new MilkywayCommandGroup());
-        register(new PersonalRoleCommandGroup());
-        register(new PollCommandGroup());
-        register(new ProfileCommandGroup());
-        register(new PigeonCommandGroup());
-    }
-
-    private void registerSettings() {
-        for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
-            register(entrySet.getKey(), entrySet.getValue().values());
         }
     }
 

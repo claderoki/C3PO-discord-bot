@@ -1,5 +1,7 @@
 package com.c3po.model.pigeon.stat;
 
+import com.c3po.model.pigeon.stat.core.Stat;
+
 public class StatFactory {
     public static Stat create(StatType type, long value) {
         return switch (type) {

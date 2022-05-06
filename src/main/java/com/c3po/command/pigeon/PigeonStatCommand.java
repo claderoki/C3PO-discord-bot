@@ -8,11 +8,9 @@ import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
+import com.c3po.model.pigeon.stat.core.Stat;
 import com.c3po.service.PigeonService;
 import reactor.core.publisher.Mono;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public abstract class PigeonStatCommand extends PigeonSubCommand {
     protected PigeonStatCommand(PigeonCommandGroup group, String name, String description) {

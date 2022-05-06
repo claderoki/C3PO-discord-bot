@@ -65,31 +65,6 @@ public class ExplorationRepository extends Repository {
             .build();
     }
 
-    public SimplePlanetLocation getRandomLocation() {
-        String query = """
-            SELECT
-                `exploration_planet_location`.`id` as id,
-                IFNULL(`exploration_planet_location`.`image_url`, `exploration_planet`.`image_url`) as image_url,
-                90 as `travel_distance`
-            FROM
-                `exploration_planet_location`
-            INNER JOIN `exploration_planet` ON `exploration_planet`.`id` = `exploration_planet_location`.`planet_id`
-            WHERE
-                `exploration_planet`.`id` != 1
-            AND
-                `exploration_planet_location`.`active` = 1
-            ORDER BY RAND()
-            LIMIT 1
-            """;
-
-        Result result = getOne(query);
-        return SimplePlanetLocation.builder()
-            .id(result.getInt("id"))
-            .imageUrl(result.getString("image_url"))
-            .travelDistance(result.getInt("travel_distance"))
-            .build();
-    }
-
     private Map<Integer, List<ExplorationScenario>> getAllScenarios() {
         String query = """
             SELECT
@@ -147,6 +122,7 @@ public class ExplorationRepository extends Repository {
                 `exploration_planet`.`name` AS `planet_name`
             FROM `exploration_planet_location`
             INNER JOIN `exploration_planet` ON `exploration_planet`.`id` = `exploration_planet_location`.`planet_id`
+            WHERE `exploration_planet_location`.`active` = 1
         """;
         for(Result result: query(query)) {
             FullExplorationLocation location = new FullExplorationLocation(

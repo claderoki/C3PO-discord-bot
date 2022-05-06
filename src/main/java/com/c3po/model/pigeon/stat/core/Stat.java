@@ -1,5 +1,7 @@
-package com.c3po.model.pigeon.stat;
+package com.c3po.model.pigeon.stat.core;
 
+import com.c3po.model.pigeon.stat.StatCategory;
+import com.c3po.model.pigeon.stat.StatType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +10,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public abstract class Stat {
-    private long value;
-    private StatType statType;
+    protected long  value;
+    protected final StatType statType;
+    protected final StatCategory statCategory;
 
     public abstract String getEmoji();
 
@@ -24,5 +27,4 @@ public abstract class Stat {
     public Integer getMin() {
         return null;
     }
-
 }

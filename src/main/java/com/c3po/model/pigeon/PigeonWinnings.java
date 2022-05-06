@@ -1,7 +1,7 @@
 package com.c3po.model.pigeon;
 
 import com.c3po.model.Winnings;
-import com.c3po.model.pigeon.stat.Stat;
+import com.c3po.model.pigeon.stat.core.Stat;
 import com.c3po.model.pigeon.stat.StatFactory;
 import com.c3po.model.pigeon.stat.StatType;
 import lombok.Getter;

@@ -1,8 +1,10 @@
 package com.c3po.model.pigeon.stat;
 
-public class PigeonCleanliness extends PigeonStat {
+import com.c3po.model.pigeon.stat.core.Stat;
+
+public class PigeonCleanliness extends Stat {
     public PigeonCleanliness(long value) {
-        super(value, StatType.CLEANLINESS);
+        super(value, StatType.CLEANLINESS, StatCategory.PIGEON);
     }
 
     @Override

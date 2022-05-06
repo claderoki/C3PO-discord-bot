@@ -10,6 +10,8 @@ import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class PigeonProfileCommand extends PigeonSubCommand {
@@ -45,6 +47,20 @@ public class PigeonProfileCommand extends PigeonSubCommand {
             .build();
     }
 
+    private List<String> getAdditionalInfo(Pigeon pigeon) {
+        return List.of("\uD83D\uDCAA " + pigeon.getGoldModifier());
+    }
+
+    private List<String> getBaseInfo(Pigeon pigeon) {
+        return pigeon.getStats().values().stream().map(c -> "%s %s".formatted(c.getEmoji(), c.getValue())).toList();
+    }
+
+    private List<String> getInfo(Pigeon pigeon) {
+        List<String> info = new ArrayList<>(getBaseInfo(pigeon));
+        info.addAll(getAdditionalInfo(pigeon));
+        return info;
+    }
+
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
@@ -55,9 +71,7 @@ public class PigeonProfileCommand extends PigeonSubCommand {
 
         EmbedCreateSpec embed = EmbedHelper.normal()
             .title(pigeon.getName())
-            .description(pigeon.getStats().values().stream()
-                .map((c) -> "%s %s".formatted(c.getEmoji(), c.getValue()))
-                .collect(Collectors.joining("\n")))
+            .description(String.join("\n", getInfo(pigeon)))
             .footer(EmbedCreateFields.Footer.of(getFriendlyVerb(pigeon.getStatus()), null))
             .thumbnail(PossibleParser.toPossible(getThumbnail(pigeon.getStatus())))
             .build()

@@ -9,11 +9,14 @@ import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.RandomHelper;
 import com.c3po.model.exploration.*;
+import com.c3po.model.item.ItemCategory;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
+import com.c3po.model.pigeon.stat.core.Stat;
 import com.c3po.service.ExplorationService;
+import com.c3po.service.ItemService;
 import com.c3po.service.PigeonService;
 import com.c3po.ui.input.SingleUseButtonMenuOption;
 import com.c3po.ui.input.base.Menu;
@@ -24,9 +27,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PigeonSpaceCommand extends PigeonSubCommand {
     protected PigeonSpaceCommand(PigeonCommandGroup group) {
@@ -42,21 +43,22 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
 
     private PigeonWinnings toWinnings(ExplorationScenario scenario) {
         PigeonWinnings winnings = new PigeonWinnings();
-        List<Stat> stats = new ArrayList<>();
-        stats.add(new HumanGold(scenario.getGold()));
-        stats.add(new PigeonHealth(scenario.getHealth()));
-        stats.add(new PigeonHappiness(scenario.getHappiness()));
-        stats.add(new PigeonExperience(scenario.getExperience()));
-        stats.add(new PigeonCleanliness(scenario.getCleanliness()));
-        stats.add(new PigeonFood(scenario.getFood()));
-        winnings.setStats(new LinkedHashMap<>(stats.stream().collect(Collectors.toMap(Stat::getStatType, (v) -> v))));
+        winnings.setStats(List.of(
+            new HumanGold(scenario.getGold()),
+            new PigeonHealth(scenario.getHealth()),
+            new PigeonHappiness(scenario.getHappiness()),
+            new PigeonExperience(scenario.getExperience()),
+            new PigeonCleanliness(scenario.getCleanliness()),
+            new PigeonFood(scenario.getFood())
+        ));
 
         Integer itemId = scenario.getItemId();
         if (scenario.getItemCategoryId() != null) {
-            // replace itemid here with a random item from this category.
+            ItemCategory category = ItemService.getAllCategories().get(scenario.getItemCategoryId());
+            itemId = RandomHelper.choice(category.allItemIds());
         }
         if (itemId != null) {
-            winnings.setItemIds(List.of(itemId));
+            winnings.addItemId(itemId);
         }
         return winnings;
     }

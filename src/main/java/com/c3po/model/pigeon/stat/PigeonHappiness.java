@@ -1,8 +1,10 @@
 package com.c3po.model.pigeon.stat;
 
-public class PigeonHappiness extends PigeonStat {
+import com.c3po.model.pigeon.stat.core.Stat;
+
+public class PigeonHappiness extends Stat {
     public PigeonHappiness(long value) {
-        super(value, StatType.HAPPINESS);
+        super(value, StatType.HAPPINESS, StatCategory.PIGEON);
     }
 
     @Override

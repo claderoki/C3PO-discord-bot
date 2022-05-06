@@ -1,6 +1,6 @@
 package com.c3po.model.pigeon;
 
-import com.c3po.model.pigeon.stat.Stat;
+import com.c3po.model.pigeon.stat.core.Stat;
 import com.c3po.model.pigeon.stat.StatType;
 import lombok.Builder;
 import lombok.Getter;

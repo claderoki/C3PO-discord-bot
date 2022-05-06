@@ -1,8 +1,10 @@
 package com.c3po.model.pigeon.stat;
 
-public class PigeonFood extends PigeonStat {
+import com.c3po.model.pigeon.stat.core.Stat;
+
+public class PigeonFood extends Stat {
     public PigeonFood(long value) {
-        super(value, StatType.FOOD);
+        super(value, StatType.FOOD, StatCategory.PIGEON);
     }
 
     @Override

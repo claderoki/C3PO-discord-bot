@@ -52,6 +52,10 @@ public interface ValueParser extends GenericValueParser {
         return getOr(key, Long::parseLong, defaultValue);
     }
 
+    default int getIntOr(String key, int defaultValue) {
+        return getOr(key, Integer::parseInt, defaultValue);
+    }
+
     default Long optLong(String key) {
         return opt(key, Long::parseLong);
     }

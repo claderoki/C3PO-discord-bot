@@ -9,6 +9,7 @@ import com.c3po.model.pigeon.PigeonCondition;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
+import com.c3po.model.pigeon.stat.core.Stat;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -41,10 +42,10 @@ public class PigeonRepository extends Repository {
         LinkedHashMap<StatType, Stat> stats = new LinkedHashMap<>();
 
         long experience = result.getLongOr("experience", 0L);
-        long health = result.getLongOr("health", 0L);
-        long happiness = result.getLongOr("happiness", 0L);
-        long cleanliness = result.getLongOr("cleanliness", 0L);
-        long food = result.getLongOr("food", 0L);
+        int health = result.getIntOr("health", 0);
+        int happiness = result.getIntOr("happiness", 0);
+        int cleanliness = result.getIntOr("cleanliness", 0);
+        int food = result.getIntOr("food", 0);
 
         stats.put(StatType.EXPERIENCE, new PigeonExperience(experience));
         stats.put(StatType.HEALTH, new PigeonHealth(health));
@@ -70,8 +71,8 @@ public class PigeonRepository extends Repository {
     }
 
     public synchronized void updateWinnings(int pigeonId, PigeonWinnings winnings) {
-        Stat gold = winnings.getStat(StatType.GOLD);
-        Stat health = winnings.getStat(StatType.HEALTH);
+        HumanGold gold = (HumanGold) winnings.getStat(StatType.GOLD);
+        PigeonHealth health = (PigeonHealth) winnings.getStat(StatType.HEALTH);
 
         StringBuilder query = new StringBuilder("UPDATE `pigeon` ");
         if (gold != null && gold.getValue() != 0) {
@@ -200,10 +201,5 @@ public class PigeonRepository extends Repository {
                 winnings.setStats(stats);
                 return winnings;
             }).toList();
-    }
-
-    public Double getGoldModifier(int pigeonId) {
-        return getOne("SELECT `gold_modifier` FROM `pigeon` WHERE `pigeon`.`id` = ?", new IntParameter(pigeonId))
-            .getDouble("gold_modifier");
     }
 }
