@@ -10,11 +10,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class ApiCall {
-    public abstract String getBaseUri();
+    public abstract <E extends ApiEndpoint<?>> String getBaseUri(E endpoint);
 
     private <E extends ApiEndpoint<?>> Map<String, String> getAllParameters(E endpoint) {
         Map<String, String> defaultParameters = getDefaultParameters();
@@ -24,7 +25,7 @@ public abstract class ApiCall {
             return null;
         }
         if (defaultParameters != null && endpointParameters != null) {
-            Map<String, String> parameters = new HashMap<>(defaultParameters);
+            Map<String, String> parameters = new LinkedHashMap<>(defaultParameters);
             parameters.putAll(endpointParameters);
             return Collections.unmodifiableMap(parameters);
         }
@@ -38,7 +39,7 @@ public abstract class ApiCall {
             rawParameters = parameters.entrySet().stream().map((c) -> c.getKey() + "=" + c.getValue()).collect(Collectors.joining("&"));
         }
 
-        var uri = getBaseUri() + "/" + endpoint.getEndpoint() + (rawParameters != null ? ("?"+rawParameters) : "");
+        var uri = getBaseUri(endpoint) + "/" + endpoint.getEndpoint() + (rawParameters != null ? ("?"+rawParameters) : "");
 
         var builder = HttpRequest.newBuilder();
         switch (endpoint.getMethod()) {
@@ -53,7 +54,7 @@ public abstract class ApiCall {
         HttpClient client = HttpClient.newBuilder().build();
 
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return Mono.just(endpoint.parseResponse(new JSONObject(response.body())));
+        return Mono.just(endpoint.parseResponse(response.body()));
     }
 
     public Map<String, String> getDefaultParameters() {

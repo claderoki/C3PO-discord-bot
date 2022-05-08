@@ -18,8 +18,8 @@ public class GetTemperature extends ApiEndpoint<Temperature> {
     }
 
     @Override
-    public Temperature parseResponse(JSONObject jsonObject) {
-        return new Temperature(jsonObject);
+    public Temperature parseResponse(String rawResponse) {
+        return new Temperature(new JSONObject(rawResponse));
     }
 
     @Override

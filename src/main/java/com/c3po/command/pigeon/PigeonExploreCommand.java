@@ -46,6 +46,9 @@ public class PigeonExploreCommand extends PigeonSubCommand {
         PigeonRepository.db().updateStatus(result.getPigeonId(), PigeonStatus.SPACE_EXPLORING);
 
         Menu menu = new Menu(context);
+        menu.setEmbedConsumer(c -> c
+            .description("Your pigeon has successfully taken off to space!")
+            .thumbnail(location.imageUrl()));
         VoidMenuOption option = new VoidMenuOption("Remind me!");
         option.withEmoji("❗");
         option.setExecutor((e) -> {
@@ -60,8 +63,7 @@ public class PigeonExploreCommand extends PigeonSubCommand {
         });
         menu.addOption(option);
 
-        MenuManager.waitForMenu(menu, (e) -> e.description("Your pigeon has successfully taken off to space!")
-            .thumbnail(location.imageUrl())).blockOptional();
+        MenuManager.waitForMenu(menu).blockOptional();
 
         return Mono.empty();
     }

@@ -1,11 +1,13 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.core.command.Context;
+import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.PossibleParser;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.service.PigeonService;
+import discord4j.common.util.Snowflake;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
@@ -17,6 +19,10 @@ import java.util.stream.Collectors;
 public class PigeonProfileCommand extends PigeonSubCommand {
     protected PigeonProfileCommand(PigeonCommandGroup group) {
         super(group, "profile", "no description.");
+        this.addOption(option -> option.name("user")
+            .description("The user whos pigeon you want to look at")
+            .required(false)
+            .type(DiscordCommandOptionType.USER.getValue()));
     }
 
     private String getThumbnail(PigeonStatus status) {
@@ -63,7 +69,10 @@ public class PigeonProfileCommand extends PigeonSubCommand {
 
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
-        long userId = context.getEvent().getInteraction().getUser().getId().asLong();
+        Snowflake userId = context.getOptions().optSnowflake("user");
+        if (userId == null) {
+            userId = context.getEvent().getInteraction().getUser().getId();
+        }
 
         PigeonValidation validation = getValidation();
         PigeonValidationResult result = validation.validate(userId);

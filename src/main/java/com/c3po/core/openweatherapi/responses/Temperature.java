@@ -10,7 +10,6 @@ public class Temperature extends ApiResponse {
     private final String weatherStatus;
 
     public Temperature(JSONObject json) {
-        super(json);
         temperature = json.getJSONObject("main").getFloat("temp");
         weatherStatus = json.getJSONArray("weather").getJSONObject(0).getString("main");
     }

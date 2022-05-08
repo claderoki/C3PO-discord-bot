@@ -24,9 +24,9 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
         if (executor == null) {
-            return event.acknowledge();
+            return event.deferEdit();
         }
-        return event.acknowledge().then(executor.apply(event));
+        return event.deferEdit().then(executor.apply(event));
     }
 
 }

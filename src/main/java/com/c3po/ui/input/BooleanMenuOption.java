@@ -25,7 +25,7 @@ public class BooleanMenuOption extends ButtonMenuOption<Boolean> {
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
         setValue(getValue() == null || !getValue());
-        return event.acknowledge();
+        return event.deferEdit();
     }
 
 }

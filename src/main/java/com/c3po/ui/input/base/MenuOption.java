@@ -23,6 +23,9 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     @Setter
     protected Function<T, Void> setter;
 
+    @Setter
+    private boolean ownerOnly = false;
+
     protected void setValue(T value) {
         if (setter != null) {
             setter.apply(value);
@@ -75,6 +78,18 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
 
     protected boolean shouldContinue() {
         return true;
+    }
+
+    protected boolean isBottomRow() {
+        return !shouldContinue();
+    }
+
+    protected boolean isAllowed(ComponentInteractionEvent event) {
+        if (ownerOnly) {
+            return event.getInteraction().getUser().getId().equals(context.getEvent().getInteraction().getUser().getId());
+        } else {
+            return true;
+        }
     }
 
 }

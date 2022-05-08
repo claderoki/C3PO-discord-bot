@@ -35,7 +35,8 @@ public class SubMenuOption extends ButtonMenuOption<Long> {
         if (hasBackButton()) {
             subMenu.addOption(new BackButtonMenuOption());
         }
+        subMenu.setEmbedConsumer(e -> e.description("Hmm"));
 
-        return MenuManager.waitForMenu(subMenu, "Hmm");
+        return MenuManager.waitForMenu(subMenu);
     }
 }

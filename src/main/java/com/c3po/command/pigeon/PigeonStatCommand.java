@@ -30,6 +30,10 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
 
     protected abstract int getCost();
 
+    protected  String getMessage() {
+        return "You gain some and lose some";
+    }
+
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
@@ -47,6 +51,6 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
         winnings.addStat(StatFactory.create(statType, getGain()));
         winnings.addStat(StatFactory.create(StatType.GOLD, -getCost()));
         PigeonRepository.db().updateWinnings(result.getPigeonId(), winnings);
-        return context.getEvent().reply().withEmbeds(EmbedHelper.normal("You gain some and lose some\n\n" + winnings.format()).build());
+        return context.getEvent().reply().withEmbeds(EmbedHelper.normal(getMessage() + "\n\n" + winnings.format()).build());
     }
 }

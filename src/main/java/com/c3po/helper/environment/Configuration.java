@@ -6,6 +6,7 @@ public class Configuration {
     private Mode mode;
     private String token;
     private String owmKey;
+    private String wordnikKey;
     private DatabaseCredentials databaseCredentials;
 
     private static Configuration INSTANCE;

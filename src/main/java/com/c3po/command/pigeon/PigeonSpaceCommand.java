@@ -82,12 +82,15 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         return context.getEvent().createFollowup().withEmbeds(embed.build()).then();
     }
 
-    private Mono<?> executeScenarios(int pigeonId, Context context, Exploration exploration) {
+    private Menu createMenu(Pigeon pigeon, Context context, Exploration exploration, List<ExplorationScenarioWinnings> totalWinnings) {
         FullExplorationLocation location = ExplorationService.getAllLocations().get(exploration.getLocationId());
         Menu menu = new Menu(context);
         menu.setMaximumOptionsAllowed(exploration.getActionsRemaining());
-        List<ExplorationScenarioWinnings> totalWinnings = new ArrayList<>();
-        Pigeon pigeon = PigeonService.getPigeon(pigeonId);
+        String text = "You arrive at %s (%s).\n\nWhat action would you like to perform?\n";
+        menu.setEmbedConsumer(e -> e
+            .description(text.formatted(location.planetName(), location.name()))
+            .color(EmbedHelper.COLOR)
+            .thumbnail(location.imageUrl()));
         for (var action: location.actions()) {
             SingleUseButtonMenuOption menuOption = new SingleUseButtonMenuOption(action.name());
             menuOption.withEmoji(action.symbol());
@@ -105,13 +108,13 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
 
             menu.addOption(menuOption);
         }
+        return menu;
+    }
 
-        String text = "You arrive at %s (%s).\n\nWhat action would you like to perform?\n";
-        MenuManager.waitForMenu(menu, (e) -> e
-            .description(text.formatted(location.planetName(), location.name()))
-            .color(EmbedHelper.COLOR)
-            .thumbnail(location.imageUrl()))
-            .block();
+    private Mono<?> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
+        List<ExplorationScenarioWinnings> totalWinnings = new ArrayList<>();
+        Menu menu = createMenu(pigeon, context, exploration, totalWinnings);
+        MenuManager.waitForMenu(menu).block();
 
         for (var winnings: totalWinnings) {
             ExplorationRepository.db().createWinnings(exploration.getId(), winnings.actionId(), winnings.pigeonWinnings());
@@ -147,7 +150,8 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         LocalDateTime now = DateTimeHelper.now();
 
         if (now.isAfter(exploration.getArrivalDate())) {
-            return executeScenarios(result.getPigeonId(), context, exploration);
+            Pigeon pigeon = PigeonService.getPigeon(result.getPigeonId());
+            return executeScenarios(pigeon, context, exploration);
         } else {
             return context.getEvent().reply().withContent("not there yet");
         }

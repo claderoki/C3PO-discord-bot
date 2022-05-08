@@ -30,7 +30,7 @@ public class LongMenuOption extends ButtonMenuOption<Long> {
 
         setValue(Long.valueOf(result.getValueOrThrow()));
 
-        return event.acknowledge();
+        return event.deferEdit();
     }
 
 }

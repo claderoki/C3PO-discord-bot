@@ -5,5 +5,6 @@ public enum CommandCategory {
     PROFILE,
     POLLS,
     PIGEON,
-    MILKYWAY
+    MILKYWAY,
+    HANGMAN,
 }

@@ -40,6 +40,7 @@ public class ConfigurationLoader {
             .mode(mode)
             .token(map.get("discord_token_" + mode.name().toLowerCase()))
             .owmKey(map.get("openweathermap_key"))
+            .wordnikKey(map.get("wordnik_key"))
             .build();
     }
 

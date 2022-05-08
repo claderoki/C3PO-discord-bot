@@ -29,8 +29,7 @@ public class C3PO {
         commandManager = new CommandManager();
     }
 
-    public void run() throws Exception {
-        Configuration.initiate(ConfigurationLoader.load(mode));
+    public void run() {
         Configuration config = Configuration.instance();
 
         final DiscordClient client = DiscordClientBuilder.create(config.getToken())

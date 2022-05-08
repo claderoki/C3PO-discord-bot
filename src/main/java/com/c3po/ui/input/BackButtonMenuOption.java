@@ -16,7 +16,7 @@ public class BackButtonMenuOption extends ButtonMenuOption<Void> {
 
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
-        return event.acknowledge();
+        return event.deferEdit();
     }
 
     protected boolean shouldContinue() {

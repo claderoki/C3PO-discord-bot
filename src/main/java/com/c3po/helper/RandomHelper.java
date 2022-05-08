@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 public class RandomHelper {
-
     private static <T> int index(Collection<T> items) {
         Random rand = new Random();
         return rand.nextInt(items.size());
@@ -16,8 +15,7 @@ public class RandomHelper {
     }
 
     public static <T> T choice(Collection<T> items) {
-        int index = index(items);
-        return items.stream().toList().get(index);
+        return items.stream().toList().get(index(items));
     }
 
 }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 
-public interface ValueParser extends GenericValueParser {
+public interface ValueParser {
     String optString(String key);
 
     private <F> F get(String key, Function<String, F> func) throws RuntimeException {

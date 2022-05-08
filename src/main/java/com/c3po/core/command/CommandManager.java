@@ -1,6 +1,7 @@
 package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
+import com.c3po.command.hangman.HangmanCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
@@ -37,6 +38,7 @@ public class CommandManager {
         register(new PollCommandGroup());
         register(new ProfileCommandGroup());
         register(new PigeonCommandGroup());
+        register(new HangmanCommandGroup());
     }
 
     private void registerSettings() {

@@ -1,31 +1,36 @@
 package com.c3po.ui.input.base;
 
 import com.c3po.core.command.Context;
+import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.LogHelper;
+import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.ActionComponent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.spec.EmbedCreateSpec;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
+@Setter
+@Getter
 public class Menu {
     private final Map<String, MenuOption> options = new HashMap<>();
-    @Getter
     private final Context context;
-    @Getter
-    @Setter
     private Integer maximumOptionsAllowed;
-
-    @Getter
+    private boolean ownerOnly = true;
     private int optionsHandled;
+    private Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
+    private Duration timeout = Duration.ofSeconds(360);
 
     public void incrementOptionsHandled() {
         optionsHandled++;
@@ -34,6 +39,15 @@ public class Menu {
     public void addOption(MenuOption option) {
         option.setContext(context);
         options.put(option.getCustomId(), option);
+    }
+
+    public EmbedCreateSpec getEmbed() {
+        EmbedCreateSpec.Builder embed = EmbedCreateSpec.builder();
+        embed.color(EmbedHelper.COLOR);
+        if (embedConsumer != null) {
+            embedConsumer.accept(embed);
+        }
+        return embed.build();
     }
 
     public MenuOption matchOption(String customId) {
@@ -49,7 +63,7 @@ public class Menu {
         for (MenuOption option: options.values()) {
             ActionComponent component = option.getComponent();
             if (component instanceof Button button) {
-                if (option.shouldContinue()) {
+                if (!option.isBottomRow()) {
                     buttons.add(button);
                 } else {
                     lastRowButtons.add(button);
@@ -79,5 +93,13 @@ public class Menu {
             return true;
         }
         return maximumOptionsAllowed > (optionsHandled+1);
+    }
+
+    public boolean isAllowed(ComponentInteractionEvent event) {
+        if (ownerOnly) {
+            return event.getInteraction().getUser().getId().equals(context.getEvent().getInteraction().getUser().getId());
+        } else {
+            return true;
+        }
     }
 }

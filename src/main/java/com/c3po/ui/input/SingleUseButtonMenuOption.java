@@ -32,9 +32,9 @@ public class SingleUseButtonMenuOption extends ButtonMenuOption<Void> {
     public Mono<?> execute(ButtonInteractionEvent event) {
         clicked = true;
         if (executor == null) {
-            return event.acknowledge();
+            return event.deferEdit();
         }
-        return event.acknowledge().then(executor.apply(event));
+        return event.deferEdit().then(executor.apply(event));
     }
 
 }

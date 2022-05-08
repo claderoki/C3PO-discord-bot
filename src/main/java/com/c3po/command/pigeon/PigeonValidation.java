@@ -4,6 +4,7 @@ import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.errors.PublicException;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.service.HumanService;
+import discord4j.common.util.Snowflake;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,6 +18,10 @@ public class PigeonValidation {
     private boolean needsAvailablePvpAction;
     private boolean other;
     private Integer humanId;
+
+    public PigeonValidationResult validate(Snowflake userId) throws PublicException {
+        return validate(userId.asLong());
+    }
 
     public PigeonValidationResult validate(long userId) throws PublicException {
         if (humanId == null) {

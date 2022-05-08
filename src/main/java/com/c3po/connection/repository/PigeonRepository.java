@@ -30,7 +30,7 @@ public class PigeonRepository extends Repository {
     }
 
     public synchronized Integer getActiveId(int humanId) {
-        Result result = getOne("SELECT `id` FROM `pigeon` WHERE id = ? AND `condition` = 'active'", new IntParameter(humanId));
+        Result result = getOne("SELECT `id` FROM `pigeon` WHERE human_id = ? AND `condition` = 'active'", new IntParameter(humanId));
         if (result == null) {
             return null;
         }

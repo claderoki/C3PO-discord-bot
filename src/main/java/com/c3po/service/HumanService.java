@@ -4,6 +4,7 @@ import com.c3po.connection.repository.HumanRepository;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.HumanIdKey;
 import com.c3po.core.ScopeTarget;
+import discord4j.common.util.Snowflake;
 
 public class HumanService extends Service {
 
@@ -20,4 +21,9 @@ public class HumanService extends Service {
             return humanId;
         });
     }
+
+    public static Integer getHumanId(Snowflake userId) {
+        return getHumanId(userId.asLong());
+    }
+
 }

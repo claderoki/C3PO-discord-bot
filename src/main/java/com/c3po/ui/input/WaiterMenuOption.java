@@ -26,7 +26,7 @@ public class WaiterMenuOption<F, E extends EventParser<F, MessageCreateEvent>> e
         parser.setEvent(context.getEvent());
         Waiter waiter = new Waiter(context.getEvent());
         waiter.setPrompt("Please enter a " + name);
-        ParseResult<F> result = event.acknowledge().then(waiter.wait(MessageCreateEvent.class, parser)).block();
+        ParseResult<F> result = event.deferEdit().then(waiter.wait(MessageCreateEvent.class, parser)).block();
         if (result == null) {
             return Mono.empty();
         }
