@@ -9,7 +9,7 @@ public class PigeonNameField extends ProfileField<String> {
 
     @Override
     public ReactionEmoji getEmoji() {
-        return ReactionEmoji.of(767362416941203456L, "pigeon", false);
+        return ReactionEmoji.unicode("\uD83D\uDC26");
     }
 
     @Override

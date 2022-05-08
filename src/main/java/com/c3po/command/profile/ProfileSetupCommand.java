@@ -36,13 +36,13 @@ public class ProfileSetupCommand extends SubCommand {
             )
                 .withEmoji("\uD83D\uDCC5")
                 ;
-        } else if (propertyValue.getParentId() == KnownAttribute.cityId) {
+        } else if (propertyValue.getParentId() == KnownAttribute.countryId) {
             return new WaiterMenuOption<>("Country",
                 StringParser.builder().min(2).max(2).build(),
                 propertyValue.getParsedValue())
                 .withEmoji("\uD83D\uDDFA")
                 ;
-        } else if (propertyValue.getParentId() == KnownAttribute.countryId) {
+        } else if (propertyValue.getParentId() == KnownAttribute.cityId) {
             return new WaiterMenuOption<>("City", StringParser.builder().build(), propertyValue.getParsedValue())
                 .withEmoji("\uD83D\uDCCD")
                 ;
