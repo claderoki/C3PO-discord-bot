@@ -24,13 +24,13 @@ import java.util.function.Consumer;
 @Setter
 @Getter
 public class Menu {
-    private final Map<String, MenuOption> options = new HashMap<>();
-    private final Context context;
-    private Integer maximumOptionsAllowed;
-    private boolean ownerOnly = true;
-    private int optionsHandled;
-    private Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
-    private Duration timeout = Duration.ofSeconds(360);
+    protected final Map<String, MenuOption> options = new HashMap<>();
+    protected final Context context;
+    protected Integer maximumOptionsAllowed;
+    protected boolean ownerOnly = true;
+    protected int optionsHandled;
+    protected Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
+    protected Duration timeout = Duration.ofSeconds(360);
 
     public void incrementOptionsHandled() {
         optionsHandled++;
@@ -54,7 +54,7 @@ public class Menu {
         return options.get(customId);
     }
 
-    public List<LayoutComponent> getComponents() {
+    final public List<LayoutComponent> getComponents() {
         List<LayoutComponent> components = new ArrayList<>();
 
         List<Button> buttons = new ArrayList<>();

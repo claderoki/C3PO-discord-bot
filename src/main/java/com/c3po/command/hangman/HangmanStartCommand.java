@@ -4,6 +4,7 @@ import com.c3po.command.hangman.game.HangmanGame;
 import com.c3po.command.hangman.game.HangmanPlayer;
 import com.c3po.command.hangman.game.HangmanUI;
 import com.c3po.command.hangman.game.HangmanWord;
+import com.c3po.command.hangman.game.core.LobbyMenu;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
 import com.c3po.core.wordnik.WordnikApi;
@@ -13,47 +14,23 @@ import com.c3po.core.wordnik.responses.WordDefinitionResponse;
 import com.c3po.core.wordnik.responses.WordListResponse;
 import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.service.HumanService;
-import com.c3po.ui.input.StartButtonMenuOption;
-import com.c3po.ui.input.VoidMenuOption;
-import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class HangmanStartCommand extends SubCommand {
     private final static List<String> wordCache = new ArrayList<>();
+    private final static int bet = 25;
 
     protected HangmanStartCommand(HangmanCommandGroup group) {
         super(group, "start", "no description");
     }
 
     private Mono<Set<User>> getUsers(Context context) {
-        Menu menu = new Menu(context);
-        synchronized (menu) {
-            String baseMessage = "Hangman game [lobby]";
-            menu.setOwnerOnly(false);
-            VoidMenuOption joinButton = new VoidMenuOption("Join");
-            joinButton.withEmoji("↩️");
-            Set<User> users = Collections.synchronizedSet(new HashSet<>());
-            users.add(context.getEvent().getInteraction().getUser());
-            joinButton.setExecutor(c -> {
-                users.add(c.getInteraction().getUser());
-                String text = baseMessage + "\n" + users.stream().map(User::getMention).collect(Collectors.joining("\n"));
-                menu.setEmbedConsumer(e -> e.description(text));
-                return Mono.empty();
-            });
-            String text = baseMessage + "\n" + users.stream().map(User::getMention).collect(Collectors.joining("\n"));
-            menu.setEmbedConsumer(e -> e.description(text));
-            StartButtonMenuOption startButton = new StartButtonMenuOption("Start");
-            startButton.withEmoji("▶️");
-            startButton.setOwnerOnly(true);
-            menu.addOption(joinButton);
-            menu.addOption(startButton);
-            return MenuManager.waitForMenu(menu).then(Mono.just(users));
-        }
+        LobbyMenu menu = new LobbyMenu(context, bet);
+        return MenuManager.waitForMenu(menu).then(Mono.just(menu.getUsers()));
     }
 
     private String getWord(WordnikApi api) throws Exception {
@@ -79,7 +56,8 @@ public class HangmanStartCommand extends SubCommand {
             WordDefinitionResponse definition = api.call(getWordDefinition).blockOptional().orElseThrow().getDefinitions().get(0);
 
             return HangmanWord.builder()
-                .value(word)
+                .value(word.toLowerCase())
+                .uneditedValue(word)
                 .description(definition.getText())
                 .build();
         } catch (Exception e) {
@@ -91,8 +69,16 @@ public class HangmanStartCommand extends SubCommand {
     public Mono<?> execute(Context context) throws RuntimeException {
         List<HangmanPlayer> players = Objects.requireNonNull(getUsers(context).block())
             .stream()
-            .map(u -> new HangmanPlayer(u, HumanService.getHumanId(u.getId())))
+            .map(u -> {
+                HangmanPlayer player = new HangmanPlayer(u, HumanService.getHumanId(u.getId()));
+                player.setBet(bet);
+                return player;
+            })
             .toList();
+
+        if (players.isEmpty()) {
+            return Mono.empty();
+        }
 
         HangmanGame game = new HangmanGame(getHangmanWord(), players, new HangmanUI(context));
         game.start();

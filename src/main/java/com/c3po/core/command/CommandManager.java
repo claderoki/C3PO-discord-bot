@@ -117,6 +117,7 @@ public class CommandManager {
                 729843647347949638L,
                 761624318291476482L,
                 944339782002163732L,
+                842154624869859368L
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)

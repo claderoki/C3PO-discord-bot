@@ -6,6 +6,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class HangmanWord {
+    private String uneditedValue;
     private String value;
     private String description;
 }

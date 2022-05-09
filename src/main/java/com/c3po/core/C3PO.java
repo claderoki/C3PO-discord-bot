@@ -38,7 +38,8 @@ public class C3PO {
 
         client.gateway()
         .setInitialPresence(c -> ClientPresence.invisible())
-        .withGateway(this::setupGateway).block();
+        .withGateway(this::setupGateway)
+        .block();
     }
 
     private ReactorResources getReactorResources() {

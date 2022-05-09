@@ -3,14 +3,16 @@ package com.c3po.command.hangman.game;
 import com.c3po.command.hangman.game.core.UI;
 import com.c3po.core.command.Context;
 import com.c3po.helper.EmbedHelper;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -18,51 +20,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HangmanUI extends UI {
     private final Context context;
+    private Snowflake messageId;
+    private int unrelatedMessages = 0;
+    private Message mentionMessage;
 
-    protected final static String[] states = {"""
-  ╤═══╗
-      ║
-      ║
-      ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
-      ║
-      ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
-  │   ║
-      ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
-  │\\  ║
-      ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
- /│\\  ║
-      ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
- /│\\  ║
-   \\  ║
-      ║
-══════╩═""", """
-  ╤═══╗
-  o   ║
- /│\\  ║
- / \\  ║
-      ║
-══════╩═
-"""};
+    public void showEndGame(EmbedCreateSpec embed) {
+        context.getEvent().createFollowup().withEmbeds(embed).subscribe();
+    }
 
     private EmbedCreateSpec getEmbed(List<Character> board, List<HangmanPlayer> players) {
         EmbedCreateSpec.Builder embed = EmbedHelper.base();
@@ -72,7 +36,7 @@ public class HangmanUI extends UI {
             allGuesses.addAll(player.getGuesses());
             if (!player.isDead()) {
                 int state = (int)player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
-                embed.addField(player.getUser().getUsername(), ">>> ```\n" + states[state] + "```", true);
+                embed.addField(player.getUser().getUsername(), ">>> ```\n" + HangmanStateHelper.getState(state) + "```", true);
             }
         }
 
@@ -85,38 +49,75 @@ public class HangmanUI extends UI {
                 value += "\nwords used: " + words;
             }
 
-            embed.addField("\uFEFF", value, true);
+            embed.addField("\uFEFF", value, false);
         }
         return embed.build();
     }
 
     public void showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
         if (currentPlayer != null) {
+            if (mentionMessage != null) {
+                mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).subscribe();
+            }
             context.getEvent().createFollowup()
                 .withContent(currentPlayer.getUser().getMention() + ", your turn!")
-                .subscribe(m -> m.delete().delaySubscription(Duration.ofSeconds(5)).subscribe());
+                .subscribe(m -> {
+                    mentionMessage = m;
+                    m.delete().delaySubscription(Duration.ofSeconds(60)).subscribe();
+                });
         }
 
         EmbedCreateSpec embed = getEmbed(board, players);
-        context.getEvent().editReply()
-            .withContentOrNull(currentPlayer == null ? null : currentPlayer.getUser().getMention())
-            .withEmbedsOrNull(Collections.singleton(embed))
-            .block();
+        if (messageId == null || unrelatedMessages >= 5) {
+            var message = context.getEvent().createFollowup()
+                .withContent(currentPlayer == null ? "" : currentPlayer.getUser().getMention())
+                .withEmbeds(embed)
+                .blockOptional()
+                .orElseThrow();
+            messageId = message.getId();
+        } else {
+            context.getEvent().editFollowup(messageId)
+                .withContentOrNull(currentPlayer == null ? null : currentPlayer.getUser().getMention())
+                .withEmbeds(embed)
+                .block();
+        }
     }
 
-    public Guess waitForGuess(HangmanPlayer player, List<Character> board) {
+    private void sendError(User user, String message) {
+        context.getEvent().createFollowup()
+            .withEmbeds(EmbedHelper.error(user.getMention() + ", " + message).build())
+            .subscribe(m -> m.delete().delaySubscription(Duration.ofSeconds(5)).subscribe());
+    }
+
+    public Guess waitForGuess(HangmanPlayer player, List<Character> board, List<Guess> guesses) {
         return context.getEvent().getClient().on(MessageCreateEvent.class)
-            .filter(c -> c.getMessage().getAuthor().isPresent() && c.getMessage().getAuthor().get().getId().equals(player.getUser().getId()))
             .map(c -> {
-                c.getMessage().delete().subscribe();
-                return c.getMessage().getContent();
+                unrelatedMessages++;
+                return c;
             })
-            .filter(c -> c.length() == 1 || c.length() == board.size())
+            .filter(c -> c.getMessage().getAuthor().isPresent() && c.getMessage().getAuthor().get().getId().equals(player.getUser().getId()))
+            .map(MessageCreateEvent::getMessage)
+            .filter(m -> m.getContent().length() == 1 || m.getContent().length() == board.size())
+            .map(m -> {
+                m.delete().subscribe();
+                return m.getContent().toLowerCase();
+            })
+            .filter(c -> {
+                if (guesses.stream().anyMatch(g -> g.getValue().equals(c))) {
+                    sendError(player.getUser(), c + " has already been used.");
+                    return false;
+                }
+                return true;
+            })
             .map(c -> {
                 GuessType type = c.length() == 1 ? GuessType.LETTER : GuessType.WORD;
-                return new Guess(type, c);
+                Guess guess = new Guess(type, c);
+                return guess;
             })
-            .filter(c -> c.getType().equals(GuessType.WORD) || !board.contains(c.getValue().charAt(0)))
+            .map(c -> {
+                unrelatedMessages--;
+                return c;
+            })
             .timeout(Duration.ofSeconds(60))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .next()

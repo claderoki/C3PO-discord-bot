@@ -39,6 +39,7 @@ public class ProfileViewCommand extends SubCommand {
         try {
             return new OpenWeatherMapApi().call(endpoint).block();
         } catch (Exception ignored) {
+            String a = "";
 
         }
         return null;

@@ -11,14 +11,21 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
+@Setter
 public class HangmanPlayer extends Player {
     private final User user;
     private final int humanId;
     private final List<Guess> guesses = new ArrayList<>();
-    @Setter
     private boolean dead = false;
+    private int bet = 0;
 
     public void addGuess(Guess guess) {
         guesses.add(guess);
+    }
+
+    public int getPercentageGuessed(int total) {
+        float totalWorth = guesses.stream().mapToInt(Guess::getWorth).sum();
+        totalWorth -= 1;
+        return (int)(totalWorth / (float)total * 100.0);
     }
 }

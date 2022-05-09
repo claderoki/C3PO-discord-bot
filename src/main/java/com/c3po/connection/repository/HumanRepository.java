@@ -60,4 +60,13 @@ public class HumanRepository extends Repository {
         }
     }
 
+    public void increaseGold(int humanId, int amount) {
+        String query = "UPDATE `human` SET `gold` = ? WHERE `id` = ?";
+        execute(query, new IntParameter(amount), new IntParameter(humanId));
+    }
+
+    public void decreaseGold(int humanId, int amount) {
+        increaseGold(humanId, -amount);
+    }
+
 }
