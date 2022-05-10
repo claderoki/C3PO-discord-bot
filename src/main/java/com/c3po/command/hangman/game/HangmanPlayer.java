@@ -25,7 +25,6 @@ public class HangmanPlayer extends Player {
 
     public int getPercentageGuessed(int total) {
         float totalWorth = guesses.stream().mapToInt(Guess::getWorth).sum();
-        totalWorth -= 1;
         return (int)(totalWorth / (float)total * 100.0);
     }
 }

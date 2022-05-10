@@ -4,6 +4,8 @@ import com.c3po.connection.repository.HumanRepository;
 import com.c3po.core.command.Context;
 import com.c3po.helper.Emoji;
 import com.c3po.service.HumanService;
+import com.c3po.ui.Toast;
+import com.c3po.ui.ToastType;
 import com.c3po.ui.input.StartButtonMenuOption;
 import com.c3po.ui.input.VoidMenuOption;
 import com.c3po.ui.input.base.Menu;
@@ -44,10 +46,11 @@ public class LobbyMenu extends Menu {
         joinButton.setExecutor(c -> {
             int humanId = HumanService.getHumanId(c.getInteraction().getUser().getId());
             if (HumanRepository.db().getGold(humanId) < goldNeeded) {
-                c.createFollowup()
-                    .withContent(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
-                    .subscribe(m -> m.delete().delaySubscription(Duration.ofSeconds(10)).subscribe()
-                );
+                context.sendToast(Toast.builder()
+                    .message(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
+                    .removeAfter(Duration.ofSeconds(10))
+                    .type(ToastType.ERROR)
+                    .build());
                 return Mono.empty();
             }
             users.add(c.getInteraction().getUser());

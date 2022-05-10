@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HumanRepository extends Repository {
     protected static HumanRepository DB;
@@ -54,14 +55,19 @@ public class HumanRepository extends Repository {
     }
 
     public synchronized void addItems(List<Integer> itemIds, int humanId) {
-        //TODO: mapping
-        for(int itemId: itemIds) {
-            addItem(humanId, itemId, 1);
+        Map<Integer, Integer> itemMapping = new HashMap<>();
+        for(Integer itemId: itemIds) {
+            itemMapping.putIfAbsent(itemId, 0);
+            itemMapping.computeIfPresent(itemId, (k,v)->v+1);
+        }
+
+        for(var entrySet: itemMapping.entrySet()) {
+            addItem(humanId, entrySet.getKey(), entrySet.getValue());
         }
     }
 
     public void increaseGold(int humanId, int amount) {
-        String query = "UPDATE `human` SET `gold` = ? WHERE `id` = ?";
+        String query = "UPDATE `human` SET `gold` = `gold` + ? WHERE `id` = ?";
         execute(query, new IntParameter(amount), new IntParameter(humanId));
     }
 

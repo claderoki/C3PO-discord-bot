@@ -4,10 +4,17 @@ import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.command.option.OptionContainer;
 import com.c3po.helper.EventHelper;
+import com.c3po.ui.Toast;
+import com.c3po.ui.ToastType;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.spec.EmbedCreateFields;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.util.HashMap;
+import java.util.Optional;
 
 @Getter
 public class Context {
@@ -41,6 +48,25 @@ public class Context {
         } else {
             return getTarget(Scope.USER);
         }
+    }
+
+    private EmbedCreateSpec.Builder getEmbedFor(ToastType type) {
+        return switch (type) {
+            case ERROR -> EmbedCreateSpec.builder().color(Color.RED);
+            case WARNING -> EmbedCreateSpec.builder().color(Color.ORANGE);
+            case NOTICE -> EmbedCreateSpec.builder().color(Color.BLUE);
+        };
+    }
+
+    public void sendToast(Toast toast) {
+        event.createFollowup()
+            .withEmbeds(getEmbedFor(toast.getType()).description(toast.getMessage()).build())
+            .subscribe(m -> {
+                if (toast.getRemoveAfter() != null) {
+                    m.delete().delaySubscription(Duration.ofSeconds(10)).subscribe();
+                }
+            }
+        );
     }
 
 }
