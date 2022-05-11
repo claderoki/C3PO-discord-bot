@@ -50,8 +50,9 @@ public class HumanRepository extends Repository {
         execute(query,
             new IntParameter(itemId),
             new IntParameter(humanId),
+            new IntParameter(amount),
             new IntParameter(amount)
-        );
+            );
     }
 
     public synchronized void addItems(List<Integer> itemIds, int humanId) {
