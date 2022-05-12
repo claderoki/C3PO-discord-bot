@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public class SubMenu extends Menu {
-    private final MenuOption defaultOption;
+    private final MenuOption<?, ?, ?> defaultOption;
 
-    public SubMenu(Context context, MenuOption defaultOption) {
+    public SubMenu(Context context, MenuOption<?, ?, ?> defaultOption) {
         super(context);
         this.defaultOption = defaultOption;
         this.addOption(defaultOption);

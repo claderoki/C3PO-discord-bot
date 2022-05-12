@@ -27,7 +27,7 @@ public class ProfileSetupCommand extends SubCommand {
         super(group, "setup", "Setup your profile.");
     }
 
-    private MenuOption getOptionFor(PropertyValue propertyValue) {
+    private MenuOption<?,?,?> getOptionFor(PropertyValue propertyValue) {
         if (propertyValue.getParentId() == KnownAttribute.dateOfBirthId) {
             return new WaiterMenuOption<>(
                 "Date of birth",

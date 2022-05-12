@@ -28,9 +28,9 @@ import java.util.*;
 
 @NoArgsConstructor
 public class CommandManager {
-    HashMap<String, Command> commands = new HashMap<>();
-    HashMap<String, SettingInfo> settings = new HashMap<>();
-    Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
+    final HashMap<String, Command> commands = new HashMap<>();
+    final HashMap<String, SettingInfo> settings = new HashMap<>();
+    final Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
     private void registerCommands() {
         register(new MilkywayCommandGroup());

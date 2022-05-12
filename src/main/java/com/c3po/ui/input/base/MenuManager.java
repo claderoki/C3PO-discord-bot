@@ -4,22 +4,12 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
 public class MenuManager {
-
-    private static Boolean isAllowed(Menu menu, ComponentInteractionEvent event) {
-        if (menu.isOwnerOnly()) {
-            return event.getInteraction().getUser().getId().equals(menu.getContext().getEvent().getInteraction().getUser().getId());
-        } else {
-            return true;
-        }
-    }
-
     private static Mono<Boolean> processEvent(ComponentInteractionEvent event, Menu menu) {
-        MenuOption option = menu.matchOption(event.getCustomId());
+        MenuOption<?, ComponentInteractionEvent, ?> option = (MenuOption<?, ComponentInteractionEvent, ?>) menu.matchOption(event.getCustomId());
         if (option == null || !option.isAllowed(event)) {
             return Mono.just(true);
         }

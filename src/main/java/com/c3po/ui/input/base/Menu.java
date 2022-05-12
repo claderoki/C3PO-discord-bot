@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 @Setter
 @Getter
 public class Menu {
-    protected final Map<String, MenuOption> options = new HashMap<>();
+    protected final Map<String, MenuOption<?, ?, ?>> options = new HashMap<>();
     protected final Context context;
     protected Integer maximumOptionsAllowed;
     protected boolean ownerOnly = true;
@@ -36,7 +36,7 @@ public class Menu {
         optionsHandled++;
     }
 
-    public void addOption(MenuOption option) {
+    public void addOption(MenuOption<?, ?, ?> option) {
         option.setContext(context);
         options.put(option.getCustomId(), option);
     }
@@ -50,7 +50,7 @@ public class Menu {
         return embed.build();
     }
 
-    public MenuOption matchOption(String customId) {
+    public MenuOption<?, ?, ?> matchOption(String customId) {
         return options.get(customId);
     }
 
@@ -60,7 +60,7 @@ public class Menu {
         List<Button> buttons = new ArrayList<>();
         List<Button> lastRowButtons = new ArrayList<>();
 
-        for (MenuOption option: options.values()) {
+        for (MenuOption<?, ?, ?> option: options.values()) {
             ActionComponent component = option.getComponent();
             if (component instanceof Button button) {
                 if (!option.isBottomRow()) {

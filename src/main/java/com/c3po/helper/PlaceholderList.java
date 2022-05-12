@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class PlaceholderList {
-    List<Parameter> parameters = new ArrayList<>();
+    List<Parameter> parameters;
     String questionMarks;
 
     public void addParameter(Parameter parameter) {

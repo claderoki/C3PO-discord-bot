@@ -1,6 +1,5 @@
 package com.c3po.core.api;
 
-import org.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -9,7 +8,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

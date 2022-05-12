@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class PersonalRoleProcessor {
-    public static Integer personalRoleAttributeId = AttributeService.getId("personal_role");
+    public final static Integer personalRoleAttributeId = AttributeService.getId("personal_role");
 
     private final PersonalRoleType type;
     private final String rawValue;
