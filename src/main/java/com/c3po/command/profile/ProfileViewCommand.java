@@ -26,9 +26,10 @@ public class ProfileViewCommand extends SubCommand {
             .required(false)
             .type(DiscordCommandOptionType.USER.getValue()));
     }
-    private Temperature getTemperatureFromProfile(Profile profile) {
+
+    private Mono<Temperature> getTemperatureFromProfile(Profile profile) {
         if (profile.getCity() == null) {
-            return null;
+            return Mono.just(null);
         }
 
         GetTemperature endpoint = GetTemperature.builder()
@@ -37,12 +38,10 @@ public class ProfileViewCommand extends SubCommand {
             .build();
 
         try {
-            return new OpenWeatherMapApi().call(endpoint).block();
-        } catch (Exception ignored) {
-            String a = "";
-
+            return new OpenWeatherMapApi().call(endpoint);
+        } catch (Exception e) {
+            return Mono.just(null);
         }
-        return null;
     }
 
     private String formatEmoji(ReactionEmoji emoji) {
@@ -59,7 +58,7 @@ public class ProfileViewCommand extends SubCommand {
         fields.add(new DateOfBirthField(profile.getDateOfBirth()));
         fields.add(new TimezoneField(profile.getTimezone()));
         fields.add(new PigeonNameField(profile.getPigeonName()));
-        fields.add(new TemperatureField(getTemperatureFromProfile(profile)));
+//        fields.add(new TemperatureField(getTemperatureFromProfile(profile)));
         fields.add(new GoldField(profile.getGold()));
 
         if (profile instanceof MemberProfile memberProfile) {
@@ -75,36 +74,34 @@ public class ProfileViewCommand extends SubCommand {
         return EmbedCreateFields.Field.of(username, value.toString(), false);
     }
 
+    private Mono<User> getUser(Context context) {
+        Snowflake userId = context.getOptions().optSnowflake("member");
+        if (userId != null) {
+            return context.getEvent().getClient().getUserById(userId);
+        }
+        return Mono.just(context.getEvent().getInteraction().getUser());
+    }
+
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
         var optionalGuildId = context.getEvent().getInteraction().getGuildId();
-        Snowflake userId = context.getOptions().optSnowflake("member");
+        return getUser(context).flatMap(user -> {
+            ScopeTarget target;
+            if (optionalGuildId.isPresent()) {
+                target = ScopeTarget.member(user.getId().asLong(), optionalGuildId.get().asLong());
+            } else {
+                target = ScopeTarget.user(user.getId().asLong());
+            }
 
-        User user = null;
-        if (userId != null) {
-            user = context.getEvent().getClient().getUserById(userId).block();
-        }
-        if (userId == null) {
-            user = context.getEvent().getInteraction().getUser();
-        }
-        assert user != null;
+            Profile profile = ProfileService.getProfile(target);
 
-        ScopeTarget target;
-        if (optionalGuildId.isPresent()) {
-            target = ScopeTarget.member(user.getId().asLong(), optionalGuildId.get().asLong());
-        } else {
-            target = ScopeTarget.user(user.getId().asLong());
-        }
-
-        Profile profile = ProfileService.getProfile(target);
-
-        String username = user.getUsername();
-
-        return context.getEvent().reply()
-            .withEmbeds(EmbedHelper.normal(null)
-                .addField(profileToField(username, profile))
-                .build())
-            .then();
+            String username = user.getUsername();
+            return context.getEvent().reply()
+                .withEmbeds(EmbedHelper.normal(null)
+                    .addField(profileToField(username, profile))
+                    .build())
+                .then();
+        });
     }
 
 }

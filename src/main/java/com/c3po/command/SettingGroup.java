@@ -108,40 +108,42 @@ public class SettingGroup {
         Setting setting = SettingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
 
-        if (!CommandSettingValidation.validate(commandSettings, event) && !event.getInteraction().getUser().getId().equals(Snowflake.of(120566758091259906L))) {
-            return Mono.empty();
-        }
-
-        String value = getValueFromEvent(event);
-        if (value == null) {
-            return Mono.empty();
-        }
-
-        ScopeTarget target = scopeToTarget(setting.getScope(), event);
-        ArrayList<Integer> requiredSettings = new ArrayList<>();
-        ArrayList<SettingValidation> validations = SettingValidationCache.get().get(settingId);
-        requiredSettings.add(settingId);
-        requiredSettings.addAll(getRequiredSettings(validations));
-        HashMap<Integer, PropertyValue> settingValues = SettingRepository.db().getHydratedPropertyValues(target, category, requiredSettings);
-        PropertyValue settingValue = settingValues.get(settingId);
-        setValue(settingValue, value);
-        if (validations != null) {
-            SettingValidator settingValidator = new SettingValidator(validations, settingValues);
-            SettingValidationResult result = settingValidator.validate();
-            ArrayList<String> errors = result.getErrors();
-            if (!errors.isEmpty()) {
-                return event.reply().withContent("Error(s): " + String.join("\n", errors)).then();
+        return CommandSettingValidation.validate(commandSettings, event).map(valid -> {
+            if (!valid) {
+                return Mono.empty();
             }
-        }
-        SettingRepository.db().save(settingValue);
-        if (settingValue.changed()) {
-            SettingGroupCacheKey<?> cacheKey = getCacheKey(target);
-            if (cacheKey != null) {
-                Cache.remove(cacheKey);
-            }
-        }
 
-        return event.reply().withEmbeds(createEmbedFor(settingValue));
+            String value = getValueFromEvent(event);
+            if (value == null) {
+                return Mono.empty();
+            }
+
+            ScopeTarget target = scopeToTarget(setting.getScope(), event);
+            ArrayList<Integer> requiredSettings = new ArrayList<>();
+            ArrayList<SettingValidation> validations = SettingValidationCache.get().get(settingId);
+            requiredSettings.add(settingId);
+            requiredSettings.addAll(getRequiredSettings(validations));
+            HashMap<Integer, PropertyValue> settingValues = SettingRepository.db().getHydratedPropertyValues(target, category, requiredSettings);
+            PropertyValue settingValue = settingValues.get(settingId);
+            setValue(settingValue, value);
+            if (validations != null) {
+                SettingValidator settingValidator = new SettingValidator(validations, settingValues);
+                SettingValidationResult result = settingValidator.validate();
+                ArrayList<String> errors = result.getErrors();
+                if (!errors.isEmpty()) {
+                    return event.reply().withContent("Error(s): " + String.join("\n", errors)).then();
+                }
+            }
+            SettingRepository.db().save(settingValue);
+            if (settingValue.changed()) {
+                SettingGroupCacheKey<?> cacheKey = getCacheKey(target);
+                if (cacheKey != null) {
+                    Cache.remove(cacheKey);
+                }
+            }
+
+            return event.reply().withEmbeds(createEmbedFor(settingValue));
+        });
     }
 
     protected SettingGroupCacheKey<?> getCacheKey(ScopeTarget target) {

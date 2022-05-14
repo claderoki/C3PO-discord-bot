@@ -7,17 +7,11 @@ import com.c3po.core.command.SubCommand;
 import com.c3po.errors.PublicException;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.DiscordCommandOptionType;
-import com.c3po.helper.LogHelper;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.service.MilkywayService;
-import com.c3po.ui.input.*;
-import com.c3po.ui.input.base.Menu;
-import com.c3po.ui.input.base.MenuManager;
-import com.c3po.ui.input.base.SubMenu;
 import discord4j.common.util.Snowflake;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.TextChannelCreateSpec;
 import reactor.core.publisher.Mono;
@@ -48,21 +42,21 @@ public class MilkywayAcceptCommand extends SubCommand {
         }
 
         MilkywaySettings settings = MilkywayService.getSettings(ScopeTarget.guild(guildId));
-        Guild guild = context.getEvent().getInteraction().getGuild().blockOptional().orElseThrow();
+        return context.getEvent().getInteraction().getGuild().flatMap(guild -> {
+            LocalDateTime expiresAt = OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime().plus(Duration.ofDays(milkyway.getDaysPending()));
+            return guild.createTextChannel(TextChannelCreateSpec.builder()
+                .name(milkyway.getName())
+                .topic(MilkywayHelper.getChannelDescriptionFor(milkyway, expiresAt))
+                .parentId(Snowflake.of(settings.getCategoryId()))
+                .build()).flatMap(channel -> {
+                    MilkywayRepository.db().accept(guildId, identifier, channel.getId().asLong(), expiresAt);
 
-        LocalDateTime expiresAt = OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime().plus(Duration.ofDays(milkyway.getDaysPending()));
-        TextChannel channel = guild.createTextChannel(TextChannelCreateSpec.builder()
-            .name(milkyway.getName())
-            .topic(MilkywayHelper.getChannelDescriptionFor(milkyway, expiresAt))
-            .parentId(Snowflake.of(settings.getCategoryId()))
-            .build()).blockOptional().orElseThrow();
+                    context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
+                        "Your milkyway request has been accepted."
+                    ).then());
 
-        MilkywayRepository.db().accept(guildId, identifier, channel.getId().asLong(), expiresAt);
-
-        context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
-            "Your milkyway request has been accepted."
-        ).then());
-
-        return context.getEvent().reply().withContent("OK.");
+                    return context.getEvent().reply().withContent("OK.");
+            });
+        });
     }
 }

@@ -99,10 +99,13 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         Command command = commandManager.matchCommand(fullName);
         if (command != null) {
             Context context = new Context(event);
-            if (CommandSettingValidation.validate(command.getSettings(), event)) {
-                return processCommand(command, context)
-                    .onErrorResume(this::handleError);
-            }
+            return CommandSettingValidation.validate(command.getSettings(), event).flatMap(valid -> {
+                if (valid) {
+                    return processCommand(command, context).onErrorResume(this::handleError);
+                } else {
+                    return Mono.empty();
+                }
+            });
         }
         return Mono.empty();
     }
@@ -119,7 +122,6 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             LogHelper.log("BUCKET FAILED.");
             return Mono.empty();
         }
-
         try {
             bucketManager.ifPresent(BucketManager::before);
             Mono<?> commandResult = command.execute(context);

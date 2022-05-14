@@ -10,9 +10,8 @@ import com.c3po.core.command.SubCommand;
 import com.c3po.core.wordnik.WordnikApi;
 import com.c3po.core.wordnik.endpoints.GetRandomWords;
 import com.c3po.core.wordnik.endpoints.GetWordDefinition;
-import com.c3po.core.wordnik.responses.WordDefinitionResponse;
-import com.c3po.core.wordnik.responses.WordListResponse;
 import com.c3po.core.wordnik.responses.WordResponse;
+import com.c3po.helper.LogHelper;
 import com.c3po.service.HumanService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
@@ -30,58 +29,71 @@ public class HangmanStartCommand extends SubCommand {
 
     private Mono<Set<User>> getUsers(Context context) {
         LobbyMenu menu = new LobbyMenu(context, bet);
-        return MenuManager.waitForMenu(menu).then(Mono.just(menu.getUsers()));
+        LogHelper.log("DEF");
+        return MenuManager.waitForMenu(menu)
+            .then(Mono.just(menu.getUsers()));
     }
 
-    private String getWord(WordnikApi api) throws Exception {
+    private Mono<String> getWord(WordnikApi api) throws Exception {
         if (!wordCache.isEmpty()) {
             String word = wordCache.get(0);
             wordCache.remove(word);
-            return word;
+            return Mono.just(word);
         } else {
-            GetRandomWords getRandomWords = new GetRandomWords();
-            WordListResponse words = api.call(getRandomWords).blockOptional().orElseThrow();
-            for(WordResponse word: words.getWords()) {
-                wordCache.add(word.getWord());
-            }
-            return getWord(api);
+            return api.call(new GetRandomWords()).flatMap(words->{
+                int i = 0;
+                for(WordResponse word: words.getWords()) {
+                    if (i > 0) {
+                        wordCache.add(word.getWord());
+                    }
+                    i++;
+                }
+                return Mono.just(wordCache.get(0));
+            });
         }
     }
 
-    private HangmanWord getHangmanWord() {
+    private Mono<HangmanWord> getHangmanWord() {
         try {
             WordnikApi api = new WordnikApi();
-            String word = getWord(api);
-            GetWordDefinition getWordDefinition = new GetWordDefinition(word);
-            WordDefinitionResponse definition = api.call(getWordDefinition).blockOptional().orElseThrow().getDefinitions().get(0);
-
-            return HangmanWord.builder()
-                .value(word.toLowerCase())
-                .uneditedValue(word)
-                .description(definition.getText())
-                .build();
+            return getWord(api).flatMap(word -> {
+                try {
+                return api.call(new GetWordDefinition(word))
+                    .map(definitions -> {
+                        var definition = definitions.getDefinitions().get(0);
+                        return HangmanWord.builder()
+                            .value(word.toLowerCase())
+                            .uneditedValue(word)
+                            .description(definition.getText())
+                            .build();
+                    });
+                } catch (Exception e) {
+                    return Mono.just(HangmanWord.builder().build());
+                }
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    private HangmanPlayer toPlayer(User user) {
+        HangmanPlayer player = new HangmanPlayer(user, HumanService.getHumanId(user.getId()));
+        player.setBet(bet);
+        return player;
+    }
+
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
-        List<HangmanPlayer> players = Objects.requireNonNull(getUsers(context).block())
-            .stream()
-            .map(u -> {
-                HangmanPlayer player = new HangmanPlayer(u, HumanService.getHumanId(u.getId()));
-                player.setBet(bet);
-                return player;
-            })
-            .toList();
-
-        if (players.isEmpty()) {
-            return Mono.empty();
-        }
-
-        HangmanGame game = new HangmanGame(getHangmanWord(), players, new HangmanUI(context));
-        game.start();
-        return Mono.empty();
+        return getUsers(context)
+            .map(users -> users.stream().map(this::toPlayer).toList())
+            .flatMap(players -> {
+                if (players.isEmpty()) {
+                    return Mono.empty();
+                }
+                return getHangmanWord().flatMap(word -> {
+                    HangmanGame game = new HangmanGame(word, players, new HangmanUI(context));
+                    return game.start();
+                });
+        }).then();
     }
 }

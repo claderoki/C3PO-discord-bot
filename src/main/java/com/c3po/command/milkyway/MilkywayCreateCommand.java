@@ -35,26 +35,23 @@ public class MilkywayCreateCommand extends SubCommand {
 
         MilkywayProcessor processor = new MilkywayProcessor(context.getEvent(), false);
 
-        context.getEvent().reply().withEmbeds(EmbedHelper.normal("Working...").build()).block();
+        return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Working...").build())
+            .then(processor.create(name, description).flatMap(milkyway -> context.getEvent().getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).flatMap(channel -> {
+                Member member = context.getEvent().getInteraction().getMember().orElseThrow();
+                String text = "A milkyway has been requested for " + milkyway.getDaysPending() + " day(s)" +
+                    "\nName: **" + milkyway.getName() + "**" +
+                    "\nDescription: **" + milkyway.getDescription() + "**";
 
-        Milkyway milkyway = processor.create(name, description);
+                String footerText = "Use '/milkyway deny %s' to deny this request.\nUse '/milkyway accept %s' to accept this request.";
+                EmbedCreateSpec embed = EmbedHelper.normal(text)
+                    .footer(footerText.formatted(milkyway.getIdentifier(), milkyway.getIdentifier()), null)
+                    .author(member.getUsername() + "#" + member.getDiscriminator(), null, member.getAvatarUrl())
+                    .build();
 
-        Channel channel = context.getEvent().getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).blockOptional().orElseThrow();
-        Member member = context.getEvent().getInteraction().getMember().orElseThrow();
+                return channel.getRestChannel().createMessage(embed.asRequest()).then(
+                    context.getEvent().editReply().withEmbeds(EmbedHelper.normal("OK, request has been sent to the admins. Your Milkyway ID is " + milkyway.getIdentifier()).build()).then()
+                );
+            })));
 
-        String text = "A milkyway has been requested for " + milkyway.getDaysPending() + " day(s)" +
-            "\nName: **" + milkyway.getName() + "**" +
-            "\nDescription: **" + milkyway.getDescription() + "**";
-
-        String footerText = "Use '/milkyway deny %s' to deny this request.\nUse '/milkyway accept %s' to accept this request.";
-
-        EmbedCreateSpec embed = EmbedHelper.normal(text)
-            .footer(footerText.formatted(milkyway.getIdentifier(), milkyway.getIdentifier()), null)
-            .author(member.getUsername() + "#" + member.getDiscriminator(), null, member.getAvatarUrl())
-            .build();
-
-        return channel.getRestChannel().createMessage(embed.asRequest()).then(
-            context.getEvent().editReply().withEmbeds(EmbedHelper.normal("OK, request has been sent to the admins. Your Milkyway ID is " + milkyway.getIdentifier()).build()).then()
-        );
     }
 }

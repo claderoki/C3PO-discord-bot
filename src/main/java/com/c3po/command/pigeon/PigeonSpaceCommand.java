@@ -111,33 +111,37 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         return menu;
     }
 
+    private Mono<?> executeFinalSequence(Pigeon pigeon, Context context, Exploration exploration, List<ExplorationScenarioWinnings> totalWinnings) {
+        if (totalWinnings.size() == exploration.getTotalActions()) {
+            return finalSequence(context, pigeon, exploration, totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList());
+        } else {
+            List<PigeonWinnings> winnings = new ArrayList<>(PigeonRepository.db().getWinnings(exploration.getId()));
+            winnings.addAll(totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList());
+            return finalSequence(context, pigeon, exploration, winnings);
+        }
+    }
+
     private Mono<?> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
         List<ExplorationScenarioWinnings> totalWinnings = new ArrayList<>();
         Menu menu = createMenu(pigeon, context, exploration, totalWinnings);
-        MenuManager.waitForMenu(menu).block();
-
-        for (var winnings: totalWinnings) {
-            ExplorationRepository.db().createWinnings(exploration.getId(), winnings.actionId(), winnings.pigeonWinnings());
-        }
-
-        int actionsRemaining = exploration.getActionsRemaining() - menu.getOptionsHandled();
-        if (actionsRemaining == 0) {
-            if (totalWinnings.size() == exploration.getTotalActions()) {
-                finalSequence(context, pigeon, exploration, totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList()).block();
-            } else {
-                List<PigeonWinnings> winnings = new ArrayList<>(PigeonRepository.db().getWinnings(exploration.getId()));
-                winnings.addAll(totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList());
-                finalSequence(context, pigeon, exploration, winnings).block();
+        return MenuManager.waitForMenu(menu).flatMap(c -> {
+            for (var winnings: totalWinnings) {
+                ExplorationRepository.db().createWinnings(exploration.getId(), winnings.actionId(), winnings.pigeonWinnings());
             }
-            PigeonRepository.db().updateStatus(pigeon.getId(), PigeonStatus.IDLE);
-            ExplorationRepository.db().finish(exploration.getId());
-        } else {
+
+            int actionsRemaining = exploration.getActionsRemaining() - menu.getOptionsHandled();
+            if (actionsRemaining == 0) {
+                return executeFinalSequence(pigeon, context, exploration, totalWinnings).flatMap(a -> {
+                    PigeonRepository.db().updateStatus(pigeon.getId(), PigeonStatus.IDLE);
+                    ExplorationRepository.db().finish(exploration.getId());
+                    return Mono.empty();
+                });
+            }
+
             ExplorationRepository.db().updateActionsRemaining(exploration.getId(), actionsRemaining);
-        }
-
-        return Mono.empty();
+            return Mono.empty();
+        });
     }
-
 
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {

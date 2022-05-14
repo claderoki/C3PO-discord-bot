@@ -86,7 +86,7 @@ public class Waiter {
                             .withEmbedsOrNull(List.of(EmbedHelper.error("Error(s): " + String.join(", ", errors)).build()))
                             .delayElement(Duration.ofSeconds(3))
                             .then(sendMessage(parser))
-                            .block();
+                            .subscribe();
                     }
                 }
                 return c;

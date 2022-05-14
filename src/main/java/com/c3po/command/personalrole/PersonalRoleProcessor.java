@@ -34,17 +34,23 @@ public class PersonalRoleProcessor {
     private Guild guild;
     private Member member;
 
-    private void load() {
+    private Mono<?> load() {
         settings = PersonalRoleService.getSettings(context.getTarget(Scope.GUILD));
         personalRoleAttributeValue = AttributeRepository.db()
             .getHydratedPropertyValue(context.getTarget(Scope.MEMBER), personalRoleAttributeId)
             .orElseThrow();
 
-        guild = context.getEvent().getInteraction().getGuild().blockOptional().orElseThrow();
-        if (personalRoleAttributeValue.getValue() != null) {
-            existingRole = guild.getRoleById(Snowflake.of(Long.parseLong(personalRoleAttributeValue.getValue()))).block();
-        }
-        member = context.getEvent().getInteraction().getMember().orElseThrow();
+        return context.getEvent().getInteraction().getGuild().map(g -> {
+            guild = g;
+            member = context.getEvent().getInteraction().getMember().orElseThrow();
+            if (personalRoleAttributeValue.getValue() != null) {
+                return guild.getRoleById(Snowflake.of(Long.parseLong(personalRoleAttributeValue.getValue()))).map(p->{
+                    existingRole=p;
+                    return Mono.empty();
+                });
+            }
+            return Mono.empty();
+        });
     }
 
     private void validate() {
@@ -92,28 +98,28 @@ public class PersonalRoleProcessor {
     }
 
     public Mono<?> execute() {
-        load();
+        return load().map(e->{
+            if (type.equals(PersonalRoleType.DELETE) && existingRole != null) {
+                return existingRole.delete().flatMap(c -> {
+                    AttributeRepository.db().delete(personalRoleAttributeValue);
+                    return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been deleted.").build());
+                });
+            }
 
-        if (type.equals(PersonalRoleType.DELETE) && existingRole != null) {
-            return existingRole.delete().flatMap(c -> {
-                AttributeRepository.db().delete(personalRoleAttributeValue);
-                return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been deleted.").build());
-            });
-        }
+            validate();
 
-        validate();
-
-        if (existingRole == null) {
-            return createRole().flatMap(role -> member.addRole(role.getId())).then(
-                context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been created.").build()));
-        } else {
-            return editRole().flatMap(role -> {
-                if (!member.getRoleIds().contains(existingRole.getId())) {
-                    member.addRole(existingRole.getId());
-                }
-                return Mono.empty();
-            }).then(
-                context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been edited.").build()));
-        }
+            if (existingRole == null) {
+                return createRole().flatMap(role -> member.addRole(role.getId())).then(
+                    context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been created.").build()));
+            } else {
+                return editRole().flatMap(role -> {
+                    if (!member.getRoleIds().contains(existingRole.getId())) {
+                        member.addRole(existingRole.getId());
+                    }
+                    return Mono.empty();
+                }).then(
+                    context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been edited.").build()));
+            }
+        });
     }
 }

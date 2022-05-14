@@ -142,10 +142,10 @@ public class MilkywayProcessor {
                 );
                 options.put(customId, availablePurchase);
             }
-            event.editReply()
+            return event.editReply()
                 .withEmbeds(EmbedHelper.normal("Choose a payment type.").build())
-                .withComponents(ActionRow.of(buttons)).block();
-            return waitFor(options);
+                .withComponents(ActionRow.of(buttons))
+                .then(waitFor(options));
         }
     }
 
@@ -163,9 +163,9 @@ public class MilkywayProcessor {
         }
     }
 
-    protected Integer chooseDays(AvailablePurchase chosenPurchase) {
+    protected Mono<Integer> chooseDays(AvailablePurchase chosenPurchase) {
         if (chosenPurchase.getDaysWorth() == 1) {
-            return 1;
+            return Mono.just(1);
         }
 
         Waiter waiter = new Waiter(event);
@@ -173,11 +173,7 @@ public class MilkywayProcessor {
 
         IntParser parser = IntParser.builder().min(1).max(chosenPurchase.getDaysWorth()).build();
         parser.setEvent(event);
-
-        ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser)
-            .blockOptional()
-            .orElseThrow();
-        return result.getValueOrThrow();
+        return waiter.wait(MessageCreateEvent.class, parser).map(ParseResult::getValueOrThrow);
     }
 
     private int getAmount(AvailablePurchase chosenPurchase, Integer daysChosen) {
@@ -202,33 +198,32 @@ public class MilkywayProcessor {
         }
     }
 
-    public Milkyway create(String name, String description) throws PublicException {
+    public Mono<Milkyway> create(String name, String description) throws PublicException {
         load();
         validate();
 
         List<AvailablePurchase> availablePurchases = getAvailablePurchases();
-        AvailablePurchase chosenPurchase = chooseAvailablePurchase(availablePurchases).blockOptional().orElseThrow();
-        Integer daysChosen = chooseDays(chosenPurchase);
+        return chooseAvailablePurchase(availablePurchases).flatMap(chosenPurchase -> chooseDays(chosenPurchase).flatMap(daysChosen -> {
+            int amount = getAmount(chosenPurchase, daysChosen);
+            Integer itemId = chosenPurchase.getPurchaseType().equals(PurchaseType.ITEM) ? chosenPurchase.getItem().getItemId() : null;
 
-        int amount = getAmount(chosenPurchase, daysChosen);
-        Integer itemId = chosenPurchase.getPurchaseType().equals(PurchaseType.ITEM) ? chosenPurchase.getItem().getItemId() : null;
+            Milkyway milkyway = Milkyway.builder()
+                .amount(amount)
+                .purchaseType(chosenPurchase.getPurchaseType())
+                .daysPending(daysChosen)
+                .identifier(MilkywayService.getIncrementIdentifier(memberTarget.getGuildId()))
+                .name(name)
+                .description(description != null ? description : name)
+                .status(MilkywayStatus.PENDING)
+                .itemId(itemId)
+                .target(memberTarget)
+                .build();
 
-        Milkyway milkyway = Milkyway.builder()
-            .amount(amount)
-            .purchaseType(chosenPurchase.getPurchaseType())
-            .daysPending(daysChosen)
-            .identifier(MilkywayService.getIncrementIdentifier(memberTarget.getGuildId()))
-            .name(name)
-            .description(description != null ? description : name)
-            .status(MilkywayStatus.PENDING)
-            .itemId(itemId)
-            .target(memberTarget)
-            .build();
+            MilkywayRepository.db().create(milkyway);
+            takePayment(chosenPurchase, amount);
 
-        MilkywayRepository.db().create(milkyway);
-        takePayment(chosenPurchase, amount);
-
-        return milkyway;
+            return Mono.just(milkyway);
+        }));
     }
 
 }

@@ -24,8 +24,8 @@ public class HangmanUI extends UI {
     private int unrelatedMessages = 0;
     private Message mentionMessage;
 
-    public void showEndGame(EmbedCreateSpec embed) {
-        context.getEvent().createFollowup().withEmbeds(embed).subscribe();
+    public Mono<?> showEndGame(EmbedCreateSpec embed) {
+        return context.getEvent().createFollowup().withEmbeds(embed);
     }
 
     private EmbedCreateSpec getEmbed(List<Character> board, List<HangmanPlayer> players) {
@@ -54,7 +54,7 @@ public class HangmanUI extends UI {
         return embed.build();
     }
 
-    public void showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
+    public Mono<?> showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
         if (currentPlayer != null) {
             if (mentionMessage != null) {
                 mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).subscribe();
@@ -69,17 +69,18 @@ public class HangmanUI extends UI {
 
         EmbedCreateSpec embed = getEmbed(board, players);
         if (messageId == null || unrelatedMessages >= 5) {
-            var message = context.getEvent().createFollowup()
+            return context.getEvent().createFollowup()
                 .withContent(currentPlayer == null ? "" : currentPlayer.getUser().getMention())
                 .withEmbeds(embed)
-                .blockOptional()
-                .orElseThrow();
-            messageId = message.getId();
+                .flatMap(message -> {
+                    messageId = message.getId();
+                    return null;
+                }).then();
         } else {
-            context.getEvent().editFollowup(messageId)
+            return context.getEvent().editFollowup(messageId)
                 .withContentOrNull(currentPlayer == null ? null : currentPlayer.getUser().getMention())
                 .withEmbeds(embed)
-                .block();
+                .then();
         }
     }
 
@@ -89,7 +90,7 @@ public class HangmanUI extends UI {
             .subscribe(m -> m.delete().delaySubscription(Duration.ofSeconds(5)).subscribe());
     }
 
-    public Guess waitForGuess(HangmanPlayer player, List<Character> board, List<Guess> guesses) {
+    public Mono<Guess> waitForGuess(HangmanPlayer player, List<Character> board, List<Guess> guesses) {
         return context.getEvent().getClient().on(MessageCreateEvent.class)
             .map(c -> {
                 unrelatedMessages++;
@@ -111,8 +112,7 @@ public class HangmanUI extends UI {
             })
             .map(c -> {
                 GuessType type = c.length() == 1 ? GuessType.LETTER : GuessType.WORD;
-                Guess guess = new Guess(type, c);
-                return guess;
+                return new Guess(type, c);
             })
             .map(c -> {
                 unrelatedMessages--;
@@ -121,7 +121,6 @@ public class HangmanUI extends UI {
             .timeout(Duration.ofSeconds(60))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .next()
-            .block()
         ;
     }
 

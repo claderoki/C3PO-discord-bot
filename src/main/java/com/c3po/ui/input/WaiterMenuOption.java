@@ -2,6 +2,7 @@ package com.c3po.ui.input;
 
 import com.c3po.helper.waiter.EventParser;
 import com.c3po.helper.waiter.ParseResult;
+import com.c3po.helper.waiter.ResultType;
 import com.c3po.helper.waiter.Waiter;
 import com.c3po.ui.input.base.ButtonMenuOption;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
@@ -26,11 +27,11 @@ public class WaiterMenuOption<F, E extends EventParser<F, MessageCreateEvent>> e
         parser.setEvent(context.getEvent());
         Waiter waiter = new Waiter(context.getEvent());
         waiter.setPrompt("Please enter a " + name);
-        ParseResult<F> result = event.deferEdit().then(waiter.wait(MessageCreateEvent.class, parser)).block();
-        if (result == null) {
+        return event.deferEdit().then(waiter.wait(MessageCreateEvent.class, parser)).map(result -> {
+            if (!result.getType().equals(ResultType.ERROR)) {
+                setValue(result.getValueOrThrow());
+            }
             return Mono.empty();
-        }
-        setValue(result.getValueOrThrow());
-        return Mono.empty();
+        });
     }
 }

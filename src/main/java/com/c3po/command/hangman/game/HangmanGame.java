@@ -6,6 +6,9 @@ import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.Emoji;
 import com.c3po.helper.LogHelper;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,8 @@ public class HangmanGame extends Game {
     private final HangmanUI ui;
     private final List<Character> board = new ArrayList<>();
     private final static char EMPTY_LETTER = '-';
+    private List<HangmanPlayer> livingPlayers;
+    private final List<Guess> allGuesses = new ArrayList<>();
 
     private void processGuess(Guess guess) {
         if (guess.getType().equals(GuessType.WORD) && guess.getValue().equals(word.getValue())) {
@@ -38,17 +43,10 @@ public class HangmanGame extends Game {
         }
     }
 
-    private void stop() {
+    private Mono<?> stop() {
         int betPool = players.stream().mapToInt(HangmanPlayer::getBet).sum();
         betPool *= 1.25;
         betPool += (15 * players.size());
-
-//        players.sort(Comparator.comparingInt(player -> {
-//            if (player.isDead()) {
-//                return 0;
-//            }
-//            return player.getGuesses().stream().mapToInt(Guess::getWorth).sum();
-//        }));
 
         List<String> lines = new ArrayList<>();
         int i = 0;
@@ -82,41 +80,47 @@ public class HangmanGame extends Game {
         var embed = EmbedHelper.normal(String.join("\n", lines));
         embed.addField(word.getValue(), word.getDescription() == null ? "no definition" : word.getDescription(), false);
         embed.title("Game has ended.");
-        ui.showEndGame(embed.build());
+        return ui.showEndGame(embed.build());
     }
 
-    public void start() {
-        for (int i = 0; i < word.getValue().length(); i++) {
-            board.add(EMPTY_LETTER);
-        }
-        LogHelper.log(word.getValue());
+    private Mono<?> showBoard(@Nullable HangmanPlayer player) {
+        return ui.showBoard(board, players, player);
+    }
 
-        List<HangmanPlayer> livingPlayers = new ArrayList<>(players);
-        List<Guess> allGuesses = new ArrayList<>();
-        ui.showBoard(board, players, null);
-        boolean gameEnded = false;
-        while (!gameEnded) {
-            for(HangmanPlayer player: livingPlayers) {
-                long incorrectGuesses = player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
-                if (incorrectGuesses >= HangmanStateHelper.getMaxStates()) {
-                    livingPlayers.remove(player);
-                    player.setDead(true);
-                } else {
-                    ui.showBoard(board, players, player);
-                    Guess guess = ui.waitForGuess(player, board, allGuesses);
+    private Mono<?> processPlayer(HangmanPlayer player) {
+        long incorrectGuesses = player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
+        if (incorrectGuesses >= HangmanStateHelper.getMaxStates()) {
+            livingPlayers.remove(player);
+            player.setDead(true);
+            return Mono.empty();
+        } else {
+            return showBoard(player)
+                .then(ui.waitForGuess(player, board, allGuesses)
+                .flatMap(guess -> {
                     if (guess != null) {
                         processGuess(guess);
                         player.addGuess(guess);
                         allGuesses.add(guess);
                     }
-                }
-                gameEnded = livingPlayers.isEmpty() || board.stream().noneMatch(c -> c.equals(EMPTY_LETTER));
-                if (gameEnded) {
-                    break;
-                }
-            }
+                    return Mono.empty();
+            }));
         }
-        ui.showBoard(board, players, null);
-        stop();
+    }
+
+    public Mono<?> start() {
+        for (int i = 0; i < word.getValue().length(); i++) {
+            board.add(EMPTY_LETTER);
+        }
+        livingPlayers = new ArrayList<>(players);
+        return Flux.fromIterable(players)
+            .filter(player -> !player.isDead())
+            .flatMap(player -> {
+                LogHelper.log("hmm");
+                return processPlayer(player);
+            })
+            .takeWhile(c -> !livingPlayers.isEmpty() && board.stream().noneMatch(l->l.equals(EMPTY_LETTER)))
+            .then(showBoard(null)
+                .then(stop())
+            );
     }
 }

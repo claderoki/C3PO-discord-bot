@@ -3,22 +3,21 @@ package com.c3po.core.command;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.rest.util.Permission;
 import discord4j.rest.util.PermissionSet;
+import reactor.core.publisher.Mono;
 
 public class CommandSettingValidation {
-    public static boolean validate(CommandSettings commandSettings, ChatInputInteractionEvent event) {
+    //TODO
+    public static Mono<Boolean> validate(CommandSettings commandSettings, ChatInputInteractionEvent event) {
         if (commandSettings == null) {
-            return true;
+            return Mono.just(true);
         }
         if (commandSettings.isAdminOnly() && event.getInteraction().getMember().isPresent()) {
-            PermissionSet permissions = event.getInteraction().getMember().get().getBasePermissions().block();
-            if (permissions == null || !permissions.contains(Permission.ADMINISTRATOR)) {
-                return false;
-            }
+            return event.getInteraction().getMember().get().getBasePermissions().map(p-> p != null && p.contains(Permission.ADMINISTRATOR));
         }
         if (commandSettings.isGuildOnly() && event.getInteraction().getGuildId().isEmpty()) {
-            return false;
+            return Mono.just(false);
         }
 
-        return true;
+        return Mono.just(true);
     }
 }

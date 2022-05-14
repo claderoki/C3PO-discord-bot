@@ -30,7 +30,7 @@ public abstract class ApiCall {
         return (defaultParameters == null ? endpointParameters : defaultParameters);
     }
 
-    public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) throws IOException, InterruptedException {
+    public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) throws Exception {
         String rawParameters = null;
         Map<String, String> parameters = getAllParameters(endpoint);
         if (parameters != null && !parameters.isEmpty()) {

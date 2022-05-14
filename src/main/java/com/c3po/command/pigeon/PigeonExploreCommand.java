@@ -63,8 +63,6 @@ public class PigeonExploreCommand extends PigeonSubCommand {
         });
         menu.addOption(option);
 
-        MenuManager.waitForMenu(menu).blockOptional();
-
-        return Mono.empty();
+        return MenuManager.waitForMenu(menu);
     }
 }

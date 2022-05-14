@@ -24,13 +24,13 @@ public class LongMenuOption extends ButtonMenuOption<Long> {
         parser.setEvent(context.getEvent());
         Waiter waiter = new Waiter(context.getEvent());
         waiter.setPrompt("Please enter that shit.");
-        ParseResult<Integer> result = waiter.wait(MessageCreateEvent.class, parser)
-            .blockOptional()
-            .orElseThrow();
-
-        setValue(Long.valueOf(result.getValueOrThrow()));
-
-        return event.deferEdit();
+        return event.deferEdit()
+            .then(waiter.wait(MessageCreateEvent.class, parser)
+            .map(ParseResult::getValueOrThrow)
+            .map(value -> {
+                setValue(Long.valueOf(value));
+                return Mono.empty();
+        }));
     }
 
 }

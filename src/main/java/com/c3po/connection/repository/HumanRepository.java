@@ -45,7 +45,7 @@ public class HumanRepository extends Repository {
         String query = """
             INSERT INTO human_item (item_id, human_id, amount)
             VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE amount = amount + ?
+            ON DUPLICATE KEY UPDATE `amount` = `amount` + ?
             """;
         execute(query,
             new IntParameter(itemId),

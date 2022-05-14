@@ -27,9 +27,7 @@ public class ChannelMenuOption extends SelectMenuMenuOption {
     }
 
     protected Map<String, String> getOptionCache() {
-        return context.getEvent().getClient().getGuildChannels(
-                context.getEvent().getInteraction().getGuildId().orElseThrow()
-            )
+        return context.getEvent().getClient().getGuildChannels(context.getEvent().getInteraction().getGuildId().orElseThrow())
             .filter(g -> g.getType().equals(Channel.Type.GUILD_TEXT))
             .collect(Collectors.toMap((g) -> g.getId().asString(), GuildChannel::getName)).blockOptional().orElseThrow();
     }
