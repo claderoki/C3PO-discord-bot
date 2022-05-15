@@ -63,7 +63,7 @@ public class HumanRepository extends Repository {
         }
 
         for(var entrySet: itemMapping.entrySet()) {
-            addItem(humanId, entrySet.getKey(), entrySet.getValue());
+            addItem(entrySet.getKey(), humanId, entrySet.getValue());
         }
     }
 

@@ -1,9 +1,6 @@
 package com.c3po.command.hangman;
 
-import com.c3po.command.hangman.game.HangmanGame;
-import com.c3po.command.hangman.game.HangmanPlayer;
-import com.c3po.command.hangman.game.HangmanUI;
-import com.c3po.command.hangman.game.HangmanWord;
+import com.c3po.command.hangman.game.*;
 import com.c3po.command.hangman.game.core.LobbyMenu;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
@@ -83,7 +80,7 @@ public class HangmanStartCommand extends SubCommand {
             .map(users -> users.stream().map(this::toPlayer).toList())
             .filter(users -> !users.isEmpty())
             .flatMap(players -> getHangmanWord()
-                .map(word -> new HangmanGame(word, players, new HangmanUI(context)))
+                .map(word -> new HangmanGame(word, new HangmanUI(context), new GameState(players)))
                 .flatMap(HangmanGame::start))
             .then();
     }

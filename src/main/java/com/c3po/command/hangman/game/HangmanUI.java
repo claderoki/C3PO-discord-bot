@@ -9,6 +9,7 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,19 +22,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HangmanUI extends UI {
     private final Context context;
+    @Setter
+    private GameState state;
     private Snowflake messageId;
     private int unrelatedMessages = 0;
     private Message mentionMessage;
 
-    public Mono<?> showEndGame(EmbedCreateSpec embed) {
-        return context.getEvent().createFollowup().withEmbeds(embed);
-    }
-
-    private EmbedCreateSpec getEmbed(List<Character> board, List<HangmanPlayer> players) {
+    private EmbedCreateSpec getEmbed() {
         EmbedCreateSpec.Builder embed = EmbedHelper.base();
-        embed.title(board.stream().map(Object::toString).collect(Collectors.joining(" ")));
+        embed.title(state.getBoard().stream().map(Object::toString).collect(Collectors.joining(" ")));
         List<Guess> allGuesses = new ArrayList<>();
-        for(HangmanPlayer player: players) {
+        for(HangmanPlayer player: state.getPlayers()) {
             allGuesses.addAll(player.getGuesses());
             if (!player.isDead()) {
                 int state = (int)player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
@@ -55,74 +54,83 @@ public class HangmanUI extends UI {
         return embed.build();
     }
 
-    private Mono<?> processMentionMessage(HangmanPlayer currentPlayer) {
-        if (currentPlayer == null) {
+    private Mono<?> processMentionMessage() {
+        if (state.getCurrentPlayer() == null) {
             return Mono.empty();
         }
-        if (mentionMessage != null) {
-            mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).then();
-        }
-        return context.getEvent().createFollowup()
-            .withContent(currentPlayer.getUser().getMention() + ", your turn!")
+
+        return Mono.defer(() -> {
+            if (mentionMessage != null) {
+                return mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).then();
+            }
+            return Mono.empty();
+        }).then(context.getEvent().createFollowup()
+            .withContent(state.getCurrentPlayer().getUser().getMention() + ", your turn!")
             .flatMap(m -> {
                 mentionMessage = m;
-                return m.delete().delaySubscription(Duration.ofSeconds(60)).then();
-            });
+                return Mono.empty();
+            }));
     }
 
-    public Mono<?> showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
-        EmbedCreateSpec embed = getEmbed(board, players);
+    public Mono<?> showBoard() {
+        EmbedCreateSpec embed = getEmbed();
         if (messageId == null || unrelatedMessages >= 5) {
             return context.getEvent().createFollowup()
-                .withContent(currentPlayer == null ? "" : currentPlayer.getUser().getMention())
+                .withContent(state.getCurrentPlayer() == null ? "" : state.getCurrentPlayer().getUser().getMention())
                 .withEmbeds(embed)
                 .flatMap(message -> {
                     messageId = message.getId();
                     return Mono.empty();
-                }).then(processMentionMessage(currentPlayer));
+                }).then(processMentionMessage());
         } else {
             return context.getEvent().editFollowup(messageId)
-                .withContentOrNull(currentPlayer == null ? null : currentPlayer.getUser().getMention())
+                .withContentOrNull(state.getCurrentPlayer() == null ? null : state.getCurrentPlayer().getUser().getMention())
                 .withEmbeds(embed)
-                .then(processMentionMessage(currentPlayer));
+                .then(processMentionMessage());
         }
     }
 
-    private void sendError(User user, String message) {
-        context.getEvent().createFollowup()
-            .withEmbeds(EmbedHelper.error(user.getMention() + ", " + message).build())
-            .subscribe(m -> m.delete().delaySubscription(Duration.ofSeconds(5)).subscribe());
+    private boolean isGuessAllowed(MessageCreateEvent event) {
+        if (event.getMessage().getAuthor().isEmpty()) {
+            return false;
+        }
+        User user = event.getMessage().getAuthor().get();
+        return state.getCurrentPlayer().getUser().equals(user);
     }
 
-    public Mono<Guess> waitForGuess(HangmanPlayer player, List<Character> board, List<Guess> guesses) {
+    private boolean preCheck(MessageCreateEvent event) {
+        if (!context.getEvent().getInteraction().getChannelId().equals(event.getMessage().getChannelId())) {
+            return false;
+        }
+        return event.getMessage().getAuthor().map(u -> !u.isBot()).orElse(false);
+    }
+
+
+    public Flux<Guess> waitForGuesses() {
         return context.getEvent().getClient().on(MessageCreateEvent.class)
+            .filter(this::preCheck)
             .map(c -> {
                 unrelatedMessages++;
                 return c;
             })
-            .filter(c -> c.getMessage().getAuthor().isPresent() && c.getMessage().getAuthor().get().getId().equals(player.getUser().getId()))
+            .filter(this::isGuessAllowed)
             .map(MessageCreateEvent::getMessage)
-            .filter(m -> m.getContent().length() == 1 || m.getContent().length() == board.size())
-            .flatMap(m -> m.delete().then(Mono.just(m.getContent().toLowerCase())))
-            .filter(c -> {
-                if (guesses.stream().anyMatch(g -> g.getValue().equals(c))) {
-                    sendError(player.getUser(), c + " has already been used.");
-                    return false;
-                }
-                return true;
+            .filter(m -> m.getContent().length() == 1 || m.getContent().length() == state.getBoard().size())
+            .flatMap(m -> {
+                GuessType type = m.getContent().length() == 1 ? GuessType.LETTER : GuessType.WORD;
+                return m.delete().then(Mono.just(new Guess(type, m.getContent().toLowerCase())));
             })
-            .map(c -> {
-                GuessType type = c.length() == 1 ? GuessType.LETTER : GuessType.WORD;
-                return new Guess(type, c);
-            })
+            .filter(guess -> state.getGuesses().stream().noneMatch(g -> g.getValue().equals(guess.getValue())))
             .map(c -> {
                 unrelatedMessages--;
                 return c;
             })
-            .timeout(Duration.ofSeconds(10))
+            .timeout(Duration.ofSeconds(360))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .next()
-            ;
+        ;
     }
 
+    public Mono<?> showEndGame(EmbedCreateSpec build) {
+        return context.getEvent().createFollowup().withEmbeds(build).then();
+    }
 }

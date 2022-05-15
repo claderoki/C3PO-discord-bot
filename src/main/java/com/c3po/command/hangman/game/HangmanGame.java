@@ -4,32 +4,24 @@ import com.c3po.command.hangman.game.core.Game;
 import com.c3po.connection.repository.HumanRepository;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.Emoji;
-import com.c3po.helper.LogHelper;
-import com.google.common.collect.Iterables;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
 public class HangmanGame extends Game {
     private final HangmanWord word;
-    private final List<HangmanPlayer> players;
     private final HangmanUI ui;
-    private final List<Character> board = new ArrayList<>();
+    private final GameState state;
     private final static char EMPTY_LETTER = '-';
-    private List<HangmanPlayer> livingPlayers;
-    private final List<Guess> allGuesses = new ArrayList<>();
 
-    private void processGuess(Guess guess) {
+    private Mono<Void> processGuess(Guess guess) {
         if (guess.getType().equals(GuessType.WORD) && guess.getValue().equals(word.getValue())) {
-            guess.setWorth((int) (board.stream().filter(c -> c.equals(EMPTY_LETTER)).count() - word.getValue().length()));
+            guess.setWorth((int) (state.getBoard().stream().filter(c -> c.equals(EMPTY_LETTER)).count() - word.getValue().length()));
             for (int i = 0; i < word.getValue().length(); i++) {
-                board.set(i, word.getValue().charAt(i));
+                state.getBoard().set(i, word.getValue().charAt(i));
             }
         } else if (guess.getType().equals(GuessType.LETTER) && word.getValue().contains(guess.getValue())) {
             char guessedLetter = guess.getValue().charAt(0);
@@ -38,21 +30,93 @@ public class HangmanGame extends Game {
                 char letter = word.getValue().charAt(i);
                 if (letter == guessedLetter) {
                     worth++;
-                    board.set(i, letter);
+                    state.getBoard().set(i, letter);
                 }
             }
             guess.setWorth(worth);
         }
+
+        state.getCurrentPlayer().addGuess(guess);
+        processPlayer(state.getCurrentPlayer());
+        return Mono.empty();
+    }
+
+    private void processPlayer(HangmanPlayer player) {
+        long incorrectGuesses = player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
+        if (incorrectGuesses >= HangmanStateHelper.getMaxStates()) {
+            player.setDead(true);
+        }
+    }
+
+    private int getNextIndex(int index) {
+        if (index >= state.getPlayers().size()) {
+            return 0;
+        } else {
+            return index +1;
+        }
+    }
+
+    private HangmanPlayer getNextPlayer() {
+        if (state.getCurrentPlayer() == null) {
+            return state.getPlayers().get(0);
+        } else {
+            int currentIndex = state.getPlayers().indexOf(state.getCurrentPlayer());
+            for (int i = 0; i < state.getPlayers().size(); i++) {
+                int nextIndex = getNextIndex(currentIndex);
+                HangmanPlayer player = state.getPlayers().get(nextIndex);
+                if (!player.isDead()) {
+                    return player;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void cyclePlayer() {
+        HangmanPlayer player = getNextPlayer();
+        state.setCurrentPlayer(player);
+    }
+
+    private boolean isGameOver() {
+        boolean allPlayersDead = state.getPlayers().stream().allMatch(HangmanPlayer::isDead);
+        boolean wordGuessed = state.getBoard().stream().noneMatch(c->c.equals(EMPTY_LETTER));
+        return allPlayersDead || wordGuessed;
+    }
+
+    public Mono<?> start() {
+        ui.setState(state);
+        for (int i = 0; i < word.getValue().length(); i++) {
+            state.getBoard().add(EMPTY_LETTER);
+        }
+        cyclePlayer();
+        return run().then(Mono.defer(this::stop));
+    }
+
+    private Mono<?> run() {
+        return ui.showBoard().then(ui.waitForGuesses()
+            .takeUntil(c->isGameOver())
+            .flatMap(g -> processGuess(g).then(Mono.defer(() -> {
+                if (!isGameOver()) {
+                    return ui.showBoard();
+                }
+                return Mono.empty();
+            })))
+            .doOnNext(a -> {
+                cyclePlayer();
+                state.incrementTurn();
+            })
+            .then()
+        );
     }
 
     private Mono<?> stop() {
-        int betPool = players.stream().mapToInt(HangmanPlayer::getBet).sum();
+        int betPool = state.getPlayers().stream().mapToInt(HangmanPlayer::getBet).sum();
         betPool *= 1.25;
-        betPool += (15 * players.size());
+        betPool += (15 * state.getPlayers().size());
 
         List<String> lines = new ArrayList<>();
         int i = 0;
-        for(var player: players) {
+        for(var player: state.getPlayers()) {
             String name = player.getUser().getMention();
             if (player.isDead()) {
                 HumanRepository.db().decreaseGold(player.getHumanId(), player.getBet());
@@ -64,8 +128,8 @@ public class HangmanGame extends Game {
             int won = (int)Math.ceil(percentageGuessed / 100.0 * betPool);
 
             int nextWon = 0;
-            if (players.size() > 1 && i == 0) {
-                HangmanPlayer nextPlayer = players.get(1);
+            if (state.getPlayers().size() > 1 && i == 0) {
+                HangmanPlayer nextPlayer = state.getPlayers().get(1);
                 nextWon = (int)Math.ceil(nextPlayer.getPercentageGuessed(word.getValue().length()) / 100.0 * betPool);
             }
             if (won > nextWon) {
@@ -85,43 +149,4 @@ public class HangmanGame extends Game {
         return ui.showEndGame(embed.build());
     }
 
-    private Mono<?> showBoard(HangmanPlayer player) {
-        return ui.showBoard(board, players, player);
-    }
-
-    private Mono<Void> processPlayer(HangmanPlayer player) {
-        long incorrectGuesses = player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
-        if (incorrectGuesses >= HangmanStateHelper.getMaxStates()) {
-            livingPlayers.remove(player);
-            player.setDead(true);
-            return Mono.empty();
-        } else {
-            return showBoard(player)
-                .then(ui.waitForGuess(player, board, allGuesses)
-                .flatMap(guess -> {
-                    if (guess != null) {
-                        processGuess(guess);
-                        player.addGuess(guess);
-                        allGuesses.add(guess);
-                    }
-                    return Mono.empty();
-            }));
-        }
-    }
-
-    public Mono<?> start() {
-        for (int i = 0; i < word.getValue().length(); i++) {
-            board.add(EMPTY_LETTER);
-        }
-        AtomicInteger i = new AtomicInteger();
-        livingPlayers = new ArrayList<>(players);
-        return Flux.fromIterable(Iterables.cycle(players))
-            .filter(player -> !player.isDead())
-//            .takeWhile(c -> !livingPlayers.isEmpty() && board.stream().noneMatch(l->l.equals(EMPTY_LETTER) && i.getAndIncrement() < 3))
-            .takeWhile(c -> i.getAndIncrement() < 2)
-            .flatMap(this::processPlayer).then(
-//            .then(showBoard(null)
-//                .then(stop())
-            );
-    }
 }
