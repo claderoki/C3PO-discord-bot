@@ -87,11 +87,8 @@ public class ProfileViewCommand extends SubCommand {
         var optionalGuildId = context.getEvent().getInteraction().getGuildId();
         return getUser(context).flatMap(user -> {
             ScopeTarget target;
-            if (optionalGuildId.isPresent()) {
-                target = ScopeTarget.member(user.getId().asLong(), optionalGuildId.get().asLong());
-            } else {
-                target = ScopeTarget.user(user.getId().asLong());
-            }
+            target = optionalGuildId.map(snowflake -> ScopeTarget.member(user.getId().asLong(), snowflake.asLong()))
+                .orElseGet(() -> ScopeTarget.user(user.getId().asLong()));
 
             Profile profile = ProfileService.getProfile(target);
 

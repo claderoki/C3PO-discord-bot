@@ -11,7 +11,6 @@ import com.c3po.core.wordnik.WordnikApi;
 import com.c3po.core.wordnik.endpoints.GetRandomWords;
 import com.c3po.core.wordnik.endpoints.GetWordDefinition;
 import com.c3po.core.wordnik.responses.WordResponse;
-import com.c3po.helper.LogHelper;
 import com.c3po.service.HumanService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
@@ -29,7 +28,6 @@ public class HangmanStartCommand extends SubCommand {
 
     private Mono<Set<User>> getUsers(Context context) {
         LobbyMenu menu = new LobbyMenu(context, bet);
-        LogHelper.log("DEF");
         return MenuManager.waitForMenu(menu)
             .then(Mono.just(menu.getUsers()));
     }
@@ -59,14 +57,11 @@ public class HangmanStartCommand extends SubCommand {
             return getWord(api).flatMap(word -> {
                 try {
                 return api.call(new GetWordDefinition(word))
-                    .map(definitions -> {
-                        var definition = definitions.getDefinitions().get(0);
-                        return HangmanWord.builder()
-                            .value(word.toLowerCase())
-                            .uneditedValue(word)
-                            .description(definition.getText())
-                            .build();
-                    });
+                    .map(definitions -> HangmanWord.builder()
+                        .value(word.toLowerCase())
+                        .uneditedValue(word)
+                        .description(definitions.getDefinitions().get(0).getText())
+                        .build());
                 } catch (Exception e) {
                     return Mono.just(HangmanWord.builder().build());
                 }
@@ -86,14 +81,10 @@ public class HangmanStartCommand extends SubCommand {
     public Mono<?> execute(Context context) throws RuntimeException {
         return getUsers(context)
             .map(users -> users.stream().map(this::toPlayer).toList())
-            .flatMap(players -> {
-                if (players.isEmpty()) {
-                    return Mono.empty();
-                }
-                return getHangmanWord().flatMap(word -> {
-                    HangmanGame game = new HangmanGame(word, players, new HangmanUI(context));
-                    return game.start();
-                });
-        }).then();
+            .filter(users -> !users.isEmpty())
+            .flatMap(players -> getHangmanWord()
+                .map(word -> new HangmanGame(word, players, new HangmanUI(context)))
+                .flatMap(HangmanGame::start))
+            .then();
     }
 }

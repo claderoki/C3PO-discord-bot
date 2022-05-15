@@ -5,6 +5,7 @@ import com.c3po.connection.repository.HumanRepository;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.Emoji;
 import com.c3po.helper.LogHelper;
+import com.google.common.collect.Iterables;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,6 +13,7 @@ import reactor.util.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
 public class HangmanGame extends Game {
@@ -83,11 +85,11 @@ public class HangmanGame extends Game {
         return ui.showEndGame(embed.build());
     }
 
-    private Mono<?> showBoard(@Nullable HangmanPlayer player) {
+    private Mono<?> showBoard(HangmanPlayer player) {
         return ui.showBoard(board, players, player);
     }
 
-    private Mono<?> processPlayer(HangmanPlayer player) {
+    private Mono<Void> processPlayer(HangmanPlayer player) {
         long incorrectGuesses = player.getGuesses().stream().filter(c -> c.getWorth() == 0).count();
         if (incorrectGuesses >= HangmanStateHelper.getMaxStates()) {
             livingPlayers.remove(player);
@@ -111,16 +113,15 @@ public class HangmanGame extends Game {
         for (int i = 0; i < word.getValue().length(); i++) {
             board.add(EMPTY_LETTER);
         }
+        AtomicInteger i = new AtomicInteger();
         livingPlayers = new ArrayList<>(players);
-        return Flux.fromIterable(players)
+        return Flux.fromIterable(Iterables.cycle(players))
             .filter(player -> !player.isDead())
-            .flatMap(player -> {
-                LogHelper.log("hmm");
-                return processPlayer(player);
-            })
-            .takeWhile(c -> !livingPlayers.isEmpty() && board.stream().noneMatch(l->l.equals(EMPTY_LETTER)))
-            .then(showBoard(null)
-                .then(stop())
+//            .takeWhile(c -> !livingPlayers.isEmpty() && board.stream().noneMatch(l->l.equals(EMPTY_LETTER) && i.getAndIncrement() < 3))
+            .takeWhile(c -> i.getAndIncrement() < 2)
+            .flatMap(this::processPlayer).then(
+//            .then(showBoard(null)
+//                .then(stop())
             );
     }
 }

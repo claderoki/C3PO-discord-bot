@@ -1,6 +1,5 @@
 package com.c3po.ui.input.base;
 
-import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
@@ -29,23 +28,19 @@ public class MenuManager {
             })
             .then(event.editReply()
                 .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
-                .withComponentsOrNull(menu.getComponents()))
+                .withComponentsOrNull(menu.shouldContinue() ? menu.getComponents() : null))
             .then(Mono.just(menu.shouldContinue()));
     }
 
     private static Mono<?> sendMessage(Menu menu, ChatInputInteractionEvent event) {
-        LogHelper.log("SENDING");
         return event.reply()
             .withEmbeds(menu.getEmbed())
             .withComponents(menu.getComponents())
             .onErrorResume(c -> event.editReply()
                 .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
-                .withComponentsOrNull(menu.getComponents())
+                .withComponentsOrNull(menu.shouldContinue() ? menu.getComponents() : null)
                 .then())
-            .map(c -> {
-                LogHelper.log("HMM");
-                return Mono.empty();
-            })
+            .then()
         ;
     }
 
@@ -58,7 +53,7 @@ public class MenuManager {
                 .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
                 .flatMap(c -> processEvent(c, menu))
                 .takeWhile(c -> c)
-                .then())
+                .then(Mono.just(menu)))
         ;
     }
 }

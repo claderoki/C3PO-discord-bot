@@ -84,15 +84,15 @@ public class ProfileSetupCommand extends SubCommand {
         menu.addOption(cancelOption);
         menu.setEmbedConsumer(e -> e.description("Setup your profile"));
 
-        return MenuManager.waitForMenu(menu).flatMap(a -> {
+        return MenuManager.waitForMenu(menu).map(a -> {
             if (!cancelOption.isCancelled()) {
                 AttributeRepository.db().save(propertyValues);
             }
-
-            return context.getEvent().editReply()
+            return Mono.empty();
+        }).then(context.getEvent().editReply()
                 .withComponentsOrNull(null)
-                .withEmbedsOrNull(Collections.singleton(EmbedHelper.normal("Profile finished setting up.").build()));
-        });
+                .withEmbedsOrNull(Collections.singleton(EmbedHelper.normal("Profile finished setting up.").build()))
+        );
     }
 
 }

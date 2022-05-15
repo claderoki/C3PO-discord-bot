@@ -9,6 +9,7 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -54,19 +55,22 @@ public class HangmanUI extends UI {
         return embed.build();
     }
 
-    public Mono<?> showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
-        if (currentPlayer != null) {
-            if (mentionMessage != null) {
-                mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).subscribe();
-            }
-            context.getEvent().createFollowup()
-                .withContent(currentPlayer.getUser().getMention() + ", your turn!")
-                .subscribe(m -> {
-                    mentionMessage = m;
-                    m.delete().delaySubscription(Duration.ofSeconds(60)).subscribe();
-                });
+    private Mono<?> processMentionMessage(HangmanPlayer currentPlayer) {
+        if (currentPlayer == null) {
+            return Mono.empty();
         }
+        if (mentionMessage != null) {
+            mentionMessage.delete().onErrorResume(Throwable.class, c->Mono.empty()).then();
+        }
+        return context.getEvent().createFollowup()
+            .withContent(currentPlayer.getUser().getMention() + ", your turn!")
+            .flatMap(m -> {
+                mentionMessage = m;
+                return m.delete().delaySubscription(Duration.ofSeconds(60)).then();
+            });
+    }
 
+    public Mono<?> showBoard(List<Character> board, List<HangmanPlayer> players, HangmanPlayer currentPlayer) {
         EmbedCreateSpec embed = getEmbed(board, players);
         if (messageId == null || unrelatedMessages >= 5) {
             return context.getEvent().createFollowup()
@@ -74,13 +78,13 @@ public class HangmanUI extends UI {
                 .withEmbeds(embed)
                 .flatMap(message -> {
                     messageId = message.getId();
-                    return null;
-                }).then();
+                    return Mono.empty();
+                }).then(processMentionMessage(currentPlayer));
         } else {
             return context.getEvent().editFollowup(messageId)
                 .withContentOrNull(currentPlayer == null ? null : currentPlayer.getUser().getMention())
                 .withEmbeds(embed)
-                .then();
+                .then(processMentionMessage(currentPlayer));
         }
     }
 
@@ -99,10 +103,7 @@ public class HangmanUI extends UI {
             .filter(c -> c.getMessage().getAuthor().isPresent() && c.getMessage().getAuthor().get().getId().equals(player.getUser().getId()))
             .map(MessageCreateEvent::getMessage)
             .filter(m -> m.getContent().length() == 1 || m.getContent().length() == board.size())
-            .map(m -> {
-                m.delete().subscribe();
-                return m.getContent().toLowerCase();
-            })
+            .flatMap(m -> m.delete().then(Mono.just(m.getContent().toLowerCase())))
             .filter(c -> {
                 if (guesses.stream().anyMatch(g -> g.getValue().equals(c))) {
                     sendError(player.getUser(), c + " has already been used.");
@@ -118,10 +119,10 @@ public class HangmanUI extends UI {
                 unrelatedMessages--;
                 return c;
             })
-            .timeout(Duration.ofSeconds(60))
+            .timeout(Duration.ofSeconds(10))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
             .next()
-        ;
+            ;
     }
 
 }

@@ -38,7 +38,7 @@ public class CommandManager {
         register(new PollCommandGroup());
         register(new ProfileCommandGroup());
         register(new PigeonCommandGroup());
-        register(new HangmanCommandGroup());
+//        register(new HangmanCommandGroup());
     }
 
     private void registerSettings() {
