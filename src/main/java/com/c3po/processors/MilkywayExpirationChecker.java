@@ -15,12 +15,5 @@ public class MilkywayExpirationChecker implements Runnable {
     private DiscordClient client;
 
     public void run() {
-//        List<Integer> ids = new ArrayList<>();
-//        for (ExpiredMilkyway milkyway: MilkywayRepository.db().getExpiredMilkyways()) {
-//            this.client.getChannelById(Snowflake.of(milkyway.getChannelId())).delete("Expired milkyway").then();
-//            ids.add(milkyway.getId());
-//        }
-//
-//        MilkywayRepository.db().expire(ids);
     }
 }

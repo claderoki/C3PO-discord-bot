@@ -11,6 +11,7 @@ import lombok.Getter;
 public class PropertyValue {
     private Integer id;
     private Integer parentId;
+//    private String code;
     private ScopeTarget target;
     private DataType type;
     private String value;

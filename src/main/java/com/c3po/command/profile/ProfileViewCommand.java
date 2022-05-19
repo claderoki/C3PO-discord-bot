@@ -3,13 +3,11 @@ package com.c3po.command.profile;
 import com.c3po.command.profile.fields.*;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.command.Context;
-import com.c3po.core.command.SubCommand;
 import com.c3po.core.openweatherapi.OpenWeatherMapApi;
 import com.c3po.core.openweatherapi.endpoints.GetTemperature;
 import com.c3po.core.openweatherapi.responses.Temperature;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.service.ProfileService;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.reaction.ReactionEmoji;
@@ -17,8 +15,10 @@ import discord4j.core.spec.EmbedCreateFields;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
-public class ProfileViewCommand extends SubCommand {
+public class ProfileViewCommand extends ProfileSubCommand {
+
     protected ProfileViewCommand(ProfileCommandGroup group) {
         super(group, "view", "View your own, or someone else's profile.");
         this.addOption(option -> option.name("member")
@@ -27,9 +27,9 @@ public class ProfileViewCommand extends SubCommand {
             .type(DiscordCommandOptionType.USER.getValue()));
     }
 
-    private Mono<Temperature> getTemperatureFromProfile(Profile profile) {
+    private Mono<Optional<Temperature>> getTemperatureFromProfile(Profile profile) {
         if (profile.getCity() == null) {
-            return Mono.just(null);
+            return Mono.just(Optional.empty());
         }
 
         GetTemperature endpoint = GetTemperature.builder()
@@ -38,9 +38,9 @@ public class ProfileViewCommand extends SubCommand {
             .build();
 
         try {
-            return new OpenWeatherMapApi().call(endpoint);
+            return new OpenWeatherMapApi().call(endpoint).flatMap(t -> Mono.just(Optional.of(t)));
         } catch (Exception e) {
-            return Mono.just(null);
+            return Mono.just(Optional.empty());
         }
     }
 
@@ -52,26 +52,34 @@ public class ProfileViewCommand extends SubCommand {
         }
     }
 
-    private EmbedCreateFields.Field profileToField(String username, Profile profile) {
+    private Mono<ArrayList<ProfileField<?>>> getFields(Profile profile) {
         ArrayList<ProfileField<?>> fields = new ArrayList<>();
 
         fields.add(new DateOfBirthField(profile.getDateOfBirth()));
         fields.add(new TimezoneField(profile.getTimezone()));
         fields.add(new PigeonNameField(profile.getPigeonName()));
-//        fields.add(new TemperatureField(getTemperatureFromProfile(profile)));
         fields.add(new GoldField(profile.getGold()));
 
         if (profile instanceof MemberProfile memberProfile) {
             fields.add(new CloverField(memberProfile.getClovers()));
         }
+        return getTemperatureFromProfile(profile).map(f -> {
+                f.ifPresent(t -> fields.add(3, new TemperatureField(t)));
+                return Mono.empty();
+            })
+            .then(Mono.just(fields));
+    }
 
-        StringBuilder value = new StringBuilder();
-        for (ProfileField<?> field: fields) {
-            if (field.isVisible()) {
-                value.append(formatEmoji(field.getEmoji())).append(" ").append(field.getParsedValue()).append("\n\n");
+    private Mono<EmbedCreateFields.Field> profileToField(String username, Profile profile) {
+        return getFields(profile).map(fields -> {
+            StringBuilder value = new StringBuilder();
+            for (ProfileField<?> field: fields) {
+                if (field.isVisible()) {
+                    value.append(formatEmoji(field.getEmoji())).append(" ").append(field.getParsedValue()).append("\n\n");
+                }
             }
-        }
-        return EmbedCreateFields.Field.of(username, value.toString(), false);
+            return value.toString();
+        }).map(v -> EmbedCreateFields.Field.of(username, v, false));
     }
 
     private Mono<User> getUser(Context context) {
@@ -90,14 +98,14 @@ public class ProfileViewCommand extends SubCommand {
             target = optionalGuildId.map(snowflake -> ScopeTarget.member(user.getId().asLong(), snowflake.asLong()))
                 .orElseGet(() -> ScopeTarget.user(user.getId().asLong()));
 
-            Profile profile = ProfileService.getProfile(target);
+            Profile profile = profileService.getProfile(target);
 
             String username = user.getUsername();
-            return context.getEvent().reply()
+            return profileToField(username, profile).flatMap(field -> context.getEvent().reply()
                 .withEmbeds(EmbedHelper.normal(null)
-                    .addField(profileToField(username, profile))
+                    .addField(field)
                     .build())
-                .then();
+                .then());
         });
     }
 

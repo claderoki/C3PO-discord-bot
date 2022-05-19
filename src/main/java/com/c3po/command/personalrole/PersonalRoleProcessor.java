@@ -22,7 +22,10 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class PersonalRoleProcessor {
-    public final static Integer personalRoleAttributeId = AttributeService.getId("personal_role");
+    private final PersonalRoleService personalRoleService = new PersonalRoleService();
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+
+    public final static Integer personalRoleAttributeId = new AttributeService().getId("personal_role");
 
     private final PersonalRoleType type;
     private final String rawValue;
@@ -35,8 +38,8 @@ public class PersonalRoleProcessor {
     private Member member;
 
     private Mono<?> load() {
-        settings = PersonalRoleService.getSettings(context.getTarget(Scope.GUILD));
-        personalRoleAttributeValue = AttributeRepository.db()
+        settings = personalRoleService.getSettings(context.getTarget(Scope.GUILD));
+        personalRoleAttributeValue = attributeRepository
             .getHydratedPropertyValue(context.getTarget(Scope.MEMBER), personalRoleAttributeId)
             .orElseThrow();
 
@@ -55,7 +58,7 @@ public class PersonalRoleProcessor {
 
     private void validate() {
         if (personalRoleAttributeValue.getValue() != null && existingRole == null) {
-            AttributeRepository.db().delete(personalRoleAttributeValue);
+            attributeRepository.delete(personalRoleAttributeValue);
             throw new PublicException("Your personal role doesn't exist anymore. I removed it. Please try again.");
         }
 
@@ -82,8 +85,8 @@ public class PersonalRoleProcessor {
 
         return guild.createRole(roleSpec.build()).flatMap(role -> {
             personalRoleAttributeValue.setValue(role.getId().asString());
-            AttributeRepository.db().save(personalRoleAttributeValue);
-            role.changePosition(PersonalRoleService.getRolePosition(guild)).subscribe();
+            attributeRepository.save(personalRoleAttributeValue);
+            role.changePosition(personalRoleService.getRolePosition(guild)).subscribe();
             return Mono.just(role);
         });
     }
@@ -101,7 +104,7 @@ public class PersonalRoleProcessor {
         return load().map(e->{
             if (type.equals(PersonalRoleType.DELETE) && existingRole != null) {
                 return existingRole.delete().flatMap(c -> {
-                    AttributeRepository.db().delete(personalRoleAttributeValue);
+                    attributeRepository.delete(personalRoleAttributeValue);
                     return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been deleted.").build());
                 });
             }

@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SettingValidationCache {
+    private static final SettingRepository settingRepository = SettingRepository.db();
+
     private static HashMap<Integer, ArrayList<SettingValidation>> validations = new HashMap<>();
     private static final TimedTrigger refresh = new TimedTrigger(Duration.ofHours(1));
 
     public static HashMap<Integer, ArrayList<SettingValidation>> get() {
-        refresh.check(() -> validations = SettingRepository.db().getValidations());
+        refresh.check(() -> validations = settingRepository.getValidations());
         return validations;
     }
 

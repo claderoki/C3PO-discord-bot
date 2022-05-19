@@ -1,19 +1,20 @@
 package com.c3po.service;
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.SettingCodeKey;
 import com.c3po.helper.cache.keys.SettingIdKey;
 import com.c3po.helper.cache.keys.SettingKey;
 import com.c3po.core.setting.Setting;
+import com.c3po.helper.cache.CacheManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class SettingService extends Service {
+    private final SettingRepository settingRepository = SettingRepository.db();
 
-    private static void cacheIdAndCodes() {
-        HashMap<String, HashMap<String, Integer>> identifiers = SettingRepository.db().getSettingIdentifiers();
+    private void cacheIdAndCodes() {
+        HashMap<String, HashMap<String, Integer>> identifiers = settingRepository.getSettingIdentifiers();
         for (Map.Entry<String, HashMap<String, Integer>> entry: identifiers.entrySet()) {
             for (Map.Entry<String, Integer> mapping: entry.getValue().entrySet()) {
                 String category = entry.getKey();
@@ -23,18 +24,18 @@ public class SettingService extends Service {
                 SettingIdKey idKey = new SettingIdKey(category, code);
                 SettingCodeKey codeKey = new SettingCodeKey(id);
 
-                Cache.set(idKey, id);
-                Cache.set(codeKey, code);
+                CacheManager.get().set(idKey, id);
+                CacheManager.get().set(codeKey, code);
             }
         }
     }
 
-    protected static Integer getCachedId(String category, String code) {
+    protected Integer getCachedId(String category, String code) {
         SettingIdKey key = new SettingIdKey(category, code);
-        return Cache.get(key);
+        return CacheManager.get().get(key);
     }
 
-    public static Integer getId(String category, String code) {
+    public Integer getId(String category, String code) {
         Integer id = getCachedId(category, code);
         if (id != null) {
             return id;
@@ -43,12 +44,12 @@ public class SettingService extends Service {
         return getCachedId(category, code);
     }
 
-    protected static String getCachedCode(Integer id) {
+    protected String getCachedCode(Integer id) {
         SettingCodeKey key = new SettingCodeKey(id);
-        return Cache.get(key);
+        return CacheManager.get().get(key);
     }
 
-    public static String getCode(Integer id) {
+    public String getCode(Integer id) {
         String code = getCachedCode(id);
         if (code != null) {
             return code;
@@ -57,11 +58,11 @@ public class SettingService extends Service {
         return getCode(id);
     }
 
-    public static Setting getSetting(Integer id) {
-        return Cache.computeIfAbsent(new SettingKey(id), key -> {
-            Setting setting = SettingRepository.db().getSetting(id);
+    public Setting getSetting(Integer id) {
+        return CacheManager.get().computeIfAbsent(new SettingKey(id), key -> {
+            Setting setting = settingRepository.getSetting(id);
             if (setting != null) {
-                Cache.set(key, setting);
+                CacheManager.get().set(key, setting);
             }
             return setting;
         });

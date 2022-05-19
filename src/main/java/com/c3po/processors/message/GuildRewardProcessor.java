@@ -21,8 +21,12 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    private final static AttributeService attributeService = new AttributeService();
+
     private static final HashMap<String, OffsetDateTime> lastRewards = new HashMap<>();
-    private static final int attributeId = AttributeService.getId(KnownAttribute.CLOVERS);
+    private static final int attributeId = attributeService.getId(KnownAttribute.CLOVERS);
+    private final GuildRewardService guildRewardService = new GuildRewardService();
 
     public boolean shouldProcess(MessageCreateEvent event) {
         return event.getGuildId().isPresent() && event.getMember().isPresent();
@@ -49,17 +53,17 @@ public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
         long guildId = event.getGuildId().orElseThrow().asLong();
 
         ScopeTarget target = ScopeTarget.member(userId, guildId);
-        GuildRewardSettings settings = GuildRewardService.getSettings(ScopeTarget.guild(guildId));
+        GuildRewardSettings settings = guildRewardService.getSettings(ScopeTarget.guild(guildId));
 
         if (!settings.isEnabled()) {
             return Mono.empty();
         }
 
         if (shouldReward(target, settings.getTimeout())) {
-            PropertyValue value = AttributeService.getAttributeValue(target, attributeId);
+            PropertyValue value = attributeService.getAttributeValue(target, attributeId);
             int pointsToReward = getPointsToReward(settings);
             value.increment(pointsToReward);
-            AttributeRepository.db().save(value);
+            attributeRepository.save(value);
             LogHelper.log("Gave %s points to %s".formatted(pointsToReward, target), LogScope.DEVELOPMENT);
             lastRewards.put(target.toString(), DateTimeHelper.offsetNow());
         }

@@ -6,7 +6,6 @@ import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.PossibleParser;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
-import com.c3po.service.PigeonService;
 import discord4j.common.util.Snowflake;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -14,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PigeonProfileCommand extends PigeonSubCommand {
     protected PigeonProfileCommand(PigeonCommandGroup group) {
@@ -76,7 +74,7 @@ public class PigeonProfileCommand extends PigeonSubCommand {
 
         PigeonValidation validation = getValidation();
         PigeonValidationResult result = validation.validate(userId);
-        Pigeon pigeon = PigeonService.getPigeon(result.getPigeonId());
+        Pigeon pigeon = pigeonService.getPigeon(result.getPigeonId());
 
         EmbedCreateSpec embed = EmbedHelper.normal()
             .title(pigeon.getName())

@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-public class MilkywayAcceptCommand extends SubCommand {
+public class MilkywayAcceptCommand extends MilkywaySubCommand {
     protected MilkywayAcceptCommand(CommandGroup group) {
         super(group, "accept", "Accept a milkyway.");
         this.addOption(option -> option.name("id")
@@ -34,14 +34,14 @@ public class MilkywayAcceptCommand extends SubCommand {
         long guildId = context.getEvent().getInteraction().getGuildId().orElseThrow().asLong();
         long identifier = context.getOptions().getLong("id");
 
-        Milkyway milkyway = MilkywayRepository.db().get(guildId, identifier);
+        Milkyway milkyway = milkywayRepository.get(guildId, identifier);
         if (milkyway.getStatus() == null) {
             throw new PublicException("This milkyway does not exist.");
         } else if (!milkyway.getStatus().equals(MilkywayStatus.PENDING)) {
             throw new PublicException("This milkyway can't be accepted anymore.");
         }
 
-        MilkywaySettings settings = MilkywayService.getSettings(ScopeTarget.guild(guildId));
+        MilkywaySettings settings = milkywayService.getSettings(ScopeTarget.guild(guildId));
         return context.getEvent().getInteraction().getGuild().flatMap(guild -> {
             LocalDateTime expiresAt = OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime().plus(Duration.ofDays(milkyway.getDaysPending()));
             return guild.createTextChannel(TextChannelCreateSpec.builder()
@@ -49,7 +49,7 @@ public class MilkywayAcceptCommand extends SubCommand {
                 .topic(MilkywayHelper.getChannelDescriptionFor(milkyway, expiresAt))
                 .parentId(Snowflake.of(settings.getCategoryId()))
                 .build()).flatMap(channel -> {
-                    MilkywayRepository.db().accept(guildId, identifier, channel.getId().asLong(), expiresAt);
+                    milkywayRepository.accept(guildId, identifier, channel.getId().asLong(), expiresAt);
 
                     context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
                         "Your milkyway request has been accepted."

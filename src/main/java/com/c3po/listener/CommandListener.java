@@ -2,6 +2,7 @@ package com.c3po.listener;
 
 import com.c3po.command.SettingInfo;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
+import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
@@ -31,6 +32,9 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         new MilkywayCommandGroup()
     );
     private final CommandManager commandManager;
+
+    private final static SettingService settingService = new SettingService();
+    private final SettingRepository settingRepository = SettingRepository.db();
 
     public CommandListener(CommandManager commandManager) {
         this.commandManager = commandManager;
@@ -65,7 +69,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
     private static String valuesToView(HashMap<Integer, PropertyValue> settingValues) {
         StringBuilder builder = new StringBuilder();
         for (PropertyValue settingValue: settingValues.values()) {
-            String key = SettingService.getCode(settingValue.getParentId());
+            String key = settingService.getCode(settingValue.getParentId());
             builder.append(key)
                 .append("\t\t\t")
                 .append(DataFormatter.prettify(settingValue.getType(), settingValue.getValue()))
@@ -77,7 +81,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
     private Mono<?> executeSettingGroup(ChatInputInteractionEvent event, String category, String settingKey) {
         if (settingKey.equals(SettingTransformer.viewOptionName)) {
             ScopeTarget target = SettingGroup.scopeToTarget(Scope.GUILD, event);
-            HashMap<Integer, PropertyValue> values = SettingRepository.db().getHydratedPropertyValues(target, category);
+            HashMap<Integer, PropertyValue> values = settingRepository.getHydratedPropertyValues(target, category);
             String content = valuesToView(values);
             return event.reply().withContent("```\n%s```".formatted(content));
         }

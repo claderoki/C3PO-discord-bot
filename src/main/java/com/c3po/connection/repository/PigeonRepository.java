@@ -90,6 +90,10 @@ public class PigeonRepository extends Repository {
                 toMin(c.getMin(), toMax(c.getMax(), column + " + " + c.getValue()))
             );
         }).collect(Collectors.joining(",")));
+        if (winnings.getGoldModifier() != null) {
+            query.append(", `pigeon`.`gold_modifier` = `gold_modifier` + ").append(winnings.getGoldModifier());
+        }
+
         query.append(" WHERE `pigeon`.`id` = ?");
 
         execute(query.toString(), new IntParameter(pigeonId));

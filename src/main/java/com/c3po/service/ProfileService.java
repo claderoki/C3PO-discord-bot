@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileService {
+    private final HumanService humanService = new HumanService();
+    private final PigeonService pigeonService = new PigeonService();
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    private final HumanRepository humanRepository = HumanRepository.db();
+
     private static final Integer[] editableAttributeIds = {
         KnownAttribute.countryId,
         KnownAttribute.cityId,
@@ -21,22 +26,22 @@ public class ProfileService {
         KnownAttribute.timezoneId
     };
 
-    private static List<PropertyValue> getProfilePropertyValues(ScopeTarget target, Integer... attributeIds) {
+    private List<PropertyValue> getProfilePropertyValues(ScopeTarget target, Integer... attributeIds) {
         Scope scope = target.getScope();
 
-        List<PropertyValue> values = new ArrayList<>(AttributeRepository.db().getHydratedPropertyValues(target, attributeIds).values());
+        List<PropertyValue> values = new ArrayList<>(attributeRepository.getHydratedPropertyValues(target, attributeIds).values());
 
         if (scope.equals(Scope.MEMBER)) {
-            values.addAll(AttributeRepository.db().getHydratedPropertyValues(ScopeTarget.user(target.getUserId()), attributeIds).values());
+            values.addAll(attributeRepository.getHydratedPropertyValues(ScopeTarget.user(target.getUserId()), attributeIds).values());
         }
         return values;
     }
 
-    public static List<PropertyValue> getEditableProfilePropertyValues(ScopeTarget target) {
+    public List<PropertyValue> getEditableProfilePropertyValues(ScopeTarget target) {
         return getProfilePropertyValues(target, editableAttributeIds);
     }
 
-    public static Profile getProfile(ScopeTarget target) {
+    public Profile getProfile(ScopeTarget target) {
         Scope scope = target.getScope();
         Profile profile;
 
@@ -50,12 +55,12 @@ public class ProfileService {
             profile.set(value.getParentId(), value.getValue());
         }
 
-        Integer humanId = HumanService.getHumanId(target.getUserId());
-        Long gold = HumanRepository.db().getGold(humanId);
+        Integer humanId = humanService.getHumanId(target.getUserId());
+        Long gold = humanRepository.getGold(humanId);
         profile.set("gold", gold.toString());
-        Integer pigeonId = PigeonService.getCurrentId(humanId);
+        Integer pigeonId = pigeonService.getCurrentId(humanId);
         if (pigeonId != null) {
-            Pigeon pigeon = PigeonService.getPigeon(pigeonId);
+            Pigeon pigeon = pigeonService.getPigeon(pigeonId);
             profile.set("pigeonName", pigeon.getName());
         }
 

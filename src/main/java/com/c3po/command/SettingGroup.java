@@ -11,7 +11,6 @@ import com.c3po.core.command.CommandSettings;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.DataType;
 import com.c3po.helper.EventHelper;
-import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
 import com.c3po.helper.cache.keys.MilkywaySettingsKey;
 import com.c3po.helper.cache.keys.PersonalRoleSettingsKey;
@@ -22,12 +21,11 @@ import com.c3po.core.setting.validation.SettingValidation;
 import com.c3po.core.setting.validation.SettingValidationResult;
 import com.c3po.core.setting.validation.SettingValidator;
 import com.c3po.core.setting.validation.ValueType;
+import com.c3po.helper.cache.CacheManager;
 import com.c3po.service.SettingService;
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -35,6 +33,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class SettingGroup {
+    private final SettingService settingService = new SettingService();
+    private final SettingRepository settingRepository = SettingRepository.db();
+
     private final String category;
     private final String settingParam;
     private final Integer settingId;
@@ -42,7 +43,7 @@ public class SettingGroup {
     public SettingGroup(String category, String settingKey) {
         this.category = category;
         this.settingParam = settingKey.replace("_id", "");
-        this.settingId = SettingService.getId(category, settingKey);
+        this.settingId = settingService.getId(category, settingKey);
     }
 
     protected String getValueFromEvent(ChatInputInteractionEvent event) {
@@ -105,7 +106,7 @@ public class SettingGroup {
     }
 
     public Mono<?> handle(ChatInputInteractionEvent event) {
-        Setting setting = SettingService.getSetting(settingId);
+        Setting setting = settingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
 
         return CommandSettingValidation.validate(commandSettings, event).map(valid -> {
@@ -123,7 +124,7 @@ public class SettingGroup {
             ArrayList<SettingValidation> validations = SettingValidationCache.get().get(settingId);
             requiredSettings.add(settingId);
             requiredSettings.addAll(getRequiredSettings(validations));
-            HashMap<Integer, PropertyValue> settingValues = SettingRepository.db().getHydratedPropertyValues(target, category, requiredSettings);
+            HashMap<Integer, PropertyValue> settingValues = settingRepository.getHydratedPropertyValues(target, category, requiredSettings);
             PropertyValue settingValue = settingValues.get(settingId);
             setValue(settingValue, value);
             if (validations != null) {
@@ -134,11 +135,11 @@ public class SettingGroup {
                     return event.reply().withContent("Error(s): " + String.join("\n", errors)).then();
                 }
             }
-            SettingRepository.db().save(settingValue);
+            settingRepository.save(settingValue);
             if (settingValue.changed()) {
                 SettingGroupCacheKey<?> cacheKey = getCacheKey(target);
                 if (cacheKey != null) {
-                    Cache.remove(cacheKey);
+                    CacheManager.get().remove(cacheKey);
                 }
             }
 

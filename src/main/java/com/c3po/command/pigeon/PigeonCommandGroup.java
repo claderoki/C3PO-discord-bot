@@ -13,5 +13,6 @@ public class PigeonCommandGroup extends CommandGroup {
         addCommand(new PigeonPlayCommand(this));
         addCommand(new PigeonFeedCommand(this));
         addCommand(new PigeonHealCommand(this));
+        addCommand(new PigeonTrainCommand(this));
     }
 }

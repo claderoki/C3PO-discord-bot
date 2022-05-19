@@ -21,8 +21,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class PigeonExploreCommand extends PigeonSubCommand {
+    protected final ExplorationRepository explorationRepository;
+    protected final ReminderRepository reminderRepository;
+    protected final ExplorationService explorationService = new ExplorationService();
+
     protected PigeonExploreCommand(PigeonCommandGroup group) {
         super(group, "explore", "no description.");
+        explorationRepository = ExplorationRepository.db();
+        reminderRepository = ReminderRepository.db();
     }
 
     protected PigeonValidation getValidation() {
@@ -39,11 +45,11 @@ public class PigeonExploreCommand extends PigeonSubCommand {
         PigeonValidation validation = getValidation();
         PigeonValidationResult result = validation.validate(userId);
 
-        FullExplorationLocation location = RandomHelper.choice(ExplorationService.getAllLocations().values().stream().toList());
+        FullExplorationLocation location = RandomHelper.choice(explorationService.getAllLocations().values().stream().toList());
 
         LocalDateTime arrivalDate = DateTimeHelper.now().plus(Duration.ofMinutes(90));
-        ExplorationRepository.db().createExploration(location.id(), arrivalDate, result.getPigeonId());
-        PigeonRepository.db().updateStatus(result.getPigeonId(), PigeonStatus.SPACE_EXPLORING);
+        explorationRepository.createExploration(location.id(), arrivalDate, result.getPigeonId());
+        pigeonRepository.updateStatus(result.getPigeonId(), PigeonStatus.SPACE_EXPLORING);
 
         Menu menu = new Menu(context);
         menu.setEmbedConsumer(c -> c
@@ -58,7 +64,7 @@ public class PigeonExploreCommand extends PigeonSubCommand {
                 "Your pigeon has landed on Luna!\n`/pigeon space` to check on it!",
                 arrivalDate
             );
-            ReminderRepository.db().create(reminder);
+            reminderRepository.create(reminder);
             return e.createFollowup().withContent("Okay, I will remind you when your pigeon has arrived.");
         });
         menu.addOption(option);

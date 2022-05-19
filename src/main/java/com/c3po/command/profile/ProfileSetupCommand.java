@@ -22,7 +22,9 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileSetupCommand extends SubCommand {
+public class ProfileSetupCommand extends ProfileSubCommand {
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+
     protected ProfileSetupCommand(ProfileCommandGroup group) {
         super(group, "setup", "Setup your profile.");
     }
@@ -77,7 +79,7 @@ public class ProfileSetupCommand extends SubCommand {
 
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
-        List<PropertyValue> propertyValues = ProfileService.getEditableProfilePropertyValues(context.getTarget());
+        List<PropertyValue> propertyValues = profileService.getEditableProfilePropertyValues(context.getTarget());
         CancelButtonMenuOption cancelOption = new CancelButtonMenuOption();
 
         Menu menu = buildMenu(context, propertyValues);
@@ -86,7 +88,7 @@ public class ProfileSetupCommand extends SubCommand {
 
         return MenuManager.waitForMenu(menu).map(a -> {
             if (!cancelOption.isCancelled()) {
-                AttributeRepository.db().save(propertyValues);
+                attributeRepository.save(propertyValues);
             }
             return Mono.empty();
         }).then(context.getEvent().editReply()

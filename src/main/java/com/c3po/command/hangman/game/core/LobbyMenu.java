@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 
 @Setter
 public class LobbyMenu extends Menu {
+    private final HumanRepository humanRepository = HumanRepository.db();
+    private final HumanService humanService = new HumanService();
+
     @Getter
     private final Set<User> users = Collections.synchronizedSet(new HashSet<>());
     private int goldNeeded;
@@ -44,8 +47,8 @@ public class LobbyMenu extends Menu {
         exitButton.withEmoji("\uD83D\uDEAA");
         users.add(context.getEvent().getInteraction().getUser());
         joinButton.setExecutor(c -> {
-            int humanId = HumanService.getHumanId(c.getInteraction().getUser().getId());
-            if (HumanRepository.db().getGold(humanId) < goldNeeded) {
+            int humanId = humanService.getHumanId(c.getInteraction().getUser().getId());
+            if (humanRepository.getGold(humanId) < goldNeeded) {
                 context.sendToast(Toast.builder()
                     .message(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
                     .removeAfter(Duration.ofSeconds(10))

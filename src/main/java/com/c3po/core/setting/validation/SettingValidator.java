@@ -41,8 +41,8 @@ public class SettingValidator {
                 PropertyValue right = settingValues.get(Integer.parseInt(validation.getValue()));
                 if (!compareValues(left.getType(), left.getValue(), right.getValue(), validation.getCondition())) {
                     String error = SettingValidationFormatter.getError(
-                            SettingService.getCode(left.getParentId()),
-                            SettingService.getCode(right.getParentId()),
+                            left.getParentId().toString(),
+                            right.getParentId().toString(),
                             validation.getCondition());
                     result.addError(error);
                 }

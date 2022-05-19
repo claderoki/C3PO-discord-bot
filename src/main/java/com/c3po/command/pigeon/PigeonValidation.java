@@ -5,12 +5,16 @@ import com.c3po.errors.PublicException;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.service.HumanService;
 import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
 public class PigeonValidation {
+    private final HumanService humanService = new HumanService();
+    private final PigeonRepository pigeonRepository = PigeonRepository.db();
+
     private int goldNeeded;
     private PigeonStatus requiredPigeonStatus;
     private Boolean needsActivePigeon;
@@ -19,18 +23,22 @@ public class PigeonValidation {
     private boolean other;
     private Integer humanId;
 
+    public PigeonValidationResult validate(User user) {
+        return validate(user.getId());
+    }
+
     public PigeonValidationResult validate(Snowflake userId) throws PublicException {
         return validate(userId.asLong());
     }
 
     public PigeonValidationResult validate(long userId) throws PublicException {
         if (humanId == null) {
-            humanId = HumanService.getHumanId(userId);
+            humanId = humanService.getHumanId(userId);
         }
-        PigeonValidationResult result = PigeonRepository.db().getValidationResult(this);
+        PigeonValidationResult result = pigeonRepository.getValidationResult(this);
 
         if (result.isShouldNotifyDeath() && !other) {
-             PigeonRepository.db().setDeathNotified(result.getPigeonId());
+            pigeonRepository.setDeathNotified(result.getPigeonId());
             throw new PublicException("Your pigeon has died. Better take better care of it next time!");
         }
 
@@ -83,4 +91,5 @@ public class PigeonValidation {
         }
         return result;
     }
+
 }

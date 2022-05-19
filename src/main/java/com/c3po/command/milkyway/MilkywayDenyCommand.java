@@ -1,12 +1,10 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.connection.repository.AttributeRepository;
+import com.c3po.connection.repository.ItemRepository;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.Context;
-import com.c3po.connection.repository.ItemRepository;
-import com.c3po.connection.repository.MilkywayRepository;
-import com.c3po.core.command.SubCommand;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
@@ -16,7 +14,12 @@ import com.c3po.service.AttributeService;
 import com.c3po.service.HumanService;
 import reactor.core.publisher.Mono;
 
-public class MilkywayDenyCommand extends SubCommand {
+public class MilkywayDenyCommand extends MilkywaySubCommand {
+    private final HumanService humanService = new HumanService();
+    private final AttributeService attributeService = new AttributeService();
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    private final ItemRepository itemRepository = ItemRepository.db();
+
     protected MilkywayDenyCommand(CommandGroup group) {
         super(group, "deny", "Deny a milkyway");
         this.addOption(option -> option.name("id")
@@ -32,11 +35,11 @@ public class MilkywayDenyCommand extends SubCommand {
     private void givebackPayment(Milkyway milkyway) {
         switch (milkyway.getPurchaseType()) {
             case POINT -> {
-                PropertyValue cloverAttributeValue = AttributeService.getAttributeValue(milkyway.getTarget(), AttributeService.getId(KnownAttribute.CLOVERS));
+                PropertyValue cloverAttributeValue = attributeService.getAttributeValue(milkyway.getTarget(), attributeService.getId(KnownAttribute.CLOVERS));
                 cloverAttributeValue.increment(milkyway.getAmount());
-                AttributeRepository.db().save(cloverAttributeValue);
+                attributeRepository.save(cloverAttributeValue);
             }
-            case ITEM -> ItemRepository.db().addItem(HumanService.getHumanId(milkyway.getTarget().getUserId()), milkyway.getItemId(), milkyway.getAmount());
+            case ITEM -> itemRepository.addItem(humanService.getHumanId(milkyway.getTarget().getUserId()), milkyway.getItemId(), milkyway.getAmount());
         }
     }
 
@@ -46,14 +49,14 @@ public class MilkywayDenyCommand extends SubCommand {
         String reason = context.getOptions().getString("reason");
 
         long guildId = context.getEvent().getInteraction().getGuildId().orElseThrow().asLong();
-        Milkyway milkyway = MilkywayRepository.db().get(guildId, identifier);
+        Milkyway milkyway = milkywayRepository.get(guildId, identifier);
         if (milkyway.getId() == 0) {
             throw new PublicException("This milkyway does not exist.");
         } else if (!milkyway.getStatus().equals(MilkywayStatus.PENDING)) {
             throw new PublicException("This milkyway can't be denied anymore.");
         }
 
-        MilkywayRepository.db().deny(guildId, identifier, reason);
+        milkywayRepository.deny(guildId, identifier, reason);
         givebackPayment(milkyway);
 
         context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(

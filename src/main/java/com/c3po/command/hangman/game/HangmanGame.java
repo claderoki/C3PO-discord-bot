@@ -12,6 +12,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class HangmanGame extends Game {
+    private final HumanRepository humanRepository = HumanRepository.db();
+
     private final HangmanWord word;
     private final HangmanUI ui;
     private final GameState state;
@@ -119,7 +121,7 @@ public class HangmanGame extends Game {
         for(var player: state.getPlayers()) {
             String name = player.getUser().getMention();
             if (player.isDead()) {
-                HumanRepository.db().decreaseGold(player.getHumanId(), player.getBet());
+                humanRepository.decreaseGold(player.getHumanId(), player.getBet());
                 lines.add("%s\nLost %s **%s**".formatted(name, Emoji.EURO, player.getBet()));
                 continue;
             }
@@ -138,7 +140,7 @@ public class HangmanGame extends Game {
 
             int totalWorth = player.getGuesses().stream().mapToInt(Guess::getWorth).sum();
 
-            HumanRepository.db().increaseGold(player.getHumanId(), won);
+            humanRepository.increaseGold(player.getHumanId(), won);
             lines.add("%s\nWon %s **%s** (%s/%s) guessed".formatted(name, Emoji.EURO, won, totalWorth, word.getValue().length()));
             i++;
         }

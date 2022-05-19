@@ -105,7 +105,6 @@ public class HangmanUI extends UI {
         return event.getMessage().getAuthor().map(u -> !u.isBot()).orElse(false);
     }
 
-
     public Flux<Guess> waitForGuesses() {
         return context.getEvent().getClient().on(MessageCreateEvent.class)
             .filter(this::preCheck)

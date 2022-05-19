@@ -41,7 +41,7 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
         PigeonValidation validation = getValidation();
         PigeonValidationResult result = validation.validate(userId);
 
-        Pigeon pigeon = PigeonService.getPigeon(result.getPigeonId());
+        Pigeon pigeon = pigeonRepository.getPigeon(result.getPigeonId());
         StatType statType = getStatType();
         Stat stat = pigeon.getStat(statType);
         if (stat.getValue() == 100) {
@@ -50,7 +50,7 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
         PigeonWinnings winnings = new PigeonWinnings();
         winnings.addStat(StatFactory.create(statType, getGain()));
         winnings.addStat(StatFactory.create(StatType.GOLD, -getCost()));
-        PigeonRepository.db().updateWinnings(result.getPigeonId(), winnings);
+        pigeonRepository.updateWinnings(result.getPigeonId(), winnings);
         return context.getEvent().reply().withEmbeds(EmbedHelper.normal(getMessage() + "\n\n" + winnings.format()).build());
     }
 }

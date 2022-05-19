@@ -28,6 +28,7 @@ import java.util.*;
 
 @NoArgsConstructor
 public class CommandManager {
+    private final SettingRepository settingRepository = SettingRepository.db();
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
     final Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
@@ -42,7 +43,7 @@ public class CommandManager {
     }
 
     private void registerSettings() {
-        for (Map.Entry<String, HashMap<String, Setting>> entrySet: SettingRepository.db().getAllSettings().entrySet()) {
+        for (Map.Entry<String, HashMap<String, Setting>> entrySet: settingRepository.getAllSettings().entrySet()) {
             register(entrySet.getKey(), entrySet.getValue().values());
         }
     }

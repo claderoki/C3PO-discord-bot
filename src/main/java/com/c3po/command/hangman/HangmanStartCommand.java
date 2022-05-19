@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.*;
 
 public class HangmanStartCommand extends SubCommand {
+    private final HumanService humanService = new HumanService();
     private final static List<String> wordCache = new ArrayList<>();
     private final static int bet = 25;
 
@@ -69,7 +70,7 @@ public class HangmanStartCommand extends SubCommand {
     }
 
     private HangmanPlayer toPlayer(User user) {
-        HangmanPlayer player = new HangmanPlayer(user, HumanService.getHumanId(user.getId()));
+        HangmanPlayer player = new HangmanPlayer(user, humanService.getHumanId(user.getId()));
         player.setBet(bet);
         return player;
     }

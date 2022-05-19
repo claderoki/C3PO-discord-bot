@@ -11,7 +11,7 @@ import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
 
-public class MilkywayCreateCommand extends SubCommand {
+public class MilkywayCreateCommand extends MilkywaySubCommand {
     protected MilkywayCreateCommand(CommandGroup group) {
         super(group, "create", "Create a milkway");
         this.addOption(option -> option.name("name")

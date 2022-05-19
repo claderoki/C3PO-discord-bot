@@ -39,6 +39,13 @@ import java.util.concurrent.TimeoutException;
 
 @Getter
 public class MilkywayProcessor {
+    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    private final ItemRepository itemRepository = ItemRepository.db();
+    private final MilkywayRepository milkywayRepository = MilkywayRepository.db();
+    private final MilkywayService milkywayService = new MilkywayService();
+    private final AttributeService attributeService = new AttributeService();
+    private final HumanService humanService = new HumanService();
+
     private final ChatInputInteractionEvent event;
     private final boolean godmode;
 
@@ -91,8 +98,8 @@ public class MilkywayProcessor {
                 .build());
         }
 
-        List<MilkywayItem> items = MilkywayService.getItems();
-        Map<Integer, Integer> itemAmounts = ItemRepository.db().getItemAmounts(humanId,
+        List<MilkywayItem> items = milkywayService.getItems();
+        Map<Integer, Integer> itemAmounts = itemRepository.getItemAmounts(humanId,
             items.stream().map(MilkywayItem::getItemId).toList());
 
         for(MilkywayItem item: items) {
@@ -153,13 +160,13 @@ public class MilkywayProcessor {
         long guildId = event.getInteraction().getGuildId().orElseThrow().asLong();
         long userId = event.getInteraction().getUser().getId().asLong();
 
-        settings = MilkywayService.getSettings(ScopeTarget.guild(guildId));
+        settings = milkywayService.getSettings(ScopeTarget.guild(guildId));
         memberTarget = ScopeTarget.member(userId, guildId);
 
         if (!godmode) {
             // No point grabbing these since they won't be used if godmode is on anyway.
-            humanId = HumanService.getHumanId(memberTarget.getUserId());
-            cloverAttributeValue = AttributeService.getAttributeValue(memberTarget, AttributeService.getId(KnownAttribute.CLOVERS));
+            humanId = humanService.getHumanId(memberTarget.getUserId());
+            cloverAttributeValue = attributeService.getAttributeValue(memberTarget, attributeService.getId(KnownAttribute.CLOVERS));
         }
     }
 
@@ -192,9 +199,9 @@ public class MilkywayProcessor {
         switch (chosenPurchase.getPurchaseType()) {
             case POINT -> {
                 cloverAttributeValue.increment(-amount);
-                AttributeRepository.db().save(cloverAttributeValue);
+                attributeRepository.save(cloverAttributeValue);
             }
-            case ITEM -> ItemRepository.db().spendItem(humanId, chosenPurchase.getItem().getItemId(), amount);
+            case ITEM -> itemRepository.spendItem(humanId, chosenPurchase.getItem().getItemId(), amount);
         }
     }
 
@@ -211,7 +218,7 @@ public class MilkywayProcessor {
                 .amount(amount)
                 .purchaseType(chosenPurchase.getPurchaseType())
                 .daysPending(daysChosen)
-                .identifier(MilkywayService.getIncrementIdentifier(memberTarget.getGuildId()))
+                .identifier(milkywayService.getIncrementIdentifier(memberTarget.getGuildId()))
                 .name(name)
                 .description(description != null ? description : name)
                 .status(MilkywayStatus.PENDING)
@@ -219,7 +226,7 @@ public class MilkywayProcessor {
                 .target(memberTarget)
                 .build();
 
-            MilkywayRepository.db().create(milkyway);
+            milkywayRepository.create(milkyway);
             takePayment(chosenPurchase, amount);
 
             return Mono.just(milkyway);

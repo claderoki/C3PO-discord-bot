@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class PigeonWinnings extends Winnings {
+    private Double goldModifier;
 
     @Override
     public String format() {
@@ -21,7 +22,9 @@ public class PigeonWinnings extends Winnings {
             .stream()
             .filter(c -> c.getValue() != 0)
             .map(c -> c.getEmoji() + (c.getValue() > 0 ? "+" : "") + c.getValue())
-            .collect(Collectors.joining(", "));
+            .collect(Collectors.joining(", "))
+                + (goldModifier == null ? "" : ", \uD83D\uDCAA " +(goldModifier > 0 ? "+" : "") + goldModifier)
+        ;
     }
 
     /**
@@ -35,6 +38,9 @@ public class PigeonWinnings extends Winnings {
             newWinnings.addItemIds(winning.itemIds);
             for (Stat stat: winning.getStats().values()) {
                 stats.computeIfAbsent(stat.getStatType(), c -> StatFactory.create(stat.getStatType(), 0L)).addValue(stat.getValue());
+            }
+            if (winning.goldModifier != null) {
+                newWinnings.setGoldModifier(newWinnings.getGoldModifier()+ winning.getGoldModifier());
             }
         }
         newWinnings.setStats(stats);

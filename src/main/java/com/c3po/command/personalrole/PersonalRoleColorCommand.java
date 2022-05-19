@@ -7,7 +7,7 @@ import com.c3po.service.AttributeService;
 import reactor.core.publisher.Mono;
 
 public class PersonalRoleColorCommand extends SubCommand {
-    protected static Integer personalRoleAttributeId = AttributeService.getId("required_role_id");
+    protected static Integer personalRoleAttributeId = new AttributeService().getId("required_role_id");
 
     protected PersonalRoleColorCommand(PersonalRoleCommandGroup group) {
         super(group, "color", "Setup the color of your role.");

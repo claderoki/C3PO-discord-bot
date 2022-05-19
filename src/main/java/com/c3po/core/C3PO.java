@@ -2,6 +2,8 @@ package com.c3po.core;
 
 import com.c3po.core.command.CommandManager;
 import com.c3po.helper.LogHelper;
+import com.c3po.helper.cache.Cache;
+import com.c3po.helper.cache.CacheManager;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.ConfigurationLoader;
 import com.c3po.helper.environment.Mode;
@@ -14,21 +16,25 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.ClientPresence;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
+@SpringBootApplication
 public class C3PO {
-    private final Mode mode;
     private final CommandManager commandManager;
 
-    public C3PO(Mode mode) {
-        this.mode = mode;
+    public C3PO() {
         commandManager = new CommandManager();
+        CacheManager.set(new Cache());
+        CacheManager.set("flags", new Cache());
     }
 
+    @Bean
     public void run() {
         Configuration config = Configuration.instance();
 
