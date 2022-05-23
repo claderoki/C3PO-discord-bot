@@ -35,12 +35,12 @@ public class LobbyMenu extends Menu {
         users.add(context.getEvent().getInteraction().getUser());
         refreshEmbed();
 
-        for(MenuOption option: getMenuOptions()) {
+        for(MenuOption<?,?,?> option: getMenuOptions()) {
             addOption(option);
         }
     }
 
-    private List<MenuOption> getMenuOptions() {
+    private List<MenuOption<?,?,?>> getMenuOptions() {
         VoidMenuOption joinButton = new VoidMenuOption("Join");
         VoidMenuOption exitButton = new VoidMenuOption("Exit");
         joinButton.withEmoji("↩️");
@@ -49,12 +49,11 @@ public class LobbyMenu extends Menu {
         joinButton.setExecutor(c -> {
             int humanId = humanService.getHumanId(c.getInteraction().getUser().getId());
             if (humanRepository.getGold(humanId) < goldNeeded) {
-                context.sendToast(Toast.builder()
+                return context.sendToast(Toast.builder()
                     .message(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
                     .removeAfter(Duration.ofSeconds(10))
                     .type(ToastType.ERROR)
                     .build());
-                return Mono.empty();
             }
             users.add(c.getInteraction().getUser());
             refreshEmbed();

@@ -43,7 +43,7 @@ public class PersonalRoleProcessor {
             .getHydratedPropertyValue(context.getTarget(Scope.MEMBER), personalRoleAttributeId)
             .orElseThrow();
 
-        return context.getEvent().getInteraction().getGuild().map(g -> {
+        return context.getEvent().getInteraction().getGuild().flatMap(g -> {
             guild = g;
             member = context.getEvent().getInteraction().getMember().orElseThrow();
             if (personalRoleAttributeValue.getValue() != null) {
@@ -101,7 +101,7 @@ public class PersonalRoleProcessor {
     }
 
     public Mono<?> execute() {
-        return load().map(e->{
+        return load().then(Mono.defer(() -> {
             if (type.equals(PersonalRoleType.DELETE) && existingRole != null) {
                 return existingRole.delete().flatMap(c -> {
                     attributeRepository.delete(personalRoleAttributeValue);
@@ -123,6 +123,6 @@ public class PersonalRoleProcessor {
                 }).then(
                     context.getEvent().reply().withEmbeds(EmbedHelper.normal("Okay, role has been edited.").build()));
             }
-        });
+        }));
     }
 }

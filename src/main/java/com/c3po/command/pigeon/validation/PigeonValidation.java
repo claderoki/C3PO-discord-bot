@@ -1,4 +1,4 @@
-package com.c3po.command.pigeon;
+package com.c3po.command.pigeon.validation;
 
 import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.errors.PublicException;
@@ -35,14 +35,14 @@ public class PigeonValidation {
         if (humanId == null) {
             humanId = humanService.getHumanId(userId);
         }
-        PigeonValidationResult result = pigeonRepository.getValidationResult(this);
+        PigeonValidationData data = pigeonRepository.getValidationData(this);
 
-        if (result.isShouldNotifyDeath() && !other) {
-            pigeonRepository.setDeathNotified(result.getPigeonId());
+        if (data.isShouldNotifyDeath() && !other) {
+            pigeonRepository.setDeathNotified(data.getPigeonId());
             throw new PublicException("Your pigeon has died. Better take better care of it next time!");
         }
 
-        if (needsPvpEnabled && !result.isHasPvpEnabled()) {
+        if (needsPvpEnabled && !data.isHasPvpEnabled()) {
             if (other) {
                 throw new PublicException("The other persons pigeon does not have PvP enabled.");
             } else {
@@ -50,7 +50,7 @@ public class PigeonValidation {
             }
         }
 
-        if (needsAvailablePvpAction && !result.isHasAvailablePvpAction()) {
+        if (needsAvailablePvpAction && !data.isHasAvailablePvpAction()) {
             if (other) {
                 throw new PublicException("The other persons pigeon does not have an available PvP action yet.");
             } else {
@@ -58,7 +58,7 @@ public class PigeonValidation {
             }
         }
 
-        if (goldNeeded > 0 && !result.isHasGoldNeeded()) {
+        if (goldNeeded > 0 && !data.isHasGoldNeeded()) {
             if (other) {
                 throw new PublicException("The other person needs %s gold to perform this action.".formatted(goldNeeded));
             } else {
@@ -66,8 +66,8 @@ public class PigeonValidation {
             }
         }
 
-        if (needsActivePigeon != null && needsActivePigeon != result.isHasActivePigeon()) {
-            if (result.isHasActivePigeon()) {
+        if (needsActivePigeon != null && needsActivePigeon != data.isHasActivePigeon()) {
+            if (data.isHasActivePigeon()) {
                 if (other) {
                     throw new PublicException("The other person already has a pigeon!");
                 } else {
@@ -82,14 +82,14 @@ public class PigeonValidation {
             }
         }
 
-        if (requiredPigeonStatus != null && !result.isHasRequiredStatus()) {
+        if (requiredPigeonStatus != null && !data.isHasRequiredStatus()) {
             if (other) {
                 throw new PublicException("The other pigeon needs to be %s to perform this action.".formatted(requiredPigeonStatus.toString()));
             } else {
                 throw new PublicException("Your pigeon needs to be %s to perform this action.".formatted(requiredPigeonStatus.toString()));
             }
         }
-        return result;
+        return new PigeonValidationResult(data.getPigeonId(), data.getHumanId());
     }
 
 }

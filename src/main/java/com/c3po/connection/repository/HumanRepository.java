@@ -2,6 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Component
 public class HumanRepository extends Repository {
     protected static HumanRepository DB;
 

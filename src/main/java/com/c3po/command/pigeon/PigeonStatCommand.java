@@ -1,6 +1,7 @@
 package com.c3po.command.pigeon;
 
-import com.c3po.connection.repository.PigeonRepository;
+import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationResult;
 import com.c3po.core.command.Context;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
@@ -9,7 +10,6 @@ import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.model.pigeon.stat.core.Stat;
-import com.c3po.service.PigeonService;
 import reactor.core.publisher.Mono;
 
 public abstract class PigeonStatCommand extends PigeonSubCommand {

@@ -11,6 +11,7 @@ import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -58,13 +59,14 @@ public class Context {
         };
     }
 
-    public void sendToast(Toast toast) {
-        event.createFollowup()
+    public Mono<?> sendToast(Toast toast) {
+        return event.createFollowup()
             .withEmbeds(getEmbedFor(toast.getType()).description(toast.getMessage()).build())
-            .subscribe(m -> {
+            .flatMap(m -> {
                 if (toast.getRemoveAfter() != null) {
-                    m.delete().delaySubscription(Duration.ofSeconds(10)).subscribe();
+                    return m.delete().delaySubscription(Duration.ofSeconds(10));
                 }
+                return Mono.empty();
             }
         );
     }

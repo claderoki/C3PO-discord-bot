@@ -5,7 +5,9 @@ import com.c3po.helper.cache.keys.HumanIdKey;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.cache.CacheManager;
 import discord4j.common.util.Snowflake;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HumanService extends Service {
     private final HumanRepository humanRepository = HumanRepository.db();
 

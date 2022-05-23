@@ -1,13 +1,13 @@
 package com.c3po.command.pigeon;
 
+import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationResult;
 import com.c3po.connection.repository.ExplorationRepository;
-import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.connection.repository.ReminderRepository;
 import com.c3po.core.command.Context;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.RandomHelper;
 import com.c3po.model.exploration.FullExplorationLocation;
-import com.c3po.model.exploration.SimplePlanetLocation;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.reminder.NewReminder;
 import com.c3po.service.ExplorationService;
@@ -16,7 +16,6 @@ import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import reactor.core.publisher.Mono;
 
-import javax.xml.stream.Location;
 import java.time.Duration;
 import java.time.LocalDateTime;
 

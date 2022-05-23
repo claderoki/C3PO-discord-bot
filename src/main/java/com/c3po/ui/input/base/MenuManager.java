@@ -1,5 +1,6 @@
 package com.c3po.ui.input.base;
 
+import com.c3po.ui.Toast;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
@@ -44,16 +45,17 @@ public class MenuManager {
         ;
     }
 
-    public static Mono<?> waitForMenu(Menu menu) {
+    public static Mono<Menu> waitForMenu(Menu menu) {
         ChatInputInteractionEvent event = menu.getContext().getEvent();
         return sendMessage(menu, event)
             .then(event.getClient().on(ComponentInteractionEvent.class)
                 .filter(menu::isAllowed)
                 .timeout(menu.getTimeout())
-                .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
                 .flatMap(c -> processEvent(c, menu))
                 .takeWhile(c -> c)
                 .then(Mono.just(menu)))
+                .onErrorResume(TimeoutException.class, ignore ->
+                    menu.getContext().sendToast(Toast.builder().message("Menu timed out.").build()).then(Mono.just(menu)))
         ;
     }
 }

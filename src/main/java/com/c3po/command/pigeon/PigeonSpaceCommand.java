@@ -1,5 +1,7 @@
 package com.c3po.command.pigeon;
 
+import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationResult;
 import com.c3po.connection.repository.ExplorationRepository;
 import com.c3po.connection.repository.HumanRepository;
 import com.c3po.core.command.Context;

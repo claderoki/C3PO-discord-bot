@@ -1,13 +1,10 @@
 package com.c3po.connection.repository;
 
-import com.c3po.command.pigeon.PigeonValidation;
-import com.c3po.command.pigeon.PigeonValidationResult;
+import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationData;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import com.c3po.model.pigeon.Pigeon;
-import com.c3po.model.pigeon.PigeonCondition;
-import com.c3po.model.pigeon.PigeonStatus;
-import com.c3po.model.pigeon.PigeonWinnings;
+import com.c3po.model.pigeon.*;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.model.pigeon.stat.core.Stat;
 
@@ -142,7 +139,25 @@ public class PigeonRepository extends Repository {
         );
     }
 
-    public synchronized PigeonValidationResult getValidationResult(PigeonValidation validation) {
+    public synchronized Set<IdlePigeon> getIdlePigeons(long guildId) {
+        String query = """
+            SELECT
+                `earthling`.`user_id` as `user_id`,
+                `pigeon`.`id` as `pigeon_id`
+            FROM
+            `pigeon`
+            INNER JOIN `earthling` ON `earthling`.`global_human_id` = `pigeon`.`human_id` AND `earthling`.`guild_id` = ?
+            WHERE `pigeon`.`condition` = 'active'
+            AND `pigeon`.`status` = 'idle'
+            ORDER BY RAND()
+            """;
+        return query(query, new LongParameter(guildId))
+            .stream()
+            .map(r -> new IdlePigeon(r.getInt("pigeon_id"), r.getLong("user_id")))
+            .collect(Collectors.toSet());
+    }
+
+    public synchronized PigeonValidationData getValidationData(PigeonValidation validation) {
         List<Parameter> parameters = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT");
         query.append("(`human`.`gold` >= ?) AS `has_gold_needed`, ");
@@ -167,7 +182,7 @@ public class PigeonRepository extends Repository {
         parameters.add(new IntParameter(validation.getHumanId()));
 
         Result result = getOne(query.toString(), parameters);
-        return PigeonValidationResult.builder()
+        return PigeonValidationData.builder()
             .pigeonId(result.optInt("pigeon_id"))
             .humanId(result.optInt("human_id"))
             .hasAvailablePvpAction(result.getBoolOr("has_available_pvp_action", true))
@@ -206,4 +221,20 @@ public class PigeonRepository extends Repository {
                 return winnings;
             }).toList();
     }
+
+    public void createPigeon(int humanId, String name) {
+        String query = "INSERT INTO `pigeon` (`human_id`, `name`) VALUES (?, ?)";
+        execute(query, new IntParameter(humanId), new StringParameter(name));
+    }
+
+    public void increasePoopCount(int pigeonId) {
+        String query = "UPDATE `pigeon` SET `poop_victim_count` = `poop_victim_count` + 1 WHERE `id` = ?";
+        execute(query, new IntParameter(pigeonId));
+    }
+
+    public void increasePoopedOnCount(int pigeonId) {
+        String query = "UPDATE `pigeon` SET `pooped_on_count` = `pooped_on_count` + 1 WHERE `id` = ?";
+        execute(query, new IntParameter(pigeonId));
+    }
+
 }

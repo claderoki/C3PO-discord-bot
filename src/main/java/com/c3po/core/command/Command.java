@@ -39,6 +39,27 @@ public abstract class Command {
 
     public abstract Mono<?> execute(Context context) throws RuntimeException;
 
+    protected Mono<List<CommandValidation<?>>> getValidations() {
+        return Mono.just(List.of());
+    }
+
+    protected Mono<?> beforeExecute(Context context) {
+        return Mono.empty();
+    }
+
+    protected Mono<?> afterExecute(Context context) {
+        return Mono.empty();
+    }
+
+    public Mono<?> run(Context context) {
+        return getValidations().map(validations -> validations
+                .stream().map(validation -> validation.validate(context)))
+            .then(beforeExecute(context))
+            .then(execute(context))
+            .then(afterExecute(context))
+        ;
+    }
+
     public void addOption(Consumer<ImmutableApplicationCommandOptionData.Builder> option) {
         final ImmutableApplicationCommandOptionData.Builder mutatedOption = ApplicationCommandOptionData.builder();
         option.accept(mutatedOption);

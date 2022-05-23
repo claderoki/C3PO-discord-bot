@@ -1,11 +1,11 @@
-package com.c3po.command.pigeon;
+package com.c3po.command.pigeon.validation;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class PigeonValidationResult {
+public class PigeonValidationData {
     private boolean shouldNotifyDeath;
     private boolean hasGoldNeeded;
     private Integer pigeonId;
