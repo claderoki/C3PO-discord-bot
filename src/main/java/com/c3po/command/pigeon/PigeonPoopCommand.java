@@ -65,7 +65,7 @@ public class PigeonPoopCommand extends PigeonSubCommand {
         var validation = PigeonValidation.builder()
             .needsActivePigeon(true)
             .requiredPigeonStatus(PigeonStatus.IDLE)
-            .goldNeeded(userId == null ? 0 : 100)
+            .goldNeeded(userId == null ? 100 : 0)
             .build();
 
         var result = validation.validate(context.getEvent().getInteraction().getUser());
@@ -92,7 +92,7 @@ public class PigeonPoopCommand extends PigeonSubCommand {
         pigeonRepository.increasePoopCount(result.getPigeonId());
         pigeonRepository.increasePoopedOnCount(idlePigeon.id());
 
-        String text = "%ss pigeon defecated on <@%s> pigeon. ".formatted(context.getEvent().getInteraction().getUser().getMention(), userId.asLong());
+        String text = "%ss pigeon defecated on <@%s> pigeon. ".formatted(context.getEvent().getInteraction().getUser().getMention(), idlePigeon.userId());
         poopController.spend();
         new FlagController(new PigeonLastPoopedOn(idlePigeon.id())).spend();
         return context.getEvent().reply().withEmbeds(EmbedHelper.normal(text)
