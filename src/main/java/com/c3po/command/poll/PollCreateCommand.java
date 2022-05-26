@@ -1,15 +1,10 @@
 package com.c3po.command.poll;
 
-import com.c3po.core.command.CommandManager;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
-import com.c3po.ui.input.BooleanMenuOption;
-import com.c3po.ui.input.ChannelMenuOption;
-import com.c3po.ui.input.LongMenuOption;
-import com.c3po.ui.input.SubMenuOption;
+import com.c3po.ui.input.*;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
-import com.c3po.ui.input.base.SubMenu;
 import reactor.core.publisher.Mono;
 
 public class PollCreateCommand extends SubCommand {
@@ -20,7 +15,16 @@ public class PollCreateCommand extends SubCommand {
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
 
-        return Mono.empty();
+        Menu menu = new Menu(context);
+        menu.setEmbedConsumer(c -> c.description("Your pigeon has done nothing more!"));
+        VoidMenuOption option = new VoidMenuOption("Don't remind me!");
+        option.setShouldContinue(false);
+        option.withEmoji("❗");
+        option.setExecutor((e) ->
+            e.createFollowup().withContent("Okay, I wont remind you, or do anything at all except for send this message."));
+        menu.addOption(option);
+
+        return MenuManager.waitForMenu(menu);
 
 //        Menu menu = new Menu(context);
 //        menu.addOption(new BooleanMenuOption("Anonymous").withEmoji("\uD83E\uDD77"));
@@ -32,5 +36,4 @@ public class PollCreateCommand extends SubCommand {
 //        menu.addOption(new LongMenuOption("Max votes per user"));
 //        return MenuManager.waitForMenu(menu, "OK");
     }
-
 }

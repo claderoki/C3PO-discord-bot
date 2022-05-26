@@ -73,11 +73,12 @@ public class C3PO {
         gateway.getEventDispatcher()
             .on(eventListener.getEventType())
             .flatMap(event -> eventListener.execute(event)
-                .timeout(Duration.ofSeconds(60), Mono.error(new TimeoutException("TIMED OUT"))))
-            .onErrorResume(Throwable.class, e -> {
-                LogHelper.log(e);
-                return Mono.empty();
-            })
+                .timeout(Duration.ofMinutes(30), Mono.error(new TimeoutException("TIMED OUT")))
+                .onErrorResume(Throwable.class, e -> {
+                    LogHelper.log(e, "command listener");
+                    return Mono.empty();
+                })
+            )
             .subscribe()
         ;
     }
