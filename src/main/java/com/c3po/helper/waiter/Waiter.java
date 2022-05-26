@@ -78,18 +78,18 @@ public class Waiter {
             .flatMap((c) -> Mono.just(parser.parse(c)))
             .timeout(Duration.ofSeconds(120))
             .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .map((c) -> {
+            .flatMap(c -> {
                 if (c.getType().equals(ResultType.ERROR)) {
                     List<String> errors = c.getErrors();
                     if (!errors.isEmpty()) {
-                        event.editReply()
+                        return event.editReply()
                             .withEmbedsOrNull(List.of(EmbedHelper.error("Error(s): " + String.join(", ", errors)).build()))
                             .delayElement(Duration.ofSeconds(3))
                             .then(sendMessage(parser))
-                            .subscribe();
+                            .then(Mono.just(c));
                     }
                 }
-                return c;
+                return Mono.just(c);
             })
             .filter(c -> c.getType().equals(ResultType.SUCCESS))
             .next();
@@ -105,7 +105,7 @@ public class Waiter {
                 .footer(footer == null ? null : EmbedCreateFields.Footer.of(footer, null))
                 .build()))
             .withComponentsOrNull(null)
-            .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
+//            .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
         ;
     }
 

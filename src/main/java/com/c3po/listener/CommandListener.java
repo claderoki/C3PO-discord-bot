@@ -96,8 +96,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         String fullName = getFullyQualifiedCommandName(event);
         SettingInfo settingInfo = commandManager.matchSettingInfo(fullName);
         if (settingInfo != null) {
-            return executeSettingGroup(event, settingInfo.getCategory(), settingInfo.getSettingKey())
-                .onErrorResume(this::handleError);
+            return executeSettingGroup(event, settingInfo.getCategory(), settingInfo.getSettingKey());
         }
 
         Command command = commandManager.matchCommand(fullName);
@@ -105,7 +104,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             Context context = new Context(event);
             return CommandSettingValidation.validate(command.getSettings(), event).flatMap(valid -> {
                 if (valid) {
-                    return processCommand(command, context).onErrorResume(this::handleError);
+                    return processCommand(command, context);
                 } else {
                     return Mono.empty();
                 }
@@ -119,6 +118,18 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return Mono.empty();
     }
 
+    private Mono<?> beforeCommand(Optional<BucketManager> bucketManager, Command command) {
+        bucketManager.ifPresent(BucketManager::before);
+        LogHelper.log("Starting command " + command.getName());
+        return Mono.empty();
+    }
+
+    private Mono<?> afterCommand(Optional<BucketManager> bucketManager, Command command) {
+        LogHelper.log("Finishing command " + command.getName());
+        bucketManager.ifPresent(BucketManager::after);
+        return Mono.empty();
+    }
+
     private Mono<?> processCommand(Command command, Context context) {
         Optional<BucketManager> bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context));
         Optional<Boolean> valid = bucketManager.map(BucketManager::validate);
@@ -127,16 +138,15 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             return Mono.empty();
         }
         try {
-            bucketManager.ifPresent(BucketManager::before);
-            Mono<?> commandResult = command.execute(context);
-            bucketManager.ifPresent(BucketManager::after);
-            return commandResult;
+            return beforeCommand(bucketManager, command)
+                .then(command.execute(context))
+                .then(afterCommand(bucketManager, command));
         } catch (Exception e) {
             bucketManager.ifPresent(BucketManager::after);
             if (e instanceof PublicException publicException) {
                 EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
                 return context.getEvent().reply().withEmbeds(embed)
-                    .onErrorResume((c) -> context.getEvent().editReply().withEmbedsOrNull(Collections.singleton(embed)).then());
+                    .onErrorResume(c -> context.getEvent().editReply().withEmbedsOrNull(Collections.singleton(embed)).then());
             }
             LogHelper.log(e);
             return Mono.empty();

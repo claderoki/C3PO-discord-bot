@@ -59,10 +59,8 @@ public class MilkywayDenyCommand extends MilkywaySubCommand {
         milkywayRepository.deny(guildId, identifier, reason);
         givebackPayment(milkyway);
 
-        context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
+        return context.getEvent().getInteraction().getUser().getPrivateChannel().flatMap((c) -> c.createMessage(
             "Your milkyway request has been denied, reason: " + reason
-        ).then());
-
-        return context.getEvent().reply().withContent("OK.");
+        ).and(context.getEvent().reply().withContent("OK.")));
     }
 }

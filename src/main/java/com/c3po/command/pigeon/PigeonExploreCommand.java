@@ -55,6 +55,7 @@ public class PigeonExploreCommand extends PigeonSubCommand {
             .description("Your pigeon has successfully taken off to space!")
             .thumbnail(location.imageUrl()));
         VoidMenuOption option = new VoidMenuOption("Remind me!");
+        option.setShouldContinue(false);
         option.withEmoji("❗");
         option.setExecutor((e) -> {
             NewReminder reminder = new NewReminder(

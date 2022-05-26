@@ -23,13 +23,12 @@ public class SendCommand extends Command {
         String message = context.getOptions().getString("message");
         Boolean instaDelete = context.getOptions().optBool("instadelete");
 
-        context.getEvent().getClient().getChannelById(channelId).subscribe((channel) ->
-            channel.getRestChannel().createMessage(message).subscribe((m) -> {
+        return context.getEvent().getClient().getChannelById(channelId).flatMap((channel) ->
+            channel.getRestChannel().createMessage(message).flatMap((m) -> {
                 if (instaDelete) {
-                    channel.getRestChannel().getRestMessage(Snowflake.of(m.id())).delete("command /send said to").subscribe();
+                    return channel.getRestChannel().getRestMessage(Snowflake.of(m.id())).delete("command /send said to").then();
                 }
+                return Mono.empty();
         }));
-
-        return context.getEvent().deferReply();
     }
 }

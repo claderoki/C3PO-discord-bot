@@ -1,5 +1,6 @@
 package com.c3po.database;
 
+import com.c3po.helper.LogHelper;
 import com.c3po.helper.ValueParser;
 
 import java.sql.ResultSet;
@@ -22,7 +23,8 @@ public class Result implements ValueParser {
             for (int i = 0; i < columnLabels.length; i++) {
                 values.put(columnLabels[i], resultSet.getString(i+1));
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            LogHelper.log(e);
         }
     }
 

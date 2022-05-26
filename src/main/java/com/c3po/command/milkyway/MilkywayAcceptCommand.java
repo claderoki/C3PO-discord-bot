@@ -51,11 +51,9 @@ public class MilkywayAcceptCommand extends MilkywaySubCommand {
                 .build()).flatMap(channel -> {
                     milkywayRepository.accept(guildId, identifier, channel.getId().asLong(), expiresAt);
 
-                    context.getEvent().getInteraction().getUser().getPrivateChannel().subscribe((c) -> c.createMessage(
+                    return context.getEvent().getInteraction().getUser().getPrivateChannel().flatMap((c) -> c.createMessage(
                         "Your milkyway request has been accepted."
-                    ).then());
-
-                    return context.getEvent().reply().withContent("OK.");
+                    ).then(context.getEvent().reply().withContent("OK.")));
             });
         });
     }

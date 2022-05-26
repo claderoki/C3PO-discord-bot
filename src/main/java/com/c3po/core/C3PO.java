@@ -74,8 +74,11 @@ public class C3PO {
             .on(eventListener.getEventType())
             .flatMap(event -> eventListener.execute(event)
                 .timeout(Duration.ofSeconds(60), Mono.error(new TimeoutException("TIMED OUT"))))
-            .onErrorResume(TimeoutException.class, ignore -> Mono.empty())
-            .subscribe(null, (e) -> LogHelper.log(e, eventListener.getEventType().getName()))
+            .onErrorResume(Throwable.class, e -> {
+                LogHelper.log(e);
+                return Mono.empty();
+            })
+            .subscribe()
         ;
     }
 }

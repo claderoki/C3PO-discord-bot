@@ -86,8 +86,7 @@ public class PersonalRoleProcessor {
         return guild.createRole(roleSpec.build()).flatMap(role -> {
             personalRoleAttributeValue.setValue(role.getId().asString());
             attributeRepository.save(personalRoleAttributeValue);
-            role.changePosition(personalRoleService.getRolePosition(guild)).subscribe();
-            return Mono.just(role);
+            return role.changePosition(personalRoleService.getRolePosition(guild)).then(Mono.just(role));
         });
     }
 

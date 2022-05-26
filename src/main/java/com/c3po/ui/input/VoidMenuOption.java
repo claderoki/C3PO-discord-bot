@@ -9,6 +9,9 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 public class VoidMenuOption extends ButtonMenuOption<Void> {
+    @Setter
+    private boolean shouldContinue = true;
+
     public VoidMenuOption(String name) {
         super(name);
     }
@@ -27,6 +30,10 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
             return event.deferEdit();
         }
         return event.deferEdit().then(executor.apply(event));
+    }
+
+    protected boolean shouldContinue() {
+        return shouldContinue;
     }
 
 }
