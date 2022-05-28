@@ -8,8 +8,10 @@ import com.c3po.model.milkyway.ExpiredMilkyway;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.model.milkyway.PurchaseType;
+import discord4j.common.util.Snowflake;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +59,7 @@ public class MilkywayRepository extends Repository {
         );
     }
 
-    public Milkyway get(long guildId, long identifier) {
-        String query = "SELECT * FROM `milkyway` WHERE `guild_id` = ? AND `identifier` = ?";
-        Result result = getOne(query, new LongParameter(guildId), new LongParameter(identifier));
-        if (result == null) {
-            return null;
-        }
+    private Milkyway resultToMilkyway(Result result) {
         return Milkyway.builder()
             .id(result.getInt("id"))
             .name(result.getString("name"))
@@ -70,7 +67,7 @@ public class MilkywayRepository extends Repository {
             .itemId(result.optInt("item_id"))
             .target(ScopeTarget.member(result.getLong("user_id"), result.getLong("guild_id")))
             .status(MilkywayStatus.valueOf(result.getString("status").toUpperCase()))
-            .identifier(identifier)
+            .identifier(result.getLong("identifier"))
             .daysPending(result.optInt("days_pending"))
             .purchaseType(PurchaseType.valueOf(result.getString("purchase_type")))
             .amount(result.getInt("amount"))
@@ -79,6 +76,15 @@ public class MilkywayRepository extends Repository {
             .expiresAt(result.optDateTime("expires_at"))
             .totalDays(result.optInt("total_days"))
             .build();
+    }
+
+    public Milkyway get(long guildId, long identifier) {
+        String query = "SELECT * FROM `milkyway` WHERE `guild_id` = ? AND `identifier` = ?";
+        Result result = getOne(query, new LongParameter(guildId), new LongParameter(identifier));
+        if (result == null) {
+            return null;
+        }
+        return resultToMilkyway(result);
     }
 
     public void accept(long guildId, long identifier, long channelId, LocalDateTime expiresAt) {
@@ -140,4 +146,22 @@ public class MilkywayRepository extends Repository {
         execute(query, placeholderList.getParameters().toArray(Parameter[]::new));
     }
 
+    public void extend(Milkyway milkyway, int amount, int daysToExtend) {
+        String query = "UPDATE `milkyway` SET `amount` = `amount` + ?, `total_days` = `total_days` + ?, `expires_at` = ? WHERE `id` = ?";
+        execute(query,
+            new IntParameter(amount),
+            new IntParameter(daysToExtend),
+            new DateTimeParameter(milkyway.getExpiresAt().plus(Duration.ofDays(daysToExtend))),
+            new IntParameter(milkyway.getId())
+        );
+    }
+
+    public Milkyway getFromChannelId(Snowflake guildId, Snowflake channelId) {
+        String query = "SELECT * FROM `milkyway` WHERE `guild_id` = ? AND `channel_id` = ?";
+        Result result = getOne(query, new LongParameter(guildId), new LongParameter(channelId));
+        if (result == null) {
+            return null;
+        }
+        return resultToMilkyway(result);
+    }
 }

@@ -30,7 +30,7 @@ public class Menu {
     protected boolean ownerOnly = true;
     protected int optionsHandled;
     protected Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
-    protected Duration timeout = Duration.ofSeconds(5);
+    protected Duration timeout = Duration.ofSeconds(360);
 
     public void incrementOptionsHandled() {
         optionsHandled++;

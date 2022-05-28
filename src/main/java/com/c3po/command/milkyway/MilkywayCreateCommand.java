@@ -3,17 +3,15 @@ package com.c3po.command.milkyway;
 import com.c3po.core.command.*;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.model.milkyway.Milkyway;
 import com.c3po.processors.MilkywayProcessor;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.spec.EmbedCreateSpec;
 import reactor.core.publisher.Mono;
 
 public class MilkywayCreateCommand extends MilkywaySubCommand {
     protected MilkywayCreateCommand(CommandGroup group) {
-        super(group, "create", "Create a milkway");
+        super(group, "create", "Create a milkyway");
         this.addOption(option -> option.name("name")
             .description("The name")
             .required(true)

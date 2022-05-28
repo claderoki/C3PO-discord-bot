@@ -28,13 +28,12 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.reaction.ReactionEmoji;
 import lombok.Getter;
 import lombok.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 @Getter
@@ -73,6 +72,21 @@ public class MilkywayProcessor {
         }
     }
 
+    private @Nullable AvailablePurchase getAvailableClovers() {
+        Long points = cloverAttributeValue.getParsedValue();
+        int maxDays = (int) (points / settings.getCostPerDay());
+        if (maxDays > 0) {
+            return AvailablePurchase.builder()
+                .amount(points)
+                .daysWorth(maxDays)
+                .label("Clovers")
+                .emoji("\uD83C\uDF40")
+                .purchaseType(PurchaseType.POINT)
+                .build();
+        }
+        return null;
+    }
+
     protected List<AvailablePurchase> getAvailablePurchases() {
         if (godmode) {
             return List.of(
@@ -86,16 +100,9 @@ public class MilkywayProcessor {
 
         List<AvailablePurchase> availablePurchases = new ArrayList<>();
 
-        Long points = cloverAttributeValue.getParsedValue();
-        int maxDays = (int) (points / settings.getCostPerDay());
-        if (maxDays > 0) {
-            availablePurchases.add(AvailablePurchase.builder()
-                .amount(points)
-                .daysWorth(maxDays)
-                .label("Clovers")
-                .emoji("\uD83C\uDF40")
-                .purchaseType(PurchaseType.POINT)
-                .build());
+        AvailablePurchase clovers = getAvailableClovers();
+        if (clovers != null) {
+            availablePurchases.add(clovers);
         }
 
         List<MilkywayItem> items = milkywayService.getItems();
@@ -115,7 +122,6 @@ public class MilkywayProcessor {
                     .build());
             }
         }
-
         return availablePurchases;
     }
 
@@ -230,6 +236,24 @@ public class MilkywayProcessor {
             takePayment(chosenPurchase, amount);
 
             return Mono.just(milkyway);
+        }));
+    }
+
+    public Mono<LocalDateTime> extend(Milkyway milkyway) throws PublicException {
+        load();
+        validate();
+
+        List<AvailablePurchase> availablePurchases = getAvailablePurchases()
+            .stream().filter(p -> {
+                Integer itemId = p.getPurchaseType().equals(PurchaseType.ITEM) ? p.getItem().getItemId() : null;
+                return Objects.equals(itemId, milkyway.getItemId()) && milkyway.getPurchaseType().equals(p.getPurchaseType());
+            }).toList()
+            ;
+        return chooseAvailablePurchase(availablePurchases).flatMap(chosenPurchase -> chooseDays(chosenPurchase).flatMap(daysChosen -> {
+            int amount = getAmount(chosenPurchase, daysChosen);
+            milkywayRepository.extend(milkyway, amount, daysChosen);
+            takePayment(chosenPurchase, amount);
+            return Mono.just(milkyway.getExpiresAt().plus(Duration.ofDays(daysChosen)));
         }));
     }
 

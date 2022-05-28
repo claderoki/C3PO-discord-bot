@@ -9,5 +9,6 @@ public class MilkywayCommandGroup extends CommandGroup {
         this.addCommand(new MilkywayAcceptCommand(this));
         this.addCommand(new MilkywayDenyCommand(this));
         this.addCommand(new MilkywayCreateCommand(this));
+        this.addCommand(new MilkywayExtendCommand(this));
     }
 }

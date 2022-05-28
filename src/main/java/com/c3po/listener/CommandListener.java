@@ -113,11 +113,6 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return Mono.empty();
     }
 
-    private <T> Mono<T> handleError(Throwable e) {
-        LogHelper.log(e);
-        return Mono.empty();
-    }
-
     private Mono<?> beforeCommand(Optional<BucketManager> bucketManager, Command command) {
         bucketManager.ifPresent(BucketManager::before);
         LogHelper.log("Starting command " + command.getName());
