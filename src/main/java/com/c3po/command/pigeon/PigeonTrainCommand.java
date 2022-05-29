@@ -1,6 +1,7 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.connection.repository.HumanRepository;
 import com.c3po.core.command.Context;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
@@ -13,6 +14,7 @@ import com.c3po.model.pigeon.stat.HumanGold;
 import reactor.core.publisher.Mono;
 
 public class PigeonTrainCommand extends PigeonSubCommand {
+    private final HumanRepository humanRepository = HumanRepository.db();
 
     protected PigeonTrainCommand(PigeonCommandGroup group) {
         super(group, "train", "no description.");
@@ -48,6 +50,12 @@ public class PigeonTrainCommand extends PigeonSubCommand {
 
         var baseCost = 100.0;
         var cost = baseCost * (pigeon.getGoldModifier() * 3.0);
+
+        var gold = humanRepository.getGold(result.getHumanId());
+        if (gold < cost) {
+            throw new PublicException("You do not have enough gold to train your pigeon. %s needed".formatted(gold));
+        }
+
         pigeonWinnings.addStat(new HumanGold(-(int)cost));
         pigeonRepository.updateWinnings(pigeon.getId(), pigeonWinnings);
 
