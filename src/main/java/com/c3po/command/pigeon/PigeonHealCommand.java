@@ -8,6 +8,11 @@ public class PigeonHealCommand extends PigeonStatCommand {
     }
 
     @Override
+    protected String getMessage() {
+        return "You give your pigeon some health. It's health is refilled!";
+    }
+
+    @Override
     protected StatType getStatType() {
         return StatType.HEALTH;
     }

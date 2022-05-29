@@ -8,6 +8,11 @@ public class PigeonFeedCommand extends PigeonStatCommand {
     }
 
     @Override
+    protected String getMessage() {
+        return "You give your pigeon some seeds. It's energy is refilled!";
+    }
+
+    @Override
     protected StatType getStatType() {
         return StatType.FOOD;
     }

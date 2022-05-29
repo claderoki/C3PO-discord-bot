@@ -8,6 +8,11 @@ public class PigeonPlayCommand extends PigeonStatCommand {
     }
 
     @Override
+    protected String getMessage() {
+        return "Your pigeon looks bored. You decide to play with it!";
+    }
+
+    @Override
     protected StatType getStatType() {
         return StatType.HAPPINESS;
     }

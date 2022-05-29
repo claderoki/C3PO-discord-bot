@@ -30,9 +30,7 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
 
     protected abstract int getCost();
 
-    protected  String getMessage() {
-        return "You gain some and lose some";
-    }
+    protected abstract String getMessage();
 
     @Override
     public Mono<?> execute(Context context) throws RuntimeException {
@@ -45,7 +43,7 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
         StatType statType = getStatType();
         Stat stat = pigeon.getStat(statType);
         if (stat.getValue() == 100) {
-            throw new PublicException("You are already max " + statType.toString().toLowerCase() + "!");
+            throw new PublicException("Your pigeon is already at max " + statType.toString().toLowerCase() + "!");
         }
         PigeonWinnings winnings = new PigeonWinnings();
         winnings.addStat(StatFactory.create(statType, getGain()));
