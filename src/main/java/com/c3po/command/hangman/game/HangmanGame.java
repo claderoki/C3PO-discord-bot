@@ -97,11 +97,12 @@ public class HangmanGame extends Game {
     private Mono<?> run() {
         return ui.showBoard().then(ui.waitForGuesses()
             .takeUntil(c->isGameOver())
+            .onErrorStop()
             .flatMap(g -> processGuess(g).then(Mono.defer(() -> {
                 if (!isGameOver()) {
                     return ui.showBoard();
                 }
-                return Mono.empty();
+                return Mono.error(new Exception("Game over."));
             })))
             .doOnNext(a -> {
                 cyclePlayer();

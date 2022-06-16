@@ -27,6 +27,18 @@ public class PigeonWinnings extends Winnings {
         ;
     }
 
+    public void add(PigeonWinnings winnings) {
+        addItemIds(winnings.itemIds);
+        for (Stat stat: winnings.getStats().values()) {
+            stats.computeIfAbsent(stat.getStatType(), c -> StatFactory.create(stat.getStatType(), 0L)).addValue(stat.getValue());
+        }
+
+        if (winnings.goldModifier != null) {
+            goldModifier += winnings.getGoldModifier();
+        }
+    }
+
+
     /**
      * @param winnings winnings
      * @return A new PigeonWinnings object.
@@ -35,13 +47,7 @@ public class PigeonWinnings extends Winnings {
         PigeonWinnings newWinnings = new PigeonWinnings();
         var stats = new LinkedHashMap<StatType, Stat>();
         for(PigeonWinnings winning: winnings) {
-            newWinnings.addItemIds(winning.itemIds);
-            for (Stat stat: winning.getStats().values()) {
-                stats.computeIfAbsent(stat.getStatType(), c -> StatFactory.create(stat.getStatType(), 0L)).addValue(stat.getValue());
-            }
-            if (winning.goldModifier != null) {
-                newWinnings.setGoldModifier(newWinnings.getGoldModifier()+ winning.getGoldModifier());
-            }
+            newWinnings.add(winning);
         }
         newWinnings.setStats(stats);
         return newWinnings;

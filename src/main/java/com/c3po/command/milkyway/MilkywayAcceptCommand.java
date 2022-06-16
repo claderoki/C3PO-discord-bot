@@ -2,17 +2,13 @@ package com.c3po.command.milkyway;
 
 import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.Context;
-import com.c3po.connection.repository.MilkywayRepository;
-import com.c3po.core.command.SubCommand;
 import com.c3po.errors.PublicException;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
-import com.c3po.service.MilkywayService;
 import discord4j.common.util.Snowflake;
-import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.TextChannelCreateSpec;
 import reactor.core.publisher.Mono;
 
@@ -35,7 +31,7 @@ public class MilkywayAcceptCommand extends MilkywaySubCommand {
         long identifier = context.getOptions().getLong("id");
 
         Milkyway milkyway = milkywayRepository.get(guildId, identifier);
-        if (milkyway.getStatus() == null) {
+        if (milkyway == null) {
             throw new PublicException("This milkyway does not exist.");
         } else if (!milkyway.getStatus().equals(MilkywayStatus.PENDING)) {
             throw new PublicException("This milkyway can't be accepted anymore.");
@@ -48,13 +44,12 @@ public class MilkywayAcceptCommand extends MilkywaySubCommand {
                 .name(milkyway.getName())
                 .topic(MilkywayHelper.getChannelDescriptionFor(milkyway, expiresAt))
                 .parentId(Snowflake.of(settings.getCategoryId()))
-                .build()).flatMap(channel -> {
+                .build()).flatMap(channel -> context.getEvent().getClient().getUserById(Snowflake.of(milkyway.getTarget().getUserId())).flatMap(user -> {
                     milkywayRepository.accept(guildId, identifier, channel.getId().asLong(), expiresAt);
-
-                    return context.getEvent().getInteraction().getUser().getPrivateChannel().flatMap((c) -> c.createMessage(
+                    return user.getPrivateChannel().flatMap((c) -> c.createMessage(
                         "Your milkyway request has been accepted."
                     ).then(context.getEvent().reply().withContent("OK.")));
-            });
+                }));
         });
     }
 }
