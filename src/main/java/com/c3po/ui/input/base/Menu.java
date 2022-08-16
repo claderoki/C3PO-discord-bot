@@ -2,7 +2,6 @@ package com.c3po.ui.input.base;
 
 import com.c3po.core.command.Context;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.ActionComponent;
 import discord4j.core.object.component.ActionRow;
@@ -14,17 +13,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Setter
 @Getter
 public class Menu {
-    protected final Map<String, MenuOption<?, ?, ?>> options = new HashMap<>();
+    protected final Map<String, MenuOption<?, ?, ?>> options = new LinkedHashMap<>();
     protected final Context context;
     protected Integer maximumOptionsAllowed;
     protected boolean ownerOnly = true;

@@ -1,6 +1,5 @@
 package com.c3po.ui.input;
 
-import com.c3po.core.DataFormatter;
 import com.c3po.ui.input.base.SelectMenuMenuOption;
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import discord4j.core.object.component.*;
@@ -15,11 +14,6 @@ public class ChannelMenuOption extends SelectMenuMenuOption {
 
     public ChannelMenuOption(String name) {
         super(name);
-    }
-
-    @Override
-    protected String getPrettyValue() {
-        return DataFormatter.prettify(label);
     }
 
     public SelectMenu getComponent() {

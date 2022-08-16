@@ -24,8 +24,8 @@ public class SingleUseButtonMenuOption extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public void modifyButton(Button button) {
-        button.disabled(clicked);
+    public Button modifyButton(Button button) {
+        return button.disabled(clicked);
     }
 
     @Override

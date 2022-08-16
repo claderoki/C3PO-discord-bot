@@ -20,8 +20,8 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
         }
     }
 
-    public void modifyButton(Button button) {
-
+    public Button modifyButton(Button button) {
+        return button;
     }
 
     final public Button getComponent() {
@@ -33,7 +33,6 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
             case LINK -> Button.link(getCustomId(), getEmoji(), getFullName());
             default -> throw new IllegalStateException("Unexpected value: " + getButtonStyle());
         };
-        modifyButton(button);
-        return button;
+        return modifyButton(button);
     }
 }

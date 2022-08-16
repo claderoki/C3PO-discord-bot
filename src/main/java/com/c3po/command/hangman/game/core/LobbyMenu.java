@@ -40,6 +40,10 @@ public class LobbyMenu extends Menu {
         }
     }
 
+    public LobbyMenu(Context context) {
+        this(context, 0);
+    }
+
     private List<MenuOption<?,?,?>> getMenuOptions() {
         VoidMenuOption joinButton = new VoidMenuOption("Join");
         VoidMenuOption exitButton = new VoidMenuOption("Exit");
@@ -47,13 +51,15 @@ public class LobbyMenu extends Menu {
         exitButton.withEmoji("\uD83D\uDEAA");
         users.add(context.getEvent().getInteraction().getUser());
         joinButton.setExecutor(c -> {
-            int humanId = humanService.getHumanId(c.getInteraction().getUser().getId());
-            if (humanRepository.getGold(humanId) < goldNeeded) {
-                return context.sendToast(Toast.builder()
-                    .message(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
-                    .removeAfter(Duration.ofSeconds(10))
-                    .type(ToastType.ERROR)
-                    .build());
+            if (goldNeeded > 0) {
+                int humanId = humanService.getHumanId(c.getInteraction().getUser().getId());
+                if (humanRepository.getGold(humanId) < goldNeeded) {
+                    return context.sendToast(Toast.builder()
+                        .message(c.getInteraction().getUser().getMention() + ", you do not have enough gold.")
+                        .removeAfter(Duration.ofSeconds(10))
+                        .type(ToastType.ERROR)
+                        .build());
+                }
             }
             users.add(c.getInteraction().getUser());
             refreshEmbed();
@@ -71,7 +77,10 @@ public class LobbyMenu extends Menu {
     }
 
     private void refreshEmbed() {
-        String baseMessage = "[lobby]\n" + Emoji.EURO +" "+ goldNeeded + " to participate";
+        String baseMessage = "";
+        if (goldNeeded > 0) {
+            baseMessage = "[lobby]\n" + Emoji.EURO +" "+ goldNeeded + " to participate";
+        }
         String text = baseMessage + "\n" + users.stream().map(User::getMention).collect(Collectors.joining("\n"));
         embedConsumer = e -> e.description(text);
     }

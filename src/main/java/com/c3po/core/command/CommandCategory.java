@@ -7,4 +7,5 @@ public enum CommandCategory {
     PIGEON,
     MILKYWAY,
     HANGMAN,
+    SNAKE_OIL,
 }

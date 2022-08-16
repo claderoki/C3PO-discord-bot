@@ -7,6 +7,7 @@ import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
 import com.c3po.command.poll.PollCommandGroup;
 import com.c3po.command.profile.ProfileCommandGroup;
+import com.c3po.command.snakeoil.SnakeOilCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.setting.Setting;
 import com.c3po.core.setting.SettingTransformer;
@@ -40,6 +41,7 @@ public class CommandManager {
         register(new ProfileCommandGroup());
         register(new PigeonCommandGroup());
         register(new HangmanCommandGroup());
+        register(new SnakeOilCommandGroup());
     }
 
     private void registerSettings() {
@@ -115,10 +117,7 @@ public class CommandManager {
         List<ApplicationCommandRequest> requests = commandRequestList.values().stream().toList();
         if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
             Long[] guildIds = {
-                729843647347949638L,
-                761624318291476482L,
-                944339782002163732L,
-                842154624869859368L
+                695416318681415790L
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)

@@ -61,7 +61,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     }
 
     protected String getCustomId() {
-        return this.getClass().getSimpleName() + name;
+        return this.getClass().getSimpleName() + hashCode();
     }
 
     public abstract K getComponent();
