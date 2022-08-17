@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
 public class MenuManager {
+    @SuppressWarnings("unchecked")
     private static Mono<Boolean> processEvent(ComponentInteractionEvent event, Menu menu, Replier replier) {
         MenuOption<?, ComponentInteractionEvent, ?> option = (MenuOption<?, ComponentInteractionEvent, ?>) menu.matchOption(event.getCustomId());
         if (option == null || !option.isAllowed(event)) {
@@ -17,38 +18,38 @@ public class MenuManager {
         }
         if (!option.shouldContinue()) {
             return option.execute(event)
-                .map(e -> {
+                .flatMap(e -> {
                     menu.incrementOptionsHandled();
                     return Mono.empty();
                 })
                 .then(Mono.just(false));
         }
         return option.execute(event)
-            .map(e -> {
+            .flatMap(e -> {
                 menu.incrementOptionsHandled();
-                return Mono.empty();
+                return sendMessage(menu, replier);
             })
-            .then(sendMessage(menu, replier))
             .then(Mono.just(menu.shouldContinue()));
     }
 
-    private static Mono<?> replyMessage(Menu menu, Replier replier) {
-        LogHelper.log("Editing msg");
+    private static Mono<Void> editReply(Menu menu, Replier replier) {
+        var components = menu.getComponents();
         return replier.editReply()
             .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
-            .withComponentsOrNull(menu.shouldContinue() ? menu.getComponents() : null);
+            .withComponentsOrNull(menu.shouldContinue() ? components : null)
+            .then()
+            ;
     }
 
-    private static Mono<?> sendMessage(Menu menu, Replier replier) {
-        LogHelper.log("Sending msg");
+    private static Mono<Void> sendMessage(Menu menu, Replier replier) {
         if (replier.isReplied()) {
-            return replyMessage(menu, replier);
+            return editReply(menu, replier);
         }
 
         return replier.reply()
             .withEmbeds(menu.getEmbed())
             .withComponents(menu.getComponents())
-            .onErrorResume(c -> replyMessage(menu, replier).then())
+            .onErrorResume(c -> editReply(menu, replier).then())
             .then(Mono.defer(() -> {
                     replier.setReplied(true);
                     return Mono.empty();

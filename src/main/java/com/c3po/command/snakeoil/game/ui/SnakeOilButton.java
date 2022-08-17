@@ -6,18 +6,26 @@ import com.c3po.ui.input.base.*;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.Button;
+import lombok.Setter;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class SnakeOilButton extends ButtonMenuOption<Void> {
     protected final GameState gameState;
     protected final SnakeOilPlayer player;
-    protected final SnakeOilUI ui;
 
-    public SnakeOilButton(GameState gameState, SnakeOilPlayer player, SnakeOilUI ui) {
+    @Setter
+    protected Consumer<Void> onFinishTurn;
+
+    public SnakeOilButton(GameState gameState, SnakeOilPlayer player) {
         super("abc");
         this.gameState = gameState;
         this.player = player;
-        this.ui = ui;
     }
 
     private boolean isDisabled() {
@@ -50,22 +58,24 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         int index = gameState.getPlayers().indexOf(player);
         String ind = "["+(index+1)+"]";
         PlayerStatus status = getStatus();
+
         String type = switch (status) {
             case PICKING_CARD -> "cards";
             case PICKING_PROFESSION -> "profession";
             case PICKING_PERSON -> "winner";
+            default -> "nothing..";
         };
         return ind + " Choose " + type;
     }
 
     @Override
     protected boolean isAllowed(ComponentInteractionEvent event) {
-        return event.getInteraction().getUser().equals(this.player.user());
+        return true;
+//        return event.getInteraction().getUser().equals(this.player.user());
     }
 
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
-        LogHelper.log("starting button time");
         Menu menu = new Menu(context);
         menu.setEmbedConsumer(e -> e.description("You must choose"));
         PlayerStatus status = getStatus();
@@ -73,14 +83,14 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
             case PICKING_CARD -> new CardMenuOption(gameState, player);
             case PICKING_PROFESSION -> new ProfessionMenuOption(gameState, player);
             case PICKING_PERSON -> new PersonMenuOption(gameState, player);
+            default -> throw new IllegalStateException("Unexpected value: " + status);
         };
-        LogHelper.log("button time");
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
         return MenuManager.waitForMenu(menu, replier).map(m -> {
             if (status == PlayerStatus.PICKING_PERSON) {
-                gameState.newTurn(menu, ui);
+                onFinishTurn.accept(null);
             }
             return Mono.empty();
         });

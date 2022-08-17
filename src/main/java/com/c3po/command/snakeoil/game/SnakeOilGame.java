@@ -2,6 +2,7 @@ package com.c3po.command.snakeoil.game;
 
 import com.c3po.command.hangman.game.core.Game;
 import com.c3po.command.snakeoil.game.ui.SnakeOilButton;
+import com.c3po.helper.LogHelper;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,9 @@ public class SnakeOilGame extends Game {
         menu.setOwnerOnly(false);
         menu.setEmbedConsumer(e -> ui.getEmbed(gameState, e));
         for(SnakeOilPlayer player: gameState.getPlayers()) {
-            player.deck().drawFrom(gameState.getDeck(), 2);
-            SnakeOilButton button = new SnakeOilButton(gameState, player, ui);
+            player.getDeck().drawFrom(gameState.getDeck(), 2);
+            SnakeOilButton button = new SnakeOilButton(gameState, player);
+            button.setOnFinishTurn(o -> gameState.newTurn(menu, ui));
             menu.addOption(button);
         }
         gameState.newTurn(menu, ui);

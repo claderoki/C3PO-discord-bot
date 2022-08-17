@@ -26,13 +26,12 @@ public class SnakeOilStartCommand extends SubCommand {
     }
 
     private Mono<LinkedHashSet<User>> getUsers(Context context) {
-        return Mono.just(Stream.of(120566758091259906L, 150026023931609088L)
+        return Mono.just(Stream.of(120566758091259906L, 286986959115517952L, 150026023931609088L)
             .map(u -> context.getEvent().getClient().getUserById(Snowflake.of(u)).block())
             .collect(Collectors.toList())
         ).map(LinkedHashSet::new);
 
-//        LobbyMenu menu = new LobbyMenu(context);
-//        return MenuManager.waitForMenu(menu).then(Mono.just(menu.getUsers()));
+//        LobbyMenu menu = new LitForMenu(menu).then(Mono.just(new LinkedHashSet<>(menu.getUsers())));
     }
 
     public Set<String> getWords() {

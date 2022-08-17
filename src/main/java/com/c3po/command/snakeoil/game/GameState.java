@@ -12,14 +12,15 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
-@Setter
 public class GameState {
     private final List<SnakeOilPlayer> players;
     private final List<Profession> professions;
     private final Deck deck;
-    private SnakeOilPlayer turn;
-    private Profession chosenProfession;
     private final HashMap<SnakeOilPlayer, TurnStatus> statuses = new HashMap<>();
+    private SnakeOilPlayer turn;
+    @Setter
+    private Profession chosenProfession;
+    @Setter
     private SnakeOilPlayer previousWinner;
 
     public void resetTurn() {
