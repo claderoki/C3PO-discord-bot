@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
@@ -16,43 +14,57 @@ public class GameState {
     private final List<SnakeOilPlayer> players;
     private final List<Profession> professions;
     private final Deck deck;
-    private final HashMap<SnakeOilPlayer, TurnStatus> statuses = new HashMap<>();
-    private SnakeOilPlayer turn;
     @Setter
     private Profession chosenProfession;
     @Setter
     private SnakeOilPlayer previousWinner;
 
     public void resetTurn() {
-        statuses.clear();
-        statuses.putAll(players.stream().collect(Collectors.toMap(c->c, c -> TurnStatus.PICKING)));
+        players.forEach(c -> c.setTurnStatus(TurnStatus.WAITING_FOR_TURN));
         chosenProfession = null;
-        turn = null;
         previousWinner = null;
     }
 
-    public void addStatus(SnakeOilPlayer player, TurnStatus status) {
-        statuses.put(player, status);
-    }
-
-    public void nextPlayer() {
-        if (turn == null) {
-            turn = players.get(0);
+    public SnakeOilPlayer getNextPlayer(SnakeOilPlayer current) {
+        if (current == null) {
+            return players.get(0);
         } else {
-            int currentIndex = players.indexOf(turn);
-            if (currentIndex == players.size()) {
-                turn = players.get(0);
+            int currentIndex = players.indexOf(current);
+            if (currentIndex == players.size()-1) {
+                return players.get(0);
             } else {
-                turn = players.get(currentIndex+1);
+                return players.get(currentIndex+1);
             }
         }
     }
 
     public Mono<?> newTurn(Menu menu, SnakeOilUI ui) {
         resetTurn();
-        nextPlayer();
+        SnakeOilPlayer old = players.stream().filter(SnakeOilPlayer::isKing).findFirst().orElse(null);
+        SnakeOilPlayer player = getNextPlayer(old);
+        if (old != null) {
+            old.setKing(false);
+        }
+        player.setKing(true);
+        player.setTurnStatus(TurnStatus.PICKING);
         menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
         return Mono.empty();
     }
 
+    public void nextPicking() {
+        SnakeOilPlayer previous = players.stream()
+            .filter(c -> c.getTurnStatus().equals(TurnStatus.PICKING))
+            .findFirst()
+            .orElseThrow();
+
+        boolean cardPickersFinished = players.stream().filter(c -> !c.isKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
+        if (cardPickersFinished && previousWinner == null) {
+            players.stream().filter(SnakeOilPlayer::isKing).forEach(c -> c.setTurnStatus(TurnStatus.PICKING));
+        } else {
+            SnakeOilPlayer player = getNextPlayer(previous);
+            player.setTurnStatus(TurnStatus.PICKING);
+        }
+
+        previous.setTurnStatus(TurnStatus.FINISHED);
+    }
 }

@@ -4,5 +4,5 @@ public enum PlayerStatus {
     PICKING_CARD,
     PICKING_PROFESSION,
     PICKING_PERSON,
-    WAITING
+    IDLE
 }

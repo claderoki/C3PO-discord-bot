@@ -1,19 +1,14 @@
 package com.c3po.command.snakeoil.game.ui;
 
 import com.c3po.command.snakeoil.game.*;
-import com.c3po.helper.LogHelper;
 import com.c3po.ui.input.base.*;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.Button;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
-import reactor.util.annotation.Nullable;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class SnakeOilButton extends ButtonMenuOption<Void> {
     protected final GameState gameState;
@@ -28,22 +23,13 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         this.player = player;
     }
 
-    private boolean isDisabled() {
-        boolean isProfessionChosen = (gameState.getChosenProfession() == null);
-        if (player.equals(gameState.getTurn())) {
-            return !isProfessionChosen && !gameState.getStatuses().values().stream().allMatch(c -> c.equals(TurnStatus.FINISHED));
-        } else {
-            return isProfessionChosen;
-        }
-    }
-
     public Button modifyButton(Button button) {
-        return button.disabled(isDisabled());
+        return button.disabled(!player.getTurnStatus().equals(TurnStatus.PICKING));
     }
 
     public PlayerStatus getStatus() {
-        if (player.equals(gameState.getTurn())) {
-            if (gameState.getStatuses().values().stream().allMatch(c -> c.equals(TurnStatus.FINISHED))) {
+        if (player.isKing()) {
+            if (gameState.getPlayers().stream().filter(c -> !c.isKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED))) {
                 return PlayerStatus.PICKING_PERSON;
             } else {
                 return PlayerStatus.PICKING_PROFESSION;

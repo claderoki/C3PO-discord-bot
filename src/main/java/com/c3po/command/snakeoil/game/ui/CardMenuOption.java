@@ -21,15 +21,15 @@ public class CardMenuOption extends SnakeOilMenuOption {
     }
 
     protected Map<String, String> getOptionCache() {
-        return gameState.getTurn().deck().getCards().stream().collect(Collectors.toMap(Card::getWord, Card::getWord));
+        return player.getDeck().getCards().stream().collect(Collectors.toMap(Card::getWord, Card::getWord));
     }
 
     @Override
     protected void afterHook() {
-        List<Card> cards = gameState.getTurn().deck().getCards().stream().filter(c -> getValue().contains(c.getWord())).toList();
+        List<Card> cards = player.getDeck().getCards().stream().filter(c -> getValue().contains(c.getWord())).toList();
         for(Card card: cards) {
             card.setSelected(true);
+            player.getDeck().removeCard(card);
         }
-        gameState.addStatus(player, TurnStatus.FINISHED);
     }
 }

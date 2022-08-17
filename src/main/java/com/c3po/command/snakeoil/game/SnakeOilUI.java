@@ -12,26 +12,27 @@ public class SnakeOilUI {
     private final Context context;
 
     public void getEmbed(GameState gameState, EmbedCreateSpec.Builder embed) {
-        StringBuilder description = new StringBuilder("snake oil game");
         if (gameState.getChosenProfession() != null) {
             embed.addField(EmbedCreateFields.Field.of("Profession", gameState.getChosenProfession().name(), false));
         }
         int i = 0;
         for(SnakeOilPlayer player: gameState.getPlayers()) {
-            description.append("\n").append("[").append(i+1).append("]").append(" ")
-                .append(player.user().getUsername())
-            ;
-            TurnStatus status = gameState.getStatuses().get(player);
+            StringBuilder value = new StringBuilder();
+            TurnStatus status = player.getTurnStatus();
             if (status == TurnStatus.FINISHED) {
-                description.append(" [ok]");
+                value.append(" [ok]");
             }
-
+            value.append(" [").append(player.getScore());
             if (player == gameState.getPreviousWinner()) {
-                description.append(" [+1]");
+                value.append("+1");
             }
+            value.append("]");
+            String name = "[" + (i+1) + "] " + player.getUser().getUsername();
+            EmbedCreateFields.Field field = EmbedCreateFields.Field.of(name, value.toString(), false);
+            embed.addField(field);
             i++;
         }
-        embed.description(description.toString());
+        embed.description("snake oil");
     }
 
 }

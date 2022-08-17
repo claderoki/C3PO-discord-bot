@@ -23,7 +23,6 @@ public class ProfessionMenuOption extends SnakeOilMenuOption {
             .findFirst()
             .orElseThrow();
         gameState.setChosenProfession(profession);
-        gameState.addStatus(player, TurnStatus.FINISHED);
     }
 
 }

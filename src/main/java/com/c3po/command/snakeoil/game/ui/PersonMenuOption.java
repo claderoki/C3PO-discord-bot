@@ -14,21 +14,19 @@ public class PersonMenuOption extends SnakeOilMenuOption {
     }
 
     protected Map<String, String> getOptionCache() {
-        return gameState.getPlayers().stream().map(SnakeOilPlayer::user)
+        return gameState.getPlayers().stream()
+            .filter(c -> !c.equals(player))
+            .map(SnakeOilPlayer::getUser)
             .collect(Collectors.toMap(u -> u.getId().asString(), User::getUsername));
     }
 
     @Override
     protected void afterHook() {
         SnakeOilPlayer player = gameState.getPlayers().stream()
-            .filter(c -> getValue().contains(c.user().getId().asString()))
+            .filter(c -> getValue().contains(c.getUser().getId().asString()))
             .findFirst()
             .orElseThrow();
-
-
-
-        gameState.addStatus(player, TurnStatus.FINISHED);
-
-
+        player.incrementScore();
+        gameState.setPreviousWinner(player);
     }
 }

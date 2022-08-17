@@ -18,13 +18,12 @@ public class SnakeOilGame extends Game {
         menu.setOwnerOnly(false);
         menu.setEmbedConsumer(e -> ui.getEmbed(gameState, e));
         for(SnakeOilPlayer player: gameState.getPlayers()) {
-            player.getDeck().drawFrom(gameState.getDeck(), 2);
+            player.getDeck().drawFrom(gameState.getDeck(), 6);
             SnakeOilButton button = new SnakeOilButton(gameState, player);
             button.setOnFinishTurn(o -> gameState.newTurn(menu, ui));
             menu.addOption(button);
         }
-        gameState.newTurn(menu, ui);
-        return MenuManager.waitForMenu(menu);
+        return gameState.newTurn(menu, ui).then(MenuManager.waitForMenu(menu));
     }
 
 }
