@@ -5,6 +5,7 @@ import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.command.pigeon.validation.PigeonValidationResult;
 import com.c3po.connection.repository.ExplorationRepository;
 import com.c3po.connection.repository.HumanRepository;
+import com.c3po.connection.repository.StreakRepository;
 import com.c3po.core.command.Context;
 import com.c3po.helper.DateTimeDelta;
 import com.c3po.helper.DateTimeHelper;
@@ -13,6 +14,8 @@ import com.c3po.model.exploration.*;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
+import com.c3po.model.pigeon.stat.HumanGold;
+import com.c3po.model.streak.Streak;
 import com.c3po.service.ExplorationService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.spec.EmbedCreateFields;
@@ -27,6 +30,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     protected final ExplorationService explorationService = new ExplorationService();
     protected final ExplorationRepository explorationRepository;
     protected final HumanRepository humanRepository;
+    protected final StreakRepository streakRepository = StreakRepository.db();
 
     protected PigeonSpaceCommand(PigeonCommandGroup group) {
         super(group, "space", "no description.");
@@ -41,7 +45,24 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
             .build();
     }
 
-    private List<ExplorationBonus> getBonuses() {
+    private List<ExplorationBonus> getBonuses(long humanId) {
+//        List<ExplorationBonus> bonuses = new ArrayList<>();
+//
+//        String key = "space_exploration";
+//        Streak streak = streakRepository.get(humanId, key);
+//
+//        if (streak.daysMissed() == 1) {
+//            long streakBonus = 10;
+////            let streak_bonus = ((std::cmp::min(streak.current + 1, 10) * 10) as f64 * gold_modifier.value) as i32;
+//            streakRepository.add(humanId, key);
+//            PigeonWinnings pigeonWinnings = new PigeonWinnings();
+//            pigeonWinnings.addStat(new HumanGold(streakBonus));
+//            String text = "You're on a space exploration streak ("+streak.current()+1+")! Come back tomorrow for more";
+//            bonuses.add(new ExplorationBonus(pigeonWinnings, text));
+//        } else if (streak.daysMissed() > 2) {
+//            streakRepository.reset(humanId, key);
+//        }
+
         return List.of();
     }
 
@@ -56,7 +77,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
             .addField(EmbedCreateFields.Field.of("Stats", winnings.format(), false))
         ;
 
-        var bonuses = getBonuses();
+        var bonuses = getBonuses(pigeon.getHumanId());
         for (ExplorationBonus bonus: bonuses) {
             embed.addField(bonus.text(), bonus.winnings().format(), false);
             winnings.add(bonus.winnings());
