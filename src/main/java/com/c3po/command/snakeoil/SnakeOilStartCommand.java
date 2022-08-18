@@ -1,10 +1,12 @@
 package com.c3po.command.snakeoil;
 
-import com.c3po.command.hangman.game.core.LobbyMenu;
 import com.c3po.command.snakeoil.game.*;
+import com.c3po.command.snakeoil.game.card.Card;
+import com.c3po.command.snakeoil.game.card.Deck;
+import com.c3po.command.snakeoil.game.card.Profession;
+import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
-import com.c3po.ui.input.base.MenuManager;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
 import reactor.core.publisher.Mono;
@@ -21,8 +23,7 @@ public class SnakeOilStartCommand extends SubCommand {
     }
 
     private SnakeOilPlayer toPlayer(User user) {
-        Deck deck = new Deck();
-        return new SnakeOilPlayer(user, deck);
+        return new SnakeOilPlayer(user, new Deck<>());
     }
 
     private Mono<LinkedHashSet<User>> getUsers(Context context) {
@@ -75,8 +76,8 @@ public class SnakeOilStartCommand extends SubCommand {
             .map(users -> users.stream().map(this::toPlayer).toList())
             .filter(users -> !users.isEmpty())
             .map(players -> {
-                List<Profession> professions = getProfessions().stream().map(Profession::new).toList();
-                Deck deck = new Deck(getWords().stream().map(Card::new).toList());
+                Deck<Profession> professions = new Deck<>(getProfessions().stream().map(Profession::new).toList());
+                Deck<Word> deck = new Deck<>(getWords().stream().map(w -> new Word(w, null)).toList());
                 GameState gameState = new GameState(players, professions, deck);
                 return new SnakeOilGame(gameState, new SnakeOilUI(context));
             })

@@ -27,6 +27,6 @@ public class PersonMenuOption extends SnakeOilMenuOption {
             .findFirst()
             .orElseThrow();
         player.incrementScore();
-        gameState.setPreviousWinner(player);
+        gameState.getCurrentRound().setWinner(player);
     }
 }

@@ -1,28 +1,29 @@
 package com.c3po.command.snakeoil.game;
 
+import com.c3po.command.snakeoil.game.card.Deck;
+import com.c3po.command.snakeoil.game.card.Profession;
+import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.ui.input.base.Menu;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
 public class GameState {
     private final List<SnakeOilPlayer> players;
-    private final List<Profession> professions;
-    private final Deck deck;
-    @Setter
-    private Profession chosenProfession;
-    @Setter
-    private SnakeOilPlayer previousWinner;
+    private final Deck<Profession> professions;
+    private final Deck<Word> words;
+    private final ArrayList<RoundState> rounds = new ArrayList<>();
+    private RoundState currentRound;
 
     public void resetTurn() {
         players.forEach(c -> c.setTurnStatus(TurnStatus.WAITING_FOR_TURN));
-        chosenProfession = null;
-        previousWinner = null;
+        currentRound = new RoundState();
+        rounds.add(currentRound);
     }
 
     public SnakeOilPlayer getNextPlayer(SnakeOilPlayer current) {
@@ -39,15 +40,13 @@ public class GameState {
     }
 
     public Mono<?> newTurn(Menu menu, SnakeOilUI ui) {
+        RoundState previousRound = currentRound;
         resetTurn();
-        SnakeOilPlayer old = players.stream().filter(SnakeOilPlayer::isKing).findFirst().orElse(null);
-        SnakeOilPlayer player = getNextPlayer(old);
-        if (old != null) {
-            old.setKing(false);
-        }
-        player.setKing(true);
+        SnakeOilPlayer previousKing = previousRound != null ? previousRound.getKing() : null;
+        SnakeOilPlayer player = getNextPlayer(previousKing);
         player.setTurnStatus(TurnStatus.PICKING);
         menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
+        currentRound.setKing(player);
         return Mono.empty();
     }
 
@@ -57,14 +56,13 @@ public class GameState {
             .findFirst()
             .orElseThrow();
 
-        boolean cardPickersFinished = players.stream().filter(c -> !c.isKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
-        if (cardPickersFinished && previousWinner == null) {
-            players.stream().filter(SnakeOilPlayer::isKing).forEach(c -> c.setTurnStatus(TurnStatus.PICKING));
+        boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
+        if (cardPickersFinished && currentRound.getWinner() == null) {
+            currentRound.getKing().setTurnStatus(TurnStatus.PICKING);
         } else {
             SnakeOilPlayer player = getNextPlayer(previous);
             player.setTurnStatus(TurnStatus.PICKING);
         }
-
         previous.setTurnStatus(TurnStatus.FINISHED);
     }
 }

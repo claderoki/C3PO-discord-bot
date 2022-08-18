@@ -28,8 +28,13 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     }
 
     public PlayerStatus getStatus() {
-        if (player.isKing()) {
-            if (gameState.getPlayers().stream().filter(c -> !c.isKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED))) {
+        boolean allWordsChosen = gameState.getPlayers()
+            .stream()
+            .filter(c -> c != gameState.getCurrentRound().getKing())
+            .allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
+
+        if (gameState.getCurrentRound().getKing().equals(player)) {
+            if (allWordsChosen) {
                 return PlayerStatus.PICKING_PERSON;
             } else {
                 return PlayerStatus.PICKING_PROFESSION;

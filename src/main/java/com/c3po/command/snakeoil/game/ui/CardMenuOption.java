@@ -1,11 +1,12 @@
 package com.c3po.command.snakeoil.game.ui;
 
-import com.c3po.command.snakeoil.game.Card;
+import com.c3po.command.snakeoil.game.card.Card;
 import com.c3po.command.snakeoil.game.GameState;
 import com.c3po.command.snakeoil.game.SnakeOilPlayer;
-import com.c3po.command.snakeoil.game.TurnStatus;
+import com.c3po.command.snakeoil.game.card.Word;
 import discord4j.core.object.component.SelectMenu;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,15 +22,15 @@ public class CardMenuOption extends SnakeOilMenuOption {
     }
 
     protected Map<String, String> getOptionCache() {
-        return player.getDeck().getCards().stream().collect(Collectors.toMap(Card::getWord, Card::getWord));
+        return player.getDeck().getCards().stream().collect(Collectors.toMap(Card::getValue, Card::getValue));
     }
 
     @Override
     protected void afterHook() {
-        List<Card> cards = player.getDeck().getCards().stream().filter(c -> getValue().contains(c.getWord())).toList();
-        for(Card card: cards) {
-            card.setSelected(true);
-            player.getDeck().removeCard(card);
+        List<Word> words = getValue().stream().map(w -> player.getDeck().find(c -> c.getValue().equals(w))).toList();
+        for(Word word: words) {
+            player.getDeck().removeCard(word);
+            gameState.getCurrentRound().addWord(player, word);
         }
     }
 }

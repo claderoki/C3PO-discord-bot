@@ -1,10 +1,14 @@
 package com.c3po.command.snakeoil.game;
 
+import com.c3po.command.snakeoil.game.card.Card;
+import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.core.command.Context;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class SnakeOilUI {
@@ -12,27 +16,27 @@ public class SnakeOilUI {
     private final Context context;
 
     public void getEmbed(GameState gameState, EmbedCreateSpec.Builder embed) {
-        if (gameState.getChosenProfession() != null) {
-            embed.addField(EmbedCreateFields.Field.of("Profession", gameState.getChosenProfession().name(), false));
-        }
         int i = 0;
         for(SnakeOilPlayer player: gameState.getPlayers()) {
             StringBuilder value = new StringBuilder();
-            TurnStatus status = player.getTurnStatus();
-            if (status == TurnStatus.FINISHED) {
-                value.append(" [ok]");
+            value.append(" Wins: ")
+                .append(player.getScore())
+            ;
+            List<Word> words = gameState.getCurrentRound().getWords(player);
+            if (words != null) {
+                value.append(" ").append(String.join(", ", words.stream().map(Card::getValue).toList()));
             }
-            value.append(" [").append(player.getScore());
-            if (player == gameState.getPreviousWinner()) {
-                value.append("+1");
-            }
-            value.append("]");
-            String name = "[" + (i+1) + "] " + player.getUser().getUsername();
+
+            String name = " [" + (i+1) + "] " + player.getUser().getUsername();
             EmbedCreateFields.Field field = EmbedCreateFields.Field.of(name, value.toString(), false);
             embed.addField(field);
             i++;
         }
         embed.description("snake oil");
+
+        if (gameState.getCurrentRound().getProfession() != null) {
+            embed.footer("profession: " + gameState.getCurrentRound().getProfession().getValue(), null);
+        }
     }
 
 }
