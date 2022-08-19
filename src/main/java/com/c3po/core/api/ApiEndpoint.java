@@ -11,4 +11,8 @@ public abstract class ApiEndpoint<T extends ApiResponse> {
     public HttpMethod getMethod() {
         return HttpMethod.GET;
     }
+
+    public int getMaxRetries() {
+        return 0;
+    }
 }

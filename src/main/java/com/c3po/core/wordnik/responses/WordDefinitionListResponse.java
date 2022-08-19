@@ -10,8 +10,10 @@ import java.util.List;
 
 @Getter
 public class WordDefinitionListResponse extends ApiResponse {
+    private final String word;
     private final List<WordDefinitionResponse> definitions = new ArrayList<>();
-    public WordDefinitionListResponse(JSONArray json) {
+    public WordDefinitionListResponse(String word, JSONArray json) {
+        this.word = word;
         for(int i = 0; i < json.length(); i++) {
             definitions.add(new WordDefinitionResponse(json.getJSONObject(i)));
         }

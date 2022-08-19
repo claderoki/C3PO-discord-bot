@@ -2,11 +2,11 @@ package com.c3po.core.api;
 
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public abstract class ApiCall {
         return (defaultParameters == null ? endpointParameters : defaultParameters);
     }
 
-    public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) throws Exception {
+    private <T extends ApiResponse, E extends ApiEndpoint<T>> HttpRequest prepareCall(E endpoint) {
         String rawParameters = null;
         Map<String, String> parameters = getAllParameters(endpoint);
         if (parameters != null && !parameters.isEmpty()) {
@@ -45,14 +45,52 @@ public abstract class ApiCall {
             case POST -> builder.POST(HttpRequest.BodyPublishers.noBody());
         }
 
-        var request = builder
+        return builder
             .uri(URI.create(uri))
             .build();
+    }
 
+    private <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> _call(E endpoint, int retryCount) throws Exception {
+        HttpRequest request = prepareCall(endpoint);
         HttpClient client = HttpClient.newBuilder().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return Mono.just(endpoint.parseResponse(response.body()));
+        if (shouldRetry(response) && retryCount < endpoint.getMaxRetries()) {
+            return Mono.delay(Duration.ofMinutes(1))
+                .then(Mono.defer(() -> {
+                    try {
+                        return _call(endpoint, retryCount+1);
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+                }));
+        }
+        if (!validate(response)) {
+            throw new FailedCallException(response.statusCode(), response.body());
+        }
+        Duration throttleDuration = getThrottleDuration(response);
+        return Mono.delay(throttleDuration)
+            .then(Mono.defer(() -> Mono.just(endpoint.parseResponse(response.body()))));
+    }
+
+    public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) {
+        try {
+            return _call(endpoint, 0);
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
+    }
+
+    protected Duration getThrottleDuration(HttpResponse<String> response) throws Exception {
+        return Duration.ZERO;
+    }
+
+    protected boolean shouldRetry(HttpResponse<String> response) {
+        return false;
+    }
+
+    protected boolean validate(HttpResponse<String> response) {
+        return response.statusCode() >= 200 && response.statusCode() < 300;
     }
 
     public Map<String, String> getDefaultParameters() {

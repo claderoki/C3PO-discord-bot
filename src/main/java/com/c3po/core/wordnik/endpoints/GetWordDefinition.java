@@ -15,13 +15,18 @@ public class GetWordDefinition extends ApiEndpoint<WordDefinitionListResponse> {
     private final String word;
 
     @Override
+    public int getMaxRetries() {
+        return 3;
+    }
+
+    @Override
     public String getEndpoint() {
         return "word.json/" + word + "/definitions";
     }
 
     @Override
     public WordDefinitionListResponse parseResponse(String rawResponse) {
-        return new WordDefinitionListResponse(new JSONArray(rawResponse));
+        return new WordDefinitionListResponse(word, new JSONArray(rawResponse));
     }
 
     @Override
