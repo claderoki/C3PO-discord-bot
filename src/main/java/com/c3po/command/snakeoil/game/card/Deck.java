@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
@@ -33,7 +35,9 @@ public final class Deck<T extends Card<?>> {
         this.cards.remove(card);
     }
 
-    public void shuffle() {}
+    public void shuffle() {
+        Collections.shuffle(this.cards);
+    }
 
     public void drawFrom(Deck<T> deck, int amount) {
         for(int i = 0; i < amount; i++) {

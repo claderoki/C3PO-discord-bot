@@ -13,11 +13,13 @@ public class SnakeOilGame extends Game {
     private final SnakeOilUI ui;
 
     public Mono<?> start() {
+        gameState.getWords().shuffle();
+        gameState.getProfessions().shuffle();
         Menu menu = new Menu(ui.getContext());
         menu.setOwnerOnly(false);
         menu.setEmbedConsumer(e -> ui.getEmbed(gameState, e));
         for(SnakeOilPlayer player: gameState.getPlayers()) {
-            player.getDeck().drawFrom(gameState.getWords(), 6);
+            player.getWords().drawFrom(gameState.getWords(), 6);
             SnakeOilButton button = new SnakeOilButton(gameState, player);
             button.setOnFinishTurn(o -> gameState.newTurn(menu, ui));
             menu.addOption(button);

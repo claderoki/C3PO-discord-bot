@@ -4,6 +4,7 @@ import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import reactor.core.publisher.Mono;
 
 @Setter
 @NoArgsConstructor
@@ -12,7 +13,9 @@ public abstract class EventParser<T, F extends Event> {
 
     protected abstract T parseValue(ParseResult<T> result, F event);
     protected abstract void validateValue(ParseResult<T> result, T value);
-    protected void finish(F event) {}
+    protected Mono<Void> finish(F event) {
+        return Mono.empty();
+    }
 
     public abstract String getPromptFooter();
 
@@ -31,7 +34,7 @@ public abstract class EventParser<T, F extends Event> {
             result.setType(ResultType.SUCCESS);
         }
 
-        finish(event);
+        finish(event).subscribe();
         return result;
     }
 

@@ -32,7 +32,8 @@ public class SnakeOilUI {
             embed.addField(field);
             i++;
         }
-        embed.description("snake oil");
+        embed.description("Snake Oil");
+        embed.thumbnail("https://cdn.discordapp.com/attachments/744172199770062899/1010214906437578842/sos_tee_danj_2.webp");
 
         if (gameState.getCurrentRound().getProfession() != null) {
             embed.footer("profession: " + gameState.getCurrentRound().getProfession().getValue(), null);

@@ -35,7 +35,6 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
         }
 
         return Flux.fromIterable(processors)
-            .next()
             .filter((c) -> c.shouldProcess(event))
             .flatMap((c) -> c.execute(event))
             .then()

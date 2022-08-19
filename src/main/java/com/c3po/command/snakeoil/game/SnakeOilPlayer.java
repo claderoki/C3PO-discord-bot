@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class SnakeOilPlayer {
     private final User user;
-    private final Deck<Word> deck;
+    private final Deck<Word> words;
     private int score = 0;
     private TurnStatus turnStatus;
 
