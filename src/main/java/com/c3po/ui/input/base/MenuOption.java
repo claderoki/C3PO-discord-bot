@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 public abstract class MenuOption<T, F extends ComponentInteractionEvent, K extends ActionComponent> {
     protected final String name;
+    private final int id;
 
     @Getter
     private T value;
@@ -46,10 +47,11 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
 
     public MenuOption(String name) {
         this.name = name;
+        this.id = hashCode();
     }
 
     public MenuOption(String name, T value) {
-        this.name = name;
+        this(name);
         this.value = value;
     }
 
@@ -61,7 +63,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     }
 
     protected String getCustomId() {
-        return this.getClass().getSimpleName() + hashCode();
+        return this.getClass().getSimpleName() + id;
     }
 
     public abstract K getComponent();

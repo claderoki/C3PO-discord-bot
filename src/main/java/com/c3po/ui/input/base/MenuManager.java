@@ -1,5 +1,6 @@
 package com.c3po.ui.input.base;
 
+import com.c3po.helper.LogHelper;
 import com.c3po.ui.Toast;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
@@ -24,20 +25,22 @@ public class MenuManager {
                 .then(Mono.just(false));
         }
         return option.execute(event)
-            .flatMap(e -> {
+            .then(Mono.defer(() -> {
                 menu.incrementOptionsHandled();
-                return sendMessage(menu, replier);
-            })
-            .then(Mono.just(menu.shouldContinue()));
+                return sendMessage(menu, replier)
+                    .then(Mono.just(menu.shouldContinue()));
+            }));
     }
 
     private static Mono<Void> editReply(Menu menu, Replier replier) {
-        var components = menu.getComponents();
-        return replier.editReply()
-            .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
-            .withComponentsOrNull(menu.shouldContinue() ? components : null)
-            .then()
-            ;
+        return Mono.defer(() -> {
+            var components = menu.getComponents();
+            return replier.editReply()
+                .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
+                .withComponentsOrNull(menu.shouldContinue() ? components : null)
+                .then();
+        });
+
     }
 
     private static Mono<Void> sendMessage(Menu menu, Replier replier) {
@@ -48,7 +51,7 @@ public class MenuManager {
         return replier.reply()
             .withEmbeds(menu.getEmbed())
             .withComponents(menu.getComponents())
-            .onErrorResume(c -> editReply(menu, replier).then())
+            .onErrorResume(c -> editReply(menu, replier))
             .then(Mono.defer(() -> {
                     replier.setReplied(true);
                     return Mono.empty();

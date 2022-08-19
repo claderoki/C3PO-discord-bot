@@ -61,8 +61,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
 
     @Override
     protected boolean isAllowed(ComponentInteractionEvent event) {
-        return true;
-//        return event.getInteraction().getUser().equals(this.player.user());
+        return event.getInteraction().getUser().equals(this.player.getUser());
     }
 
     @Override

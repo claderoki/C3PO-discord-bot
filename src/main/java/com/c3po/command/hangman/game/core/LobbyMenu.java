@@ -77,9 +77,9 @@ public class LobbyMenu extends Menu {
     }
 
     private void refreshEmbed() {
-        String baseMessage = "";
+        String baseMessage = "[lobby]";
         if (goldNeeded > 0) {
-            baseMessage = "[lobby]\n" + Emoji.EURO +" "+ goldNeeded + " to participate";
+            baseMessage += "\n" + Emoji.EURO +" "+ goldNeeded + " to participate";
         }
         String text = baseMessage + "\n" + users.stream().map(User::getMention).collect(Collectors.joining("\n"));
         embedConsumer = e -> e.description(text);
