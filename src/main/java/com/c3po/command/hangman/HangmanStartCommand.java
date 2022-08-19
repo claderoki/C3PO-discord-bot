@@ -30,7 +30,7 @@ public class HangmanStartCommand extends SubCommand {
             .then(Mono.just(menu.getUsers()));
     }
 
-    private Mono<String> getWord(WordnikApi api) throws Exception {
+    private Mono<String> getWord(WordnikApi api) {
         if (!wordCache.isEmpty()) {
             String word = wordCache.get(0);
             wordCache.remove(word);

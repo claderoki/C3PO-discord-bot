@@ -1,6 +1,5 @@
 package com.c3po.command.snakeoil.game;
 
-import com.c3po.command.snakeoil.game.card.Card;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
 import lombok.Getter;
@@ -15,7 +14,7 @@ import java.util.List;
 public class RoundState {
     private final HashMap<SnakeOilPlayer, ArrayList<Word>> words = new HashMap<>();
     private SnakeOilPlayer winner;
-    private SnakeOilPlayer king;
+    private SnakeOilPlayer customer;
     private Profession profession;
 
     public void addWord(SnakeOilPlayer player, Word word) {

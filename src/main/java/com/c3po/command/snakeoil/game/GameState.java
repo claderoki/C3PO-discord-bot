@@ -42,11 +42,11 @@ public class GameState {
     public Mono<?> newTurn(Menu menu, SnakeOilUI ui) {
         RoundState previousRound = currentRound;
         resetTurn();
-        SnakeOilPlayer previousKing = previousRound != null ? previousRound.getKing() : null;
+        SnakeOilPlayer previousKing = previousRound != null ? previousRound.getCustomer() : null;
         SnakeOilPlayer player = getNextPlayer(previousKing);
         player.setTurnStatus(TurnStatus.PICKING);
         menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
-        currentRound.setKing(player);
+        currentRound.setCustomer(player);
         return Mono.empty();
     }
 
@@ -56,9 +56,9 @@ public class GameState {
             .findFirst()
             .orElseThrow();
 
-        boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getKing()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
+        boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getCustomer()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
         if (cardPickersFinished && currentRound.getWinner() == null) {
-            currentRound.getKing().setTurnStatus(TurnStatus.PICKING);
+            currentRound.getCustomer().setTurnStatus(TurnStatus.PICKING);
         } else {
             SnakeOilPlayer player = getNextPlayer(previous);
             player.setTurnStatus(TurnStatus.PICKING);

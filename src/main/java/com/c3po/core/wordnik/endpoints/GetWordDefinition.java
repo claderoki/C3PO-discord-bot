@@ -3,6 +3,7 @@ package com.c3po.core.wordnik.endpoints;
 import com.c3po.core.api.ApiEndpoint;
 import com.c3po.core.wordnik.responses.WordDefinitionListResponse;
 import com.c3po.core.wordnik.responses.WordResponse;
+import com.c3po.helper.LogHelper;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;

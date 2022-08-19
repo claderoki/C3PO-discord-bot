@@ -1,6 +1,5 @@
 package com.c3po.ui.input.base;
 
-import com.c3po.helper.LogHelper;
 import com.c3po.ui.Toast;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
@@ -71,7 +70,7 @@ public class MenuManager {
         );
     }
 
-    public static Mono<Menu> waitForMenu(Menu menu) {
+    public static Mono<? extends Menu> waitForMenu(Menu menu) {
         return waitForMenu(menu, new Replier(menu.getContext().getEvent()));
     }
 }
