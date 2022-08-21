@@ -73,14 +73,15 @@ public class SnakeOilStartCommand extends SubCommand {
             test = false;
         }
 
+        Boolean finalTest = test;
         return getUsers(context, test)
             .map(users -> users.stream().map(this::toPlayer).toList())
             .filter(users -> !users.isEmpty())
             .map(players -> {
                 Deck<Profession> professions = new Deck<>(getProfessions().stream().map(Profession::new).toList());
-                Deck<Word> deck = new Deck<>(getWords().stream().map(w -> new Word(w, null)).toList());
+                Deck<Word> deck = new Deck<>(getWords().stream().map(Word::new).toList());
                 GameState gameState = new GameState(players, professions, deck);
-                return new SnakeOilGame(gameState, new SnakeOilUI(context));
+                return new SnakeOilGame(gameState, new SnakeOilUI(context), finalTest);
             })
             .flatMap(SnakeOilGame::start)
             .then();

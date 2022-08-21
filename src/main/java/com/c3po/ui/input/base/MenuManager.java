@@ -1,8 +1,6 @@
 package com.c3po.ui.input.base;
 
-import com.c3po.helper.LogHelper;
 import com.c3po.ui.Toast;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
 
@@ -16,20 +14,12 @@ public class MenuManager {
         if (option == null || !option.isAllowed(event)) {
             return Mono.just(true);
         }
-        if (!option.shouldContinue()) {
-            return option.execute(event)
-                .flatMap(e -> {
-                    menu.incrementOptionsHandled();
-                    return Mono.empty();
-                })
-                .then(Mono.just(false));
-        }
         return option.execute(event)
             .then(Mono.defer(() -> {
                 menu.incrementOptionsHandled();
-                return sendMessage(menu, replier)
-                    .then(Mono.just(menu.shouldContinue()));
-            }));
+                return sendMessage(menu, replier);
+            }))
+            .then(Mono.just(menu.shouldContinue()));
     }
 
     private static Mono<Void> editReply(Menu menu, Replier replier) {
@@ -40,7 +30,6 @@ public class MenuManager {
                 .withComponentsOrNull(menu.shouldContinue() ? components : null)
                 .then();
         });
-
     }
 
     private static Mono<Void> sendMessage(Menu menu, Replier replier) {
@@ -60,16 +49,16 @@ public class MenuManager {
     }
 
     public static Mono<Menu> waitForMenu(Menu menu, Replier replier) {
-        ChatInputInteractionEvent event = menu.getContext().getEvent();
         return sendMessage(menu, replier).then(
-            event.getClient().on(ComponentInteractionEvent.class)
+            menu.getContext().getEvent().getClient().on(ComponentInteractionEvent.class)
                 .filter(menu::isAllowed)
                 .timeout(menu.getTimeout())
                 .flatMap(c -> processEvent(c, menu, replier))
                 .takeWhile(c -> c)
                 .then(Mono.just(menu))
                 .onErrorResume(TimeoutException.class, ignore ->
-                    menu.getContext().sendToast(Toast.builder().message("Menu timed out.").build()).then(Mono.just(menu)))
+                    menu.getContext().sendToast(Toast.builder().message("Menu timed out.").build())
+                        .then(Mono.just(menu)))
         );
     }
 

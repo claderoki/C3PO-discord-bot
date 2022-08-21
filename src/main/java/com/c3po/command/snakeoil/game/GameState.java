@@ -4,8 +4,10 @@ import com.c3po.command.snakeoil.game.card.Deck;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.ui.input.base.Menu;
+import discord4j.core.object.entity.Message;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public class GameState {
     private final Deck<Word> words;
     private final ArrayList<RoundState> rounds = new ArrayList<>();
     private RoundState currentRound;
+    @Setter
+    private Message previousNotification;
 
     public void resetTurn() {
         players.forEach(c -> c.setTurnStatus(TurnStatus.WAITING_FOR_TURN));
@@ -50,19 +54,21 @@ public class GameState {
         return Mono.empty();
     }
 
-    public void nextPicking() {
+    public SnakeOilPlayer nextPicking() {
         SnakeOilPlayer previous = players.stream()
             .filter(c -> c.getTurnStatus().equals(TurnStatus.PICKING))
             .findFirst()
             .orElseThrow();
 
+        SnakeOilPlayer player;
         boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getCustomer()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
         if (cardPickersFinished && currentRound.getWinner() == null) {
-            currentRound.getCustomer().setTurnStatus(TurnStatus.PICKING);
+            player = currentRound.getCustomer();
         } else {
-            SnakeOilPlayer player = getNextPlayer(previous);
-            player.setTurnStatus(TurnStatus.PICKING);
+            player = getNextPlayer(previous);
         }
+        player.setTurnStatus(TurnStatus.PICKING);
         previous.setTurnStatus(TurnStatus.FINISHED);
+        return player;
     }
 }

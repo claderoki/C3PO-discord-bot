@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ProfessionMenuOption extends SnakeOilMenuOption {
+    private static final int AMOUNT = 2;
+
     public ProfessionMenuOption(GameState gameState, SnakeOilPlayer player) {
         super("Select your profession", gameState, player);
     }
 
     protected Map<String, String> getOptionCache() {
-        return gameState.getProfessions().getCards().stream().limit(2).collect(Collectors.toMap(Profession::getValue, Profession::getValue));
+        return gameState.getProfessions().getCards().stream().limit(AMOUNT).collect(Collectors.toMap(Profession::getValue, Profession::getValue));
     }
 
     @Override
@@ -22,6 +24,8 @@ public class ProfessionMenuOption extends SnakeOilMenuOption {
             .findFirst()
             .orElseThrow();
         gameState.getCurrentRound().setProfession(profession);
+        for(int i = 0; i < AMOUNT; i++) {
+            gameState.getProfessions().take();
+        }
     }
-
 }

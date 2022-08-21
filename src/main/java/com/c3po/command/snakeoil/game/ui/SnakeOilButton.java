@@ -13,12 +13,14 @@ import java.util.function.Consumer;
 public class SnakeOilButton extends ButtonMenuOption<Void> {
     protected final GameState gameState;
     protected final SnakeOilPlayer player;
+    @Setter
+    protected boolean test = false;
 
     @Setter
     protected Consumer<Void> onFinishTurn;
 
     public SnakeOilButton(GameState gameState, SnakeOilPlayer player) {
-        super("abc");
+        super(null);
         this.gameState = gameState;
         this.player = player;
     }
@@ -47,9 +49,8 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     @Override
     public String getFullName() {
         int index = gameState.getPlayers().indexOf(player);
-        String ind = "["+(index+1)+"]";
+        String ind = "[P"+(index+1)+"]";
         PlayerStatus status = getStatus();
-
         String type = switch (status) {
             case PICKING_CARD -> "cards";
             case PICKING_PROFESSION -> "profession";
@@ -61,12 +62,20 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
 
     @Override
     protected boolean isAllowed(ComponentInteractionEvent event) {
-        return event.getInteraction().getUser().equals(this.player.getUser());
+        return test || event.getInteraction().getUser().equals(this.player.getUser());
+    }
+
+    private Mono<Void> afterHook(Menu menu, PlayerStatus status) {
+        if (status == PlayerStatus.PICKING_PERSON) {
+            onFinishTurn.accept(null);
+        }
+        return Mono.empty();
     }
 
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
         Menu menu = new Menu(context);
+        menu.setOwnerOnly(false);
         menu.setEmbedConsumer(e -> e.description("You must choose"));
         PlayerStatus status = getStatus();
         MenuOption<?, ?, ?> option = switch (status) {
@@ -78,12 +87,8 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return MenuManager.waitForMenu(menu, replier).map(m -> {
-            if (status == PlayerStatus.PICKING_PERSON) {
-                onFinishTurn.accept(null);
-            }
-            return Mono.empty();
-        });
+        return MenuManager.waitForMenu(menu, replier)
+            .map(m -> afterHook(menu, status));
     }
 
 }

@@ -59,12 +59,12 @@ public class Context {
         };
     }
 
-    public Mono<?> sendToast(Toast toast) {
+    public Mono<Void> sendToast(Toast toast) {
         return event.createFollowup()
             .withEmbeds(getEmbedFor(toast.getType()).description(toast.getMessage()).build())
             .flatMap(m -> {
                 if (toast.getRemoveAfter() != null) {
-                    return m.delete().delaySubscription(Duration.ofSeconds(10));
+                    return Mono.empty().and(Mono.defer(() -> Mono.delay(toast.getRemoveAfter()).then(m.delete())));
                 }
                 return Mono.empty();
             }

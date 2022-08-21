@@ -24,10 +24,10 @@ public class SnakeOilUI {
             ;
             List<Word> words = gameState.getCurrentRound().getWords(player);
             if (words != null) {
-                value.append(" ").append(String.join(", ", words.stream().map(Card::getValue).toList()));
+                value.append(", cards: ").append(String.join(", ", words.stream().map(Card::getValue).toList()));
             }
 
-            String name = " [" + (i+1) + "] " + player.getUser().getUsername();
+            String name = " [P" + (i+1) + "] " + player.getUser().getUsername();
             EmbedCreateFields.Field field = EmbedCreateFields.Field.of(name, value.toString(), false);
             embed.addField(field);
             i++;

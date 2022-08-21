@@ -4,10 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class Word extends Card<String> {
-    private final String description;
-
-    public Word(String value, String description) {
+    public Word(String value) {
         super(value);
-        this.description = description;
     }
 }

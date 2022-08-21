@@ -1,6 +1,7 @@
 package com.c3po.command.snakeoil.game;
 
 import com.c3po.command.hangman.game.core.Game;
+import com.c3po.command.snakeoil.game.ui.ShowDeckButton;
 import com.c3po.command.snakeoil.game.ui.SnakeOilButton;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Mono;
 public class SnakeOilGame extends Game {
     private final GameState gameState;
     private final SnakeOilUI ui;
+    private final boolean test;
 
     public Mono<?> start() {
         gameState.getWords().shuffle();
@@ -21,10 +23,11 @@ public class SnakeOilGame extends Game {
         for(SnakeOilPlayer player: gameState.getPlayers()) {
             player.getWords().drawFrom(gameState.getWords(), 6);
             SnakeOilButton button = new SnakeOilButton(gameState, player);
+            button.setTest(test);
             button.setOnFinishTurn(o -> gameState.newTurn(menu, ui));
             menu.addOption(button);
         }
+        menu.addOption(new ShowDeckButton(gameState));
         return gameState.newTurn(menu, ui).then(MenuManager.waitForMenu(menu));
     }
-
 }

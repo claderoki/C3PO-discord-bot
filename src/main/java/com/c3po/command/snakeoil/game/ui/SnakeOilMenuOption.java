@@ -2,9 +2,14 @@ package com.c3po.command.snakeoil.game.ui;
 
 import com.c3po.command.snakeoil.game.GameState;
 import com.c3po.command.snakeoil.game.SnakeOilPlayer;
+import com.c3po.ui.Toast;
+import com.c3po.ui.ToastType;
 import com.c3po.ui.input.base.SelectMenuMenuOption;
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import reactor.core.publisher.Mono;
+
+import java.lang.management.MemoryNotificationInfo;
+import java.time.Duration;
 
 public abstract class SnakeOilMenuOption extends SelectMenuMenuOption {
     protected final GameState gameState;
@@ -28,8 +33,17 @@ public abstract class SnakeOilMenuOption extends SelectMenuMenuOption {
         return super.execute(event)
             .then(Mono.defer(() -> {
                 afterHook();
-                gameState.nextPicking();
-                return Mono.empty();
+                SnakeOilPlayer player = gameState.nextPicking();
+                String content = "It's " + player.getUser().getMention() + "'s turn";
+                return event.createFollowup()
+                    .withContent(content)
+                    .flatMap(m -> {
+                        if (gameState.getPreviousNotification() != null) {
+                            return gameState.getPreviousNotification().delete();
+                        }
+                        gameState.setPreviousNotification(m);
+                        return Mono.empty();
+                    });
             }))
             .then(event.deferEdit());
     }
