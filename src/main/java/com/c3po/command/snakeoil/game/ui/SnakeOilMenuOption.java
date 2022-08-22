@@ -5,11 +5,10 @@ import com.c3po.command.snakeoil.game.SnakeOilPlayer;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.ui.input.base.SelectMenuMenuOption;
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionFollowupCreateMono;
 import reactor.core.publisher.Mono;
 
-public abstract class SnakeOilMenuOption extends SelectMenuMenuOption {
+public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
     protected final GameState gameState;
     protected final SnakeOilPlayer player;
 
@@ -31,7 +30,7 @@ public abstract class SnakeOilMenuOption extends SelectMenuMenuOption {
     protected InteractionFollowupCreateMono followup(InteractionFollowupCreateMono followup) {
         SnakeOilPlayer player = gameState.getCurrentlyPicking();
         return followup
-            .withContent(player.getUser().getUsername() + ", your turn!")
+            .withContent(player.getUser().getMention() + ", your turn!")
             .withEmbeds(EmbedHelper.notice(getFollowupDescription()).build())
         ;
     }

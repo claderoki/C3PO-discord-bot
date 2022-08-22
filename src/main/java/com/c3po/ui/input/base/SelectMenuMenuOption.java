@@ -2,26 +2,38 @@ package com.c3po.ui.input.base;
 
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import discord4j.core.object.component.SelectMenu;
+import lombok.Getter;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public abstract class SelectMenuMenuOption extends MenuOption<List<String>, SelectMenuInteractionEvent, SelectMenu> {
-    Map<String, String> cachedOptions = null;
+public abstract class SelectMenuMenuOption<T> extends MenuOption<List<String>, SelectMenuInteractionEvent, SelectMenu> {
+    private static final int MAX = 25;
+    private Map<String, String> cachedOptions;
+    private Map<String, T> optionMapping;
+    @Getter
+    private List<T> selected;
 
-    protected List<String> labels;
-
-    public SelectMenu getComponent() {
-        return SelectMenu.of(getCustomId(), getOptions());
+    final public SelectMenu getComponent() {
+        return modifySelectMenu(SelectMenu.of(getCustomId(), getOptions()));
     }
 
     public SelectMenuMenuOption(String name) {
         super(name);
     }
 
-    protected abstract Map<String, String> getOptionCache();
+    protected SelectMenu modifySelectMenu(SelectMenu selectMenu) {
+        return selectMenu;
+    }
+
+    protected abstract List<T> fetchOptions();
+
+    protected abstract String toValue(T value);
+
+    protected abstract String toLabel(T value);
 
     private SelectMenu.Option createOption(Map.Entry<String, String> entry) {
         SelectMenu.Option option = SelectMenu.Option.of(
@@ -32,25 +44,25 @@ public abstract class SelectMenuMenuOption extends MenuOption<List<String>, Sele
         if (values != null) {
             option.withDefault(getValue().contains(entry.getKey()));
         }
-        modifyOption(option);
         return option;
     }
 
-    protected void modifyOption(SelectMenu.Option option) {
-
+    private boolean shouldRefreshCache() {
+        return cachedOptions == null;
     }
 
     protected List<SelectMenu.Option> getOptions() {
-        if (cachedOptions == null) {
-            cachedOptions = getOptionCache();
+        if (shouldRefreshCache()) {
+            List<T> options = fetchOptions();
+            cachedOptions = options.stream().collect(Collectors.toMap(this::toValue, this::toLabel));
+            optionMapping = options.stream().collect(Collectors.toMap(this::toValue, c -> c));
         }
 
         var options = cachedOptions.entrySet()
             .stream()
             .map(this::createOption)
             .toList();
-
-        return options.size() > 25 ? options.subList(0, 25) : options;
+        return options.size() > MAX ? options.subList(0, MAX) : options;
     }
 
     @Override
@@ -58,7 +70,7 @@ public abstract class SelectMenuMenuOption extends MenuOption<List<String>, Sele
         List<String> oldValues = getValue();
         setValue(event.getValues());
         if (!Objects.equals(oldValues, getValue())) {
-            labels = getValue().stream().map(c -> cachedOptions.get(c)).toList();
+            selected = getValue().stream().map(c -> optionMapping.get(c)).toList();
         }
         return Mono.empty();
     }
