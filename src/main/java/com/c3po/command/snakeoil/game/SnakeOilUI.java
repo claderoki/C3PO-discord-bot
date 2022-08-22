@@ -22,22 +22,27 @@ public class SnakeOilUI {
             value.append(" Wins: ")
                 .append(player.getScore())
             ;
-            List<Word> words = gameState.getCurrentRound().getWords(player);
-            if (words != null) {
-                value.append(", cards: ").append(String.join(", ", words.stream().map(Card::getValue).toList()));
+            boolean isCustomer = player.equals(gameState.getCurrentRound().getCustomer());
+            if (isCustomer && gameState.getCurrentRound().getProfession() != null) {
+                value.append("\nProfession: **")
+                    .append(gameState.getCurrentRound().getProfession().getValue())
+                    .append("**");
+            } else {
+                List<Word> words = gameState.getCurrentRound().getWords(player);
+                if (words != null) {
+                    value.append("\nProduct: **").append(String.join(" ", words.stream().map(Card::getValue).toList())).append("**");
+                }
             }
 
-            String name = " [P" + (i+1) + "] " + player.getUser().getUsername();
+            String emoji = isCustomer ? "\uD83D\uDCB0" : "\uD83C\uDCCF";
+            String name = " [P" + (i+1) + "] " + player.getUser().getUsername() + " " + emoji;
+
             EmbedCreateFields.Field field = EmbedCreateFields.Field.of(name, value.toString(), false);
             embed.addField(field);
             i++;
         }
         embed.description("Snake Oil");
         embed.thumbnail("https://cdn.discordapp.com/attachments/744172199770062899/1010214906437578842/sos_tee_danj_2.webp");
-
-        if (gameState.getCurrentRound().getProfession() != null) {
-            embed.footer("profession: " + gameState.getCurrentRound().getProfession().getValue(), null);
-        }
     }
 
 }

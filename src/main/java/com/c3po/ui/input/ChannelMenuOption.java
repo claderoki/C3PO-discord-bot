@@ -27,7 +27,7 @@ public class ChannelMenuOption extends SelectMenuMenuOption {
     }
 
     @Override
-    public Mono<?> execute(SelectMenuInteractionEvent event) {
+    public Mono<Void> execute(SelectMenuInteractionEvent event) {
         return super.execute(event).then(event.deferEdit());
     }
 }

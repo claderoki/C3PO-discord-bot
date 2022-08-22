@@ -2,6 +2,7 @@ package com.c3po.command.snakeoil.game;
 
 import com.c3po.command.hangman.game.core.Game;
 import com.c3po.command.snakeoil.game.ui.ShowDeckButton;
+import com.c3po.command.snakeoil.game.ui.ShowInstructionsButton;
 import com.c3po.command.snakeoil.game.ui.SnakeOilButton;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
@@ -28,6 +29,7 @@ public class SnakeOilGame extends Game {
             menu.addOption(button);
         }
         menu.addOption(new ShowDeckButton(gameState));
+        menu.addOption(new ShowInstructionsButton());
         return gameState.newTurn(menu, ui).then(MenuManager.waitForMenu(menu));
     }
 }

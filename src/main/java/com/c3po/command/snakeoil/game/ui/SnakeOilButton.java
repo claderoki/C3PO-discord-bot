@@ -50,14 +50,23 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     public String getFullName() {
         int index = gameState.getPlayers().indexOf(player);
         String ind = "[P"+(index+1)+"]";
+        String format = ind + " %s";
+
         PlayerStatus status = getStatus();
-        String type = switch (status) {
-            case PICKING_CARD -> "cards";
-            case PICKING_PROFESSION -> "profession";
-            case PICKING_PERSON -> "winner";
-            default -> "nothing..";
-        };
-        return ind + " Choose " + type;
+        switch (status) {
+            case PICKING_CARD -> {
+                return format.formatted("Choose product");
+            }
+            case PICKING_PROFESSION -> {
+                return format.formatted("Pick customer");
+            }
+            case PICKING_PERSON -> {
+                return format.formatted("Buy product");
+            }
+            default -> {
+                return format.formatted("Choose nothing..");
+            }
+        }
     }
 
     @Override
@@ -65,7 +74,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         return test || event.getInteraction().getUser().equals(this.player.getUser());
     }
 
-    private Mono<Void> afterHook(Menu menu, PlayerStatus status) {
+    private Mono<Void> afterHook(PlayerStatus status) {
         if (status == PlayerStatus.PICKING_PERSON) {
             onFinishTurn.accept(null);
         }
@@ -76,7 +85,6 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     public Mono<?> execute(ButtonInteractionEvent event) {
         Menu menu = new Menu(context);
         menu.setOwnerOnly(false);
-        menu.setEmbedConsumer(e -> e.description("You must choose"));
         PlayerStatus status = getStatus();
         MenuOption<?, ?, ?> option = switch (status) {
             case PICKING_CARD -> new CardMenuOption(gameState, player);
@@ -87,8 +95,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return MenuManager.waitForMenu(menu, replier)
-            .map(m -> afterHook(menu, status));
+        return MenuManager.waitForMenu(menu, replier).map(m -> afterHook(status));
     }
 
 }

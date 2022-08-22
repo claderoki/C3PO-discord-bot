@@ -2,9 +2,13 @@ package com.c3po.ui.input.base;
 
 import com.c3po.ui.Toast;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class MenuManager {
@@ -17,16 +21,20 @@ public class MenuManager {
         return option.execute(event)
             .then(Mono.defer(() -> {
                 menu.incrementOptionsHandled();
-                return sendMessage(menu, replier);
+                if (option.shouldContinue()) {
+                    return sendMessage(menu, replier);
+                }
+                return Mono.empty();
             }))
-            .then(Mono.just(menu.shouldContinue()));
+            .then(Mono.just(menu.shouldContinue() && option.shouldContinue()));
     }
 
     private static Mono<Void> editReply(Menu menu, Replier replier) {
         return Mono.defer(() -> {
-            var components = menu.getComponents();
+            List<LayoutComponent> components = menu.getComponents();
+            EmbedCreateSpec embed = menu.getEmbed();
             return replier.editReply()
-                .withEmbedsOrNull(Collections.singleton(menu.getEmbed()))
+                .withEmbedsOrNull(embed == null ? null : Collections.singleton(embed))
                 .withComponentsOrNull(menu.shouldContinue() ? components : null)
                 .then();
         });
@@ -37,14 +45,23 @@ public class MenuManager {
             return editReply(menu, replier);
         }
 
-        return replier.reply()
-            .withEmbeds(menu.getEmbed())
+        EmbedCreateSpec embed = menu.getEmbed();
+
+        InteractionApplicationCommandCallbackReplyMono reply = replier.reply();
+        if (embed != null) {
+            reply = reply.withEmbeds(embed);
+        } else {
+            // spoof an empty message.
+            reply = reply.withContent("\uFEFF");
+        }
+
+        return reply
             .withComponents(menu.getComponents())
             .onErrorResume(c -> editReply(menu, replier))
             .then(Mono.defer(() -> {
-                    replier.setReplied(true);
-                    return Mono.empty();
-                }))
+                replier.setReplied(true);
+                return Mono.empty();
+            }))
             ;
     }
 

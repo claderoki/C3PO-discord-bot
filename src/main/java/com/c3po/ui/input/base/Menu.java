@@ -38,11 +38,12 @@ public class Menu {
     }
 
     public EmbedCreateSpec getEmbed() {
+        if (embedConsumer == null) {
+            return null;
+        }
         EmbedCreateSpec.Builder embed = EmbedCreateSpec.builder();
         embed.color(EmbedHelper.COLOR);
-        if (embedConsumer != null) {
-            embedConsumer.accept(embed);
-        }
+        embedConsumer.accept(embed);
         return embed.build();
     }
 

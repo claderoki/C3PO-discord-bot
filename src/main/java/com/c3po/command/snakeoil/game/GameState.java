@@ -23,6 +23,7 @@ public class GameState {
     private RoundState currentRound;
     @Setter
     private Message previousNotification;
+    private SnakeOilPlayer currentlyPicking;
 
     public void resetTurn() {
         players.forEach(c -> c.setTurnStatus(TurnStatus.WAITING_FOR_TURN));
@@ -46,20 +47,16 @@ public class GameState {
     public Mono<?> newTurn(Menu menu, SnakeOilUI ui) {
         RoundState previousRound = currentRound;
         resetTurn();
-        SnakeOilPlayer previousKing = previousRound != null ? previousRound.getCustomer() : null;
-        SnakeOilPlayer player = getNextPlayer(previousKing);
-        player.setTurnStatus(TurnStatus.PICKING);
+        SnakeOilPlayer previousCustomer = previousRound != null ? previousRound.getCustomer() : null;
+        currentlyPicking = getNextPlayer(previousCustomer);
+        currentlyPicking.setTurnStatus(TurnStatus.PICKING);
         menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
-        currentRound.setCustomer(player);
+        currentRound.setCustomer(currentlyPicking);
         return Mono.empty();
     }
 
-    public SnakeOilPlayer nextPicking() {
-        SnakeOilPlayer previous = players.stream()
-            .filter(c -> c.getTurnStatus().equals(TurnStatus.PICKING))
-            .findFirst()
-            .orElseThrow();
-
+    public void nextPicking() {
+        SnakeOilPlayer previous = currentlyPicking;
         SnakeOilPlayer player;
         boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getCustomer()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
         if (cardPickersFinished && currentRound.getWinner() == null) {
@@ -69,6 +66,6 @@ public class GameState {
         }
         player.setTurnStatus(TurnStatus.PICKING);
         previous.setTurnStatus(TurnStatus.FINISHED);
-        return player;
+        currentlyPicking = player;
     }
 }

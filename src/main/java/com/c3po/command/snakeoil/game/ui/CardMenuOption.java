@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class CardMenuOption extends SnakeOilMenuOption {
     public CardMenuOption(GameState gameState, SnakeOilPlayer player) {
-        super("Select your cards", gameState, player);
+        super("Select your product", gameState, player);
     }
 
     @Override
@@ -26,11 +26,18 @@ public class CardMenuOption extends SnakeOilMenuOption {
 
     @Override
     protected void afterHook() {
-        List<Word> words = getValue().stream().map(w -> player.getWords().find(c -> c.getValue().equals(w))).toList();
+        List<Word> words = getValue().stream().map(w -> player.getWords().find(c -> c.getValue().equals(w)).orElseThrow()).toList();
         for(Word word: words) {
             player.getWords().removeCard(word);
             gameState.getCurrentRound().addWord(player, word);
         }
         player.getWords().drawFrom(gameState.getWords(), 2);
     }
+
+    @Override
+    protected String getFollowupDescription() {
+        String format = "Last turn, %s tried to sell **%s** to %s";
+        return format.formatted(player, gameState.getCurrentRound().getProduct(player), gameState.getCurrentRound().getCustomer());
+    }
+
 }

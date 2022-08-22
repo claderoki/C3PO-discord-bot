@@ -28,4 +28,10 @@ public class ProfessionMenuOption extends SnakeOilMenuOption {
             gameState.getProfessions().take();
         }
     }
+
+    @Override
+    protected String getFollowupDescription() {
+        return "" + player.getUser().getUsername() + " is a **" + gameState.getCurrentRound().getProfession().getValue() + "**";
+    }
+
 }

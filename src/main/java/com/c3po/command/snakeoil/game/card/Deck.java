@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,13 +19,13 @@ public final class Deck<T extends Card<?>> {
         this.cards.addAll(cards);
     }
 
-    public T find(Function<T, Boolean> matcher) {
+    public Optional<T> find(Function<T, Boolean> matcher) {
         for(T card: cards) {
             if (matcher.apply(card)) {
-                return card;
+                return Optional.of(card);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public void addCard(T card) {

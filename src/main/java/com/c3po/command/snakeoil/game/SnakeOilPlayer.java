@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Getter
 @Setter
@@ -18,5 +20,14 @@ public class SnakeOilPlayer {
 
     public void incrementScore() {
         score++;
+    }
+
+    public boolean equals(SnakeOilPlayer other) {
+        return this.user.equals(other.getUser());
+    }
+
+    @Override
+    public String toString() {
+        return user.getUsername();
     }
 }

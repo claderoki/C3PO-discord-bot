@@ -54,7 +54,7 @@ public abstract class SelectMenuMenuOption extends MenuOption<List<String>, Sele
     }
 
     @Override
-    public Mono<?> execute(SelectMenuInteractionEvent event) {
+    public Mono<Void> execute(SelectMenuInteractionEvent event) {
         List<String> oldValues = getValue();
         setValue(event.getValues());
         if (!Objects.equals(oldValues, getValue())) {
