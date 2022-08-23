@@ -18,8 +18,7 @@ public class SnakeOilGame extends Game {
     public Mono<?> start() {
         gameState.getWords().shuffle();
         gameState.getProfessions().shuffle();
-        Menu menu = new Menu(ui.getContext());
-        menu.setOwnerOnly(false);
+        Menu menu = new Menu(ui.getContext(), true);
         menu.setEmbedConsumer(e -> ui.getEmbed(gameState, e));
         for(SnakeOilPlayer player: gameState.getPlayers()) {
             player.getWords().drawFrom(gameState.getWords(), 6);

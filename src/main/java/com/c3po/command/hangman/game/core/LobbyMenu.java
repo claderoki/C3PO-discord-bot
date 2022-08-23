@@ -29,9 +29,8 @@ public class LobbyMenu extends Menu {
     private int goldNeeded;
 
     public LobbyMenu(Context context, int goldNeeded) {
-        super(context);
+        super(context, true);
         this.goldNeeded = goldNeeded;
-        ownerOnly = false;
         users.add(context.getEvent().getInteraction().getUser());
         refreshEmbed();
 

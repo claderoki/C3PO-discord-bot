@@ -28,5 +28,4 @@ public class ShowInstructionsButton extends ButtonMenuOption<Void> {
             .withEphemeral(true)
             .withContent("Instructions go here...");
     }
-
 }

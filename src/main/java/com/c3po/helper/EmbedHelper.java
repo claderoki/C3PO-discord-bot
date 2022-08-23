@@ -30,7 +30,7 @@ public class EmbedHelper {
     public static EmbedCreateSpec.Builder notice(String description) {
         return EmbedCreateSpec.builder()
             .color(Color.of(73, 132, 155))
-            .thumbnail("https://media.discordapp.net/attachments/744172199770062899/765879281498587136/Blue_question_mark_icon.svg.png")
+            .author(Unicode.EMPTY, null, "https://media.discordapp.net/attachments/744172199770062899/765879281498587136/Blue_question_mark_icon.svg.png")
             .description(description);
     }
 

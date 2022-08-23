@@ -1,5 +1,6 @@
 package com.c3po.ui.input.base;
 
+import com.c3po.helper.Unicode;
 import com.c3po.ui.Toast;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
@@ -52,7 +53,7 @@ public class MenuManager {
             reply = reply.withEmbeds(embed);
         } else {
             // spoof an empty message.
-            reply = reply.withContent("\uFEFF");
+            reply = reply.withContent(Unicode.EMPTY);
         }
 
         return reply

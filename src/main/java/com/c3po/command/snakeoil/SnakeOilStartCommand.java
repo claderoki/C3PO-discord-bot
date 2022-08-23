@@ -7,18 +7,14 @@ import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
+import com.c3po.core.resource.Resource;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
-import org.apache.maven.model.Resource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,9 +36,18 @@ public class SnakeOilStartCommand extends SubCommand {
         return new SnakeOilPlayer(user, new Deck<>());
     }
 
+    private Stream<Long> getTestUserIds(Context context) {
+        long guildId = context.getEvent().getInteraction().getGuildId().orElseThrow().asLong();
+        if (guildId == 729843647347949638L) {
+            return Stream.of(120566758091259906L, 247855177074212865L, 321028231299858432L);
+        } else {
+            return Stream.of(120566758091259906L, 286986959115517952L, 150026023931609088L);
+        }
+    }
+
     private Mono<LinkedHashSet<User>> getUsers(Context context, boolean test) {
         if (test) {
-            return Flux.fromStream(Stream.of(120566758091259906L, 286986959115517952L, 150026023931609088L))
+            return Flux.fromStream(getTestUserIds(context))
                 .map(u -> context.getEvent().getClient().getUserById(Snowflake.of(u)))
                 .flatMap(u -> u)
                 .collect(Collectors.toSet())
@@ -52,10 +57,8 @@ public class SnakeOilStartCommand extends SubCommand {
     }
 
     private Set<String> readLines(String csvFile) {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("snakeoil/" + csvFile);
-        assert inputStream != null;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        return reader.lines().collect(Collectors.toSet());
+        Resource resource = new Resource("snakeoil/" + csvFile);
+        return resource.getLines().collect(Collectors.toSet());
     }
 
     public Set<String> getWords() {

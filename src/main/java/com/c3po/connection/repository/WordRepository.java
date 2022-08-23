@@ -2,19 +2,8 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import com.c3po.model.exploration.Exploration;
-import com.c3po.model.exploration.ExplorationAction;
-import com.c3po.model.exploration.ExplorationScenario;
-import com.c3po.model.exploration.FullExplorationLocation;
-import com.c3po.model.pigeon.PigeonWinnings;
 
 import javax.sql.DataSource;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class WordRepository extends Repository {
     protected static WordRepository DB;

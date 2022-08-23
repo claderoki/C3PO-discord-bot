@@ -105,7 +105,6 @@ public class Waiter {
                 .footer(footer == null ? null : EmbedCreateFields.Footer.of(footer, null))
                 .build()))
             .withComponentsOrNull(null)
-//            .onErrorResume(TimeoutException.class, (e) -> Mono.empty())
         ;
     }
 

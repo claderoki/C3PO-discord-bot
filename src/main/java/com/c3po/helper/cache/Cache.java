@@ -10,6 +10,7 @@ public class Cache {
     public final HashMap<String, Object> cache = new HashMap<>();
     private final HashMap<String, OffsetDateTime> expiryDates = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public <T> T get(CacheKey<T> key) {
         String fullKey = key.getFullKey();
         OffsetDateTime expiryDate = expiryDates.get(fullKey);

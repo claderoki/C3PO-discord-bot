@@ -1,7 +1,10 @@
 package com.c3po.ui.input.base;
 
+import com.c3po.core.AccessControlList;
+import com.c3po.core.AccessControlListMode;
 import com.c3po.core.command.Context;
 import com.c3po.helper.EmbedHelper;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.ActionComponent;
 import discord4j.core.object.component.ActionRow;
@@ -9,24 +12,35 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 
-@RequiredArgsConstructor
 @Setter
 @Getter
 public class Menu {
     protected final Map<String, MenuOption<?, ?, ?>> options = new LinkedHashMap<>();
     protected final Context context;
+    protected final AccessControlList<Snowflake> acl = new AccessControlList<>();
     protected Integer maximumOptionsAllowed;
-    protected boolean ownerOnly = true;
     protected int optionsHandled;
     protected Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
     protected Duration timeout = Duration.ofSeconds(360);
+
+    public Menu(Context context) {
+        this(context, false);
+    }
+
+    public Menu(Context context, boolean allowEveryone) {
+        this.context = context;
+        if (allowEveryone) {
+            acl.setMode(AccessControlListMode.ALLOW_UNLESS_DENIED);
+        } else {
+            acl.allow(context.getEvent().getInteraction().getUser().getId());
+        }
+    }
 
     public void incrementOptionsHandled() {
         optionsHandled++;
@@ -93,10 +107,6 @@ public class Menu {
     }
 
     public boolean isAllowed(ComponentInteractionEvent event) {
-        if (ownerOnly) {
-            return event.getInteraction().getUser().getId().equals(context.getEvent().getInteraction().getUser().getId());
-        } else {
-            return true;
-        }
+        return acl.isAllowed(event.getInteraction().getUser().getId());
     }
 }

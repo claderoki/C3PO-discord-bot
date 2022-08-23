@@ -83,8 +83,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
 
     @Override
     public Mono<?> execute(ButtonInteractionEvent event) {
-        Menu menu = new Menu(context);
-        menu.setOwnerOnly(false);
+        Menu menu = new Menu(context, true);
         PlayerStatus status = getStatus();
         MenuOption<?, ?, ?> option = switch (status) {
             case PICKING_CARD -> new CardMenuOption(gameState, player);
