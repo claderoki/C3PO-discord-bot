@@ -15,7 +15,7 @@ public class PersonalRoleNameCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         String name = context.getOptions().getString("name");
         PersonalRoleProcessor processor = new PersonalRoleProcessor(PersonalRoleType.NAME, name, context);
         return processor.execute();

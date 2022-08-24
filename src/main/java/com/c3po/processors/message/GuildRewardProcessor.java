@@ -48,7 +48,7 @@ public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
         return r.ints(minPoints, maxPoints).findFirst().orElseThrow();
     }
 
-    public Mono<?> execute(MessageCreateEvent event) {
+    public Mono<Void> execute(MessageCreateEvent event) {
         long userId = event.getMember().orElseThrow().getId().asLong();
         long guildId = event.getGuildId().orElseThrow().asLong();
 

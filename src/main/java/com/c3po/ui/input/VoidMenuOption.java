@@ -17,7 +17,7 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
     }
 
     @Setter
-    private Function<ButtonInteractionEvent, Mono<?>> executor;
+    private Function<ButtonInteractionEvent, Mono<Void>> executor;
 
     @Override
     public Button.Style getButtonStyle() {
@@ -25,7 +25,7 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         if (executor == null) {
             return event.deferEdit();
         }

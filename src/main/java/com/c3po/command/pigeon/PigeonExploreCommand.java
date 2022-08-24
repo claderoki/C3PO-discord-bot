@@ -38,7 +38,7 @@ public class PigeonExploreCommand extends PigeonSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
 
         PigeonValidation validation = getValidation();
@@ -65,10 +65,10 @@ public class PigeonExploreCommand extends PigeonSubCommand {
                 arrivalDate
             );
             reminderRepository.create(reminder);
-            return e.createFollowup().withContent("Okay, I will remind you when your pigeon has arrived.");
+            return e.createFollowup().withContent("Okay, I will remind you when your pigeon has arrived.").then();
         });
         menu.addOption(option);
 
-        return new MenuManager(menu).waitFor();
+        return new MenuManager(menu).waitFor().then();
     }
 }

@@ -23,7 +23,7 @@ public class ShowInstructionsButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         return event.reply()
             .withEphemeral(true)
             .withContent("Instructions go here...");

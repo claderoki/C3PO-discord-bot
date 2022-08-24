@@ -91,7 +91,7 @@ public class ProfileViewCommand extends ProfileSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         var optionalGuildId = context.getEvent().getInteraction().getGuildId();
         return getUser(context).flatMap(user -> {
             ScopeTarget target;

@@ -78,7 +78,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return builder.toString();
     }
 
-    private Mono<?> executeSettingGroup(ChatInputInteractionEvent event, String category, String settingKey) {
+    private Mono<Void> executeSettingGroup(ChatInputInteractionEvent event, String category, String settingKey) {
         if (settingKey.equals(SettingTransformer.viewOptionName)) {
             ScopeTarget target = SettingGroup.scopeToTarget(Scope.GUILD, event);
             HashMap<Integer, PropertyValue> values = settingRepository.getHydratedPropertyValues(target, category);
@@ -87,12 +87,12 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         }
         SettingGroup settingGroup = new SettingGroup(category, settingKey);
         LogHelper.log("Setting group " + settingKey + " is being started", LogScope.DEVELOPMENT);
-        Mono<?> commandResult = settingGroup.handle(event);
+        Mono<Void> commandResult = settingGroup.handle(event);
         LogHelper.log("Setting group " + settingKey + " is finished", LogScope.DEVELOPMENT);
         return commandResult;
     }
 
-    public Mono<?> execute(ChatInputInteractionEvent event) throws RuntimeException {
+    public Mono<Void> execute(ChatInputInteractionEvent event) throws RuntimeException {
         String fullName = getFullyQualifiedCommandName(event);
         SettingInfo settingInfo = commandManager.matchSettingInfo(fullName);
         if (settingInfo != null) {
@@ -113,19 +113,19 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return Mono.empty();
     }
 
-    private Mono<?> beforeCommand(Optional<BucketManager> bucketManager, Command command) {
+    private Mono<Void> beforeCommand(Optional<BucketManager> bucketManager, Command command) {
         bucketManager.ifPresent(BucketManager::before);
         LogHelper.log("Starting command " + command.getName());
         return Mono.empty();
     }
 
-    private Mono<?> afterCommand(Optional<BucketManager> bucketManager, Command command) {
+    private Mono<Void> afterCommand(Optional<BucketManager> bucketManager, Command command) {
         LogHelper.log("Finishing command " + command.getName());
         bucketManager.ifPresent(BucketManager::after);
         return Mono.empty();
     }
 
-    private Mono<?> processCommand(Command command, Context context) {
+    private Mono<Void> processCommand(Command command, Context context) {
         Optional<BucketManager> bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context));
         Optional<Boolean> valid = bucketManager.map(BucketManager::validate);
         if (valid.isPresent() && !valid.get()) {

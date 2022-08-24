@@ -10,7 +10,7 @@ public class PersonalRoleDeleteCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         PersonalRoleProcessor processor = new PersonalRoleProcessor(PersonalRoleType.DELETE, null, context);
         return processor.execute();
     }

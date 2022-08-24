@@ -43,7 +43,7 @@ public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
                 gameState.nextPicking();
                 return followup(context.getEvent().createFollowup())
                     .flatMap(m -> {
-                        Mono<?> mono = Mono.empty();
+                        Mono<Void> mono = Mono.empty();
                         if (gameState.getPreviousNotification() != null) {
                             mono = gameState.getPreviousNotification().delete();
                         }

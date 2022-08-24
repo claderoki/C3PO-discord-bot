@@ -85,7 +85,7 @@ public class HangmanGame extends Game {
         return allPlayersDead || wordGuessed;
     }
 
-    public Mono<?> start() {
+    public Mono<Void> start() {
         ui.setState(state);
         for (int i = 0; i < word.getValue().length(); i++) {
             state.getBoard().add(EMPTY_LETTER);
@@ -94,7 +94,7 @@ public class HangmanGame extends Game {
         return run().then(Mono.defer(this::stop));
     }
 
-    private Mono<?> run() {
+    private Mono<Void> run() {
         return ui.showBoard().then(ui.waitForGuesses()
             .takeUntil(c->isGameOver())
             .onErrorStop()
@@ -112,7 +112,7 @@ public class HangmanGame extends Game {
         );
     }
 
-    private Mono<?> stop() {
+    private Mono<Void> stop() {
         int betPool = state.getPlayers().stream().mapToInt(HangmanPlayer::getBet).sum();
         betPool *= 1.25;
         betPool += (15 * state.getPlayers().size());

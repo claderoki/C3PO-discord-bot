@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 public abstract class Processor<T extends Event> {
     public abstract boolean shouldProcess(T event);
-    public abstract Mono<?> execute(T event);
+    public abstract Mono<Void> execute(T event);
 }

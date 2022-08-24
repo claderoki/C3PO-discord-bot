@@ -36,7 +36,7 @@ public abstract class CommandGroup extends Command {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         throw new IllegalStateException("Shouldn't be called directly.");
     }
 }

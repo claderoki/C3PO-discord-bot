@@ -35,7 +35,7 @@ public class ShowDeckButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         SnakeOilPlayer player = gameState.getPlayers().stream()
             .filter(u -> u.getUser().equals(event.getInteraction().getUser()))
             .findFirst()

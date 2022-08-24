@@ -45,7 +45,7 @@ public class GameState {
         }
     }
 
-    public Mono<?> newTurn(Menu menu, SnakeOilUI ui) {
+    public Mono<Void> newTurn(Menu menu, SnakeOilUI ui) {
         RoundState previousRound = currentRound;
         resetTurn();
         SnakeOilPlayer previousCustomer = previousRound != null ? previousRound.getCustomer() : null;

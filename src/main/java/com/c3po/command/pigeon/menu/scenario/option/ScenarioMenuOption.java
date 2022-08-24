@@ -55,7 +55,7 @@ public class ScenarioMenuOption extends SingleUseButtonMenuOption {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         return super.execute(event).then(Mono.defer(() -> {
             ExplorationScenario scenario = RandomHelper.choice(action.scenarios());
             PigeonWinnings winnings = toWinnings(scenario);
@@ -71,6 +71,6 @@ public class ScenarioMenuOption extends SingleUseButtonMenuOption {
                 .title(action.symbol() + " " + action.name())
                 .description(scenario.getText() + "\n\n" + winnings.format())
                 .build());
-        }));
+        })).then();
     }
 }

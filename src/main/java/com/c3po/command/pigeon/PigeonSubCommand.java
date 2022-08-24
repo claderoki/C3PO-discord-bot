@@ -25,11 +25,11 @@ public abstract class PigeonSubCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         return _execute(context);
     }
 
-    public Mono<?> _execute(Context context) {
+    public Mono<Void> _execute(Context context) {
         return Mono.empty();
     }
 

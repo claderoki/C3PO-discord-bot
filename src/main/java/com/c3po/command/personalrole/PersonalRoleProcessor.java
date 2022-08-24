@@ -37,7 +37,7 @@ public class PersonalRoleProcessor {
     private Guild guild;
     private Member member;
 
-    private Mono<?> load() {
+    private Mono<Void> load() {
         settings = personalRoleService.getSettings(context.getTarget(Scope.GUILD));
         personalRoleAttributeValue = attributeRepository
             .getHydratedPropertyValue(context.getTarget(Scope.MEMBER), personalRoleAttributeId)
@@ -53,7 +53,7 @@ public class PersonalRoleProcessor {
                 });
             }
             return Mono.empty();
-        });
+        }).then();
     }
 
     private void validate() {
@@ -99,7 +99,7 @@ public class PersonalRoleProcessor {
         return existingRole.edit(roleSpec.build()).then();
     }
 
-    public Mono<?> execute() {
+    public Mono<Void> execute() {
         return load().then(Mono.defer(() -> {
             if (type.equals(PersonalRoleType.DELETE) && existingRole != null) {
                 return existingRole.delete().flatMap(c -> {

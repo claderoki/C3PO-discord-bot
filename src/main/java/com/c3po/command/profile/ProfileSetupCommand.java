@@ -78,7 +78,7 @@ public class ProfileSetupCommand extends ProfileSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         List<PropertyValue> propertyValues = profileService.getEditableProfilePropertyValues(context.getTarget());
         CancelButtonMenuOption cancelOption = new CancelButtonMenuOption();
 
@@ -94,7 +94,7 @@ public class ProfileSetupCommand extends ProfileSubCommand {
         }).then(context.getEvent().editReply()
                 .withComponentsOrNull(null)
                 .withEmbedsOrNull(Collections.singleton(EmbedHelper.normal("Profile finished setting up.").build()))
-        );
+        ).then();
     }
 
 }

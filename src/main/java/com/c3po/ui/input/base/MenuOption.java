@@ -68,7 +68,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
 
     public abstract K getComponent();
 
-    public abstract Mono<?> execute(F event);
+    public abstract Mono<Void> execute(F event);
 
     protected String getPrettyValue() {
         return DataFormatter.prettify(value);

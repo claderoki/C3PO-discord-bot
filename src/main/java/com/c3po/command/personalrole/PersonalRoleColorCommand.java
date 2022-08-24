@@ -18,7 +18,7 @@ public class PersonalRoleColorCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         String rawColor = context.getOptions().getString("color");
 
         PersonalRoleProcessor processor = new PersonalRoleProcessor(PersonalRoleType.COLOR, rawColor, context);

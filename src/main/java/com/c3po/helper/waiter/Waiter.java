@@ -95,7 +95,7 @@ public class Waiter {
             .next();
     }
 
-    private <T, F extends Event> Mono<?> sendMessage(EventParser<T, F> parser) {
+    private <T, F extends Event> Mono<Void> sendMessage(EventParser<T, F> parser) {
         if (prompt == null) {
             return Mono.empty();
         }
@@ -105,6 +105,7 @@ public class Waiter {
                 .footer(footer == null ? null : EmbedCreateFields.Footer.of(footer, null))
                 .build()))
             .withComponentsOrNull(null)
+            .then()
         ;
     }
 

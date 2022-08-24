@@ -22,7 +22,7 @@ public class WaiterMenuOption<F, E extends EventParser<F, MessageCreateEvent>> e
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         parser.setEvent(context.getEvent());
         Waiter waiter = new Waiter(context.getEvent());
         waiter.setPrompt("Please enter a " + name);
@@ -31,6 +31,6 @@ public class WaiterMenuOption<F, E extends EventParser<F, MessageCreateEvent>> e
                 setValue(result.getValueOrThrow());
             }
             return Mono.empty();
-        });
+        }).then();
     }
 }

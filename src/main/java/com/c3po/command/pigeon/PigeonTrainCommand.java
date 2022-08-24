@@ -28,7 +28,7 @@ public class PigeonTrainCommand extends PigeonSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         var validation = getValidation();
         var result = validation.validate(context.getEvent().getInteraction().getUser());
         FlagController flagController = new FlagController(new PigeonLastTrained(result.getPigeonId()));

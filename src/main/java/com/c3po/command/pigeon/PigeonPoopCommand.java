@@ -60,7 +60,7 @@ public class PigeonPoopCommand extends PigeonSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         Snowflake userId = context.getOptions().optSnowflake("user");
         var validation = PigeonValidation.builder()
             .needsActivePigeon(true)

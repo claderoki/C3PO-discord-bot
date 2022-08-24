@@ -71,7 +71,7 @@ public class SnakeOilStartCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         Boolean test = context.getOptions().optBool("test");
         if (test == null) {
             test = false;

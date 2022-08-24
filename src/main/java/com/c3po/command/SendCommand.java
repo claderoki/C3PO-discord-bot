@@ -18,7 +18,7 @@ public class SendCommand extends Command {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         Snowflake channelId = context.getOptions().getSnowflake("channel");
         String message = context.getOptions().getString("message");
         Boolean instaDelete = context.getOptions().optBool("instadelete");

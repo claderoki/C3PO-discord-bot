@@ -13,7 +13,7 @@ public class PollCreateCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
 
         Menu menu = new Menu(context);
         menu.setEmbedConsumer(c -> c.description("Your pigeon has done nothing more!"));
@@ -21,10 +21,10 @@ public class PollCreateCommand extends SubCommand {
         option.setShouldContinue(false);
         option.withEmoji("❗");
         option.setExecutor((e) ->
-            e.createFollowup().withContent("Okay, I wont remind you, or do anything at all except for send this message."));
+            e.createFollowup().withContent("Okay, I wont remind you, or do anything at all except for send this message.").then());
         menu.addOption(option);
 
-        return new MenuManager(menu).waitFor();
+        return new MenuManager(menu).waitFor().then();
 
 //        Menu menu = new Menu(context);
 //        menu.addOption(new BooleanMenuOption("Anonymous").withEmoji("\uD83E\uDD77"));

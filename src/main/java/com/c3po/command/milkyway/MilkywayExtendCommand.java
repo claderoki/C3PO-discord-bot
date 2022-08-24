@@ -26,7 +26,7 @@ public class MilkywayExtendCommand extends MilkywaySubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         Snowflake channelId = context.getOptions().getSnowflake("channel");
         return context.getEvent().reply().withContent("abc").then(context.getEvent().getClient().getChannelById(channelId).flatMap(channel -> {
             Milkyway milkyway = milkywayRepository.getFromChannelId(context.getEvent().getInteraction().getGuildId().orElseThrow(), channelId);

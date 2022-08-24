@@ -23,7 +23,7 @@ public class PigeonBuyCommand extends PigeonSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         var validation = getValidation();
         var result = validation.validate(context.getEvent().getInteraction().getUser());
 

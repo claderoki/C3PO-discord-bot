@@ -33,7 +33,7 @@ public abstract class PigeonStatCommand extends PigeonSubCommand {
     protected abstract String getMessage();
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
 
         PigeonValidation validation = getValidation();

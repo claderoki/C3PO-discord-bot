@@ -29,7 +29,7 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
         return MessageCreateEvent.class;
     }
 
-    public Mono<?> run(MessageCreateEvent event) {
+    public Mono<Void> run(MessageCreateEvent event) {
         if (event.getMember().isEmpty() || event.getMember().get().isBot()) {
             return Mono.empty();
         }
@@ -41,7 +41,7 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
         ;
     }
 
-    public Mono<?> execute(MessageCreateEvent event) {
+    public Mono<Void> execute(MessageCreateEvent event) {
         try {
             return run(event);
         } catch (Exception e) {

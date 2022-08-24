@@ -76,7 +76,7 @@ public class HangmanStartCommand extends SubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         return getUsers(context)
             .map(users -> users.stream().map(this::toPlayer).toList())
             .filter(users -> !users.isEmpty())

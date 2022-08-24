@@ -54,7 +54,7 @@ public class HangmanUI extends UI {
         return embed.build();
     }
 
-    private Mono<?> processMentionMessage() {
+    private Mono<Void> processMentionMessage() {
         if (state.getCurrentPlayer() == null) {
             return Mono.empty();
         }
@@ -72,7 +72,7 @@ public class HangmanUI extends UI {
             }));
     }
 
-    public Mono<?> showBoard() {
+    public Mono<Void> showBoard() {
         EmbedCreateSpec embed = getEmbed();
         if (messageId == null || unrelatedMessages >= 5) {
             return context.getEvent().createFollowup()
@@ -129,7 +129,7 @@ public class HangmanUI extends UI {
         ;
     }
 
-    public Mono<?> showEndGame(EmbedCreateSpec build) {
+    public Mono<Void> showEndGame(EmbedCreateSpec build) {
         return context.getEvent().createFollowup().withEmbeds(build).then();
     }
 }

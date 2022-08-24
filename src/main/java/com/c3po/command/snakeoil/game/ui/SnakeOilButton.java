@@ -80,7 +80,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         Menu menu = new Menu(context, true);
         PlayerStatus status = getStatus();
         MenuOption<?, ?, ?> option = switch (status) {
@@ -92,7 +92,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return new MenuManager(menu, replier).waitFor().map(m -> afterHook(status));
+        return new MenuManager(menu, replier).waitFor().map(m -> afterHook(status)).then();
     }
 
 }

@@ -30,10 +30,10 @@ public class SubMenuOption extends ButtonMenuOption<Long> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         if (hasBackButton()) {
             subMenu.addOption(new BackButtonMenuOption());
         }
-        return new MenuManager(subMenu).waitFor();
+        return new MenuManager(subMenu).waitFor().then();
     }
 }

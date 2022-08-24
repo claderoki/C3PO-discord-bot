@@ -19,7 +19,7 @@ public class LongMenuOption extends ButtonMenuOption<Long> {
     }
 
     @Override
-    public Mono<?> execute(ButtonInteractionEvent event) {
+    public Mono<Void> execute(ButtonInteractionEvent event) {
         IntParser parser = IntParser.builder().min(1).max(9999).build();
         parser.setEvent(context.getEvent());
         Waiter waiter = new Waiter(context.getEvent());
@@ -30,7 +30,7 @@ public class LongMenuOption extends ButtonMenuOption<Long> {
             .map(value -> {
                 setValue(Long.valueOf(value));
                 return Mono.empty();
-        }));
+        })).then();
     }
 
 }

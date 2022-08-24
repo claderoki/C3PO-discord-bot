@@ -37,21 +37,21 @@ public abstract class Command {
         return null;
     }
 
-    public abstract Mono<?> execute(Context context) throws RuntimeException;
+    public abstract Mono<Void> execute(Context context) throws RuntimeException;
 
     protected Mono<List<CommandValidation<?>>> getValidations() {
         return Mono.just(List.of());
     }
 
-    protected Mono<?> beforeExecute(Context context) {
+    protected Mono<Void> beforeExecute(Context context) {
         return Mono.empty();
     }
 
-    protected Mono<?> afterExecute(Context context) {
+    protected Mono<Void> afterExecute(Context context) {
         return Mono.empty();
     }
 
-    public Mono<?> run(Context context) {
+    public Mono<Void> run(Context context) {
         return getValidations().map(validations -> validations
                 .stream().map(validation -> validation.validate(context)))
             .then(beforeExecute(context))

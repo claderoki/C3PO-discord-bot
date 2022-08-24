@@ -105,7 +105,7 @@ public class SettingGroup {
         };
     }
 
-    public Mono<?> handle(ChatInputInteractionEvent event) {
+    public Mono<Void> handle(ChatInputInteractionEvent event) {
         Setting setting = settingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
 
@@ -144,7 +144,7 @@ public class SettingGroup {
             }
 
             return event.reply().withEmbeds(createEmbedFor(settingValue));
-        });
+        }).then();
     }
 
     protected SettingGroupCacheKey<?> getCacheKey(ScopeTarget target) {

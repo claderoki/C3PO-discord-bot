@@ -14,7 +14,7 @@ public class SnakeOilGame extends Game {
     private final GameState gameState;
     private final SnakeOilUI ui;
 
-    public Mono<?> start() {
+    public Mono<Void> start() {
         gameState.getWords().shuffle();
         gameState.getProfessions().shuffle();
         Menu menu = new Menu(ui.getContext(), true);
@@ -27,6 +27,6 @@ public class SnakeOilGame extends Game {
         }
         menu.addOption(new ShowDeckButton(gameState));
         menu.addOption(new ShowInstructionsButton());
-        return gameState.newTurn(menu, ui).then(new MenuManager(menu).waitFor());
+        return gameState.newTurn(menu, ui).then(new MenuManager(menu).waitFor()).then();
     }
 }

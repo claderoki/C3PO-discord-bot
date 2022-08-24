@@ -66,7 +66,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         return List.of();
     }
 
-    private Mono<?> finalSequence(Context context, Pigeon pigeon, Exploration exploration, List<PigeonWinnings> totalWinnings) {
+    private Mono<Void> finalSequence(Context context, Pigeon pigeon, Exploration exploration, List<PigeonWinnings> totalWinnings) {
         PigeonWinnings winnings = PigeonWinnings.merge(totalWinnings.toArray(PigeonWinnings[]::new));
 
         LocalDateTime now = DateTimeHelper.now();
@@ -88,7 +88,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         return context.getEvent().createFollowup().withEmbeds(embed.build()).then();
     }
 
-    private Mono<?> executeFinalSequence(Pigeon pigeon, Context context, Exploration exploration, List<ExplorationScenarioWinnings> totalWinnings) {
+    private Mono<Void> executeFinalSequence(Pigeon pigeon, Context context, Exploration exploration, List<ExplorationScenarioWinnings> totalWinnings) {
         if (totalWinnings.size() == exploration.getTotalActions()) {
             return finalSequence(context, pigeon, exploration, totalWinnings.stream().map(ExplorationScenarioWinnings::pigeonWinnings).toList());
         } else {
@@ -98,7 +98,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
         }
     }
 
-    private Mono<?> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
+    private Mono<Void> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
         FullExplorationLocation location = explorationService.getAllLocations().get(exploration.getLocationId());
         ScenarioMenu menu = new ScenarioMenu(context, location, exploration, pigeon);
         return new MenuManager(menu).waitFor().flatMap(c -> {
@@ -122,7 +122,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     }
 
     @Override
-    public Mono<?> execute(Context context) throws RuntimeException {
+    public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
 
         PigeonValidation validation = getValidation();

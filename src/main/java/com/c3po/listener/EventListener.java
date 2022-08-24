@@ -7,7 +7,7 @@ public interface EventListener<T extends Event> {
 
     Class<T> getEventType();
 
-    Mono<?> execute(T event);
+    Mono<Void> execute(T event);
 
 }
 
