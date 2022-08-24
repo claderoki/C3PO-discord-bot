@@ -1,7 +1,6 @@
 package com.c3po.ui.input;
 
 import com.c3po.helper.waiter.EventParser;
-import com.c3po.helper.waiter.ParseResult;
 import com.c3po.helper.waiter.ResultType;
 import com.c3po.helper.waiter.Waiter;
 import com.c3po.ui.input.base.ButtonMenuOption;

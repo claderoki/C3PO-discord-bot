@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 public class SnakeOilButton extends ButtonMenuOption<Void> {
     protected final GameState gameState;
     protected final SnakeOilPlayer player;
-    @Setter
-    protected boolean test = false;
 
     @Setter
     protected Consumer<Void> onFinishTurn;
@@ -71,7 +69,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
 
     @Override
     protected boolean isAllowed(ComponentInteractionEvent event) {
-        return test || event.getInteraction().getUser().equals(this.player.getUser());
+        return gameState.isTest() || event.getInteraction().getUser().equals(this.player.getUser());
     }
 
     private Mono<Void> afterHook(PlayerStatus status) {
@@ -94,7 +92,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return MenuManager.waitForMenu(menu, replier).map(m -> afterHook(status));
+        return new MenuManager(menu, replier).waitFor().map(m -> afterHook(status));
     }
 
 }

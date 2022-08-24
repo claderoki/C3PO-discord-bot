@@ -7,7 +7,6 @@ import com.c3po.ui.input.base.SubMenu;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import reactor.core.publisher.Mono;
 
-
 public class SubMenuOption extends ButtonMenuOption<Long> {
     private final SubMenu subMenu;
 
@@ -35,8 +34,6 @@ public class SubMenuOption extends ButtonMenuOption<Long> {
         if (hasBackButton()) {
             subMenu.addOption(new BackButtonMenuOption());
         }
-        subMenu.setEmbedConsumer(e -> e.description("Hmm"));
-
-        return MenuManager.waitForMenu(subMenu);
+        return new MenuManager(subMenu).waitFor();
     }
 }

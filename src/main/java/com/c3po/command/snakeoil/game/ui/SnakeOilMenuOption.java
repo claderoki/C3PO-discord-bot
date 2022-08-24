@@ -30,7 +30,7 @@ public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
     protected InteractionFollowupCreateMono followup(InteractionFollowupCreateMono followup) {
         SnakeOilPlayer player = gameState.getCurrentlyPicking();
         return followup
-            .withContent(player.getUser().getMention() + ", your turn!")
+            .withContent(player.getUser().getUsername() + ", your turn!")
             .withEmbeds(EmbedHelper.notice(getFollowupDescription()).build())
         ;
     }

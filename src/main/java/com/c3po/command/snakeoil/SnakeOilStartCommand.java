@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import static org.mockito.Mockito.*;
 
 public class SnakeOilStartCommand extends SubCommand {
 
@@ -53,7 +54,7 @@ public class SnakeOilStartCommand extends SubCommand {
                 .collect(Collectors.toSet())
                 .map(LinkedHashSet::new);
         }
-        return MenuManager.waitForMenu(new LobbyMenu(context)).map(m -> new LinkedHashSet<>(((LobbyMenu)m).getUsers()));
+        return new MenuManager(new LobbyMenu(context)).waitFor().map(m -> new LinkedHashSet<>(((LobbyMenu)m).getUsers()));
     }
 
     private Set<String> readLines(String csvFile) {
@@ -83,8 +84,8 @@ public class SnakeOilStartCommand extends SubCommand {
             .map(players -> {
                 Deck<Profession> professions = new Deck<>(getProfessions().stream().map(Profession::new).toList());
                 Deck<Word> deck = new Deck<>(getWords().stream().map(Word::new).toList());
-                GameState gameState = new GameState(players, professions, deck);
-                return new SnakeOilGame(gameState, new SnakeOilUI(context), finalTest);
+                GameState gameState = new GameState(players, professions, deck, finalTest);
+                return new SnakeOilGame(gameState, new SnakeOilUI(context));
             })
             .flatMap(SnakeOilGame::start)
             .then();

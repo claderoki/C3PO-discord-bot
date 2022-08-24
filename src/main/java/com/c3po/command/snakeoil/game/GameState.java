@@ -19,6 +19,7 @@ public class GameState {
     private final List<SnakeOilPlayer> players;
     private final Deck<Profession> professions;
     private final Deck<Word> words;
+    private final boolean test;
     private final ArrayList<RoundState> rounds = new ArrayList<>();
     private RoundState currentRound;
     @Setter

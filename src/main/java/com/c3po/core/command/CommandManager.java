@@ -14,7 +14,6 @@ import com.c3po.core.setting.SettingTransformer;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.Mode;
-import com.iwebpp.crypto.TweetNaclFast;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
@@ -24,7 +23,6 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.*;
 
 @NoArgsConstructor
@@ -50,7 +48,7 @@ public class CommandManager {
         }
     }
 
-    private String getCurrentCommandsHash() {
+    private String getCommandsHash() {
         String all = String.join("", commands.keySet().stream().sorted().toList())
             + String.join("", settings.keySet().stream().sorted().toList()).replace(" ", "");
         return String.valueOf(all.hashCode());
@@ -105,7 +103,7 @@ public class CommandManager {
         final ApplicationService applicationService = restClient.getApplicationService();
         final long applicationId = restClient.getApplicationId().blockOptional().orElseThrow();
 
-        String currentHash = getCurrentCommandsHash();
+        String currentHash = getCommandsHash();
         String previousHash = getPreviousCommandsHash();
 
         if (currentHash.equals(previousHash)) {

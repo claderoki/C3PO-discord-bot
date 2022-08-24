@@ -24,7 +24,7 @@ public class PollCreateCommand extends SubCommand {
             e.createFollowup().withContent("Okay, I wont remind you, or do anything at all except for send this message."));
         menu.addOption(option);
 
-        return MenuManager.waitForMenu(menu);
+        return new MenuManager(menu).waitFor();
 
 //        Menu menu = new Menu(context);
 //        menu.addOption(new BooleanMenuOption("Anonymous").withEmoji("\uD83E\uDD77"));
