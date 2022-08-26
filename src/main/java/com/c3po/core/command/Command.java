@@ -38,11 +38,7 @@ public abstract class Command {
         return null;
     }
 
-    public abstract Mono<Void> execute(Context context) throws RuntimeException;
-
-    protected List<CommandValidation<?>> getValidations() {
-        return List.of();
-    }
+    protected abstract Mono<Void> execute(Context context) throws RuntimeException;
 
     protected Mono<Void> beforeExecute(Context context) {
         return Mono.empty();
@@ -52,22 +48,21 @@ public abstract class Command {
         return Mono.empty();
     }
 
-    public Mono<Void> run(Context context) {
+    public final Mono<Void> run(Context context) {
         return Mono.empty()
-//            getValidations().flatMap(validations -> validations.validate(context))
             .then(beforeExecute(context))
             .then(execute(context))
             .then(afterExecute(context))
         ;
     }
 
-    public void addOption(Consumer<ImmutableApplicationCommandOptionData.Builder> option) {
+    public final void addOption(Consumer<ImmutableApplicationCommandOptionData.Builder> option) {
         final ImmutableApplicationCommandOptionData.Builder mutatedOption = ApplicationCommandOptionData.builder();
         option.accept(mutatedOption);
         this.options.add(mutatedOption.build());
     }
 
-    public ApplicationCommandRequest asRequest() {
+    public final ApplicationCommandRequest asRequest() {
         return ApplicationCommandRequest.builder()
             .name(getName())
             .description(getDescription())

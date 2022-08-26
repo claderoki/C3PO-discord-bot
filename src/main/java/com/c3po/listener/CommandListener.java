@@ -129,7 +129,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         }
         try {
             return Mono.defer(() -> beforeCommand(bucketManager, command))
-                .then(command.execute(context))
+                .then(command.run(context))
                 .then(Mono.defer(() -> afterCommand(bucketManager, command)));
         } catch (Exception e) {
             if (bucketManager != null) {
