@@ -2,7 +2,6 @@ package com.c3po.listener;
 
 import com.c3po.command.SettingInfo;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
-import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
@@ -12,7 +11,6 @@ import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.errors.PublicException;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.helper.EventHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.core.setting.*;
 import com.c3po.helper.LogScope;
@@ -20,17 +18,11 @@ import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.spec.EmbedCreateSpec;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.annotation.Target;
 import java.util.*;
 
 public class CommandListener implements EventListener<ChatInputInteractionEvent> {
-
-    private final static List<Command> commands = List.of(
-        new MilkywayCommandGroup()
-    );
     private final CommandManager commandManager;
 
     private final static SettingService settingService = new SettingService();
@@ -113,31 +105,36 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return Mono.empty();
     }
 
-    private Mono<Void> beforeCommand(Optional<BucketManager> bucketManager, Command command) {
-        bucketManager.ifPresent(BucketManager::before);
+    private Mono<Void> beforeCommand(BucketManager bucketManager, Command command) {
         LogHelper.log("Starting command " + command.getName());
+        if (bucketManager != null) {
+            bucketManager.before();
+        }
         return Mono.empty();
     }
 
-    private Mono<Void> afterCommand(Optional<BucketManager> bucketManager, Command command) {
+    private Mono<Void> afterCommand(BucketManager bucketManager, Command command) {
         LogHelper.log("Finishing command " + command.getName());
-        bucketManager.ifPresent(BucketManager::after);
+        if (bucketManager != null) {
+            bucketManager.after();
+        }
         return Mono.empty();
     }
 
     private Mono<Void> processCommand(Command command, Context context) {
-        Optional<BucketManager> bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context));
-        Optional<Boolean> valid = bucketManager.map(BucketManager::validate);
-        if (valid.isPresent() && !valid.get()) {
+        BucketManager bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context)).orElse(null);
+        if (bucketManager != null && !bucketManager.validate()) {
             LogHelper.log("BUCKET FAILED.");
             return Mono.empty();
         }
         try {
-            return beforeCommand(bucketManager, command)
+            return Mono.defer(() -> beforeCommand(bucketManager, command))
                 .then(command.execute(context))
-                .then(afterCommand(bucketManager, command));
+                .then(Mono.defer(() -> afterCommand(bucketManager, command)));
         } catch (Exception e) {
-            bucketManager.ifPresent(BucketManager::after);
+            if (bucketManager != null) {
+                bucketManager.after();
+            }
             if (e instanceof PublicException publicException) {
                 EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
                 return context.getEvent().reply().withEmbeds(embed)

@@ -2,8 +2,6 @@ package com.c3po.helper;
 
 import discord4j.rest.util.Color;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ColorFormatter {

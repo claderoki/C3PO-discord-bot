@@ -21,6 +21,7 @@ import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.*;

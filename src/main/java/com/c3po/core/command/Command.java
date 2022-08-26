@@ -6,6 +6,7 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
 import lombok.Getter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -39,8 +40,8 @@ public abstract class Command {
 
     public abstract Mono<Void> execute(Context context) throws RuntimeException;
 
-    protected Mono<List<CommandValidation<?>>> getValidations() {
-        return Mono.just(List.of());
+    protected List<CommandValidation<?>> getValidations() {
+        return List.of();
     }
 
     protected Mono<Void> beforeExecute(Context context) {
@@ -52,8 +53,8 @@ public abstract class Command {
     }
 
     public Mono<Void> run(Context context) {
-        return getValidations().map(validations -> validations
-                .stream().map(validation -> validation.validate(context)))
+        return Mono.empty()
+//            getValidations().flatMap(validations -> validations.validate(context))
             .then(beforeExecute(context))
             .then(execute(context))
             .then(afterExecute(context))

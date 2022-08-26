@@ -8,8 +8,7 @@ public class AccessControlListTest {
     @Test
     public void testAllowed() {
         AccessControlList<Integer> acl = new AccessControlList<>();
-        acl.allow(1);
-        acl.allow(2);
+        acl.allow(1, 2);
 
         assertTrue(acl.isAllowed(1));
         assertTrue(acl.isAllowed(2));
@@ -19,8 +18,7 @@ public class AccessControlListTest {
     @Test
     public void testDenied() {
         AccessControlList<Integer> acl = new AccessControlList<>();
-        acl.deny(1);
-        acl.deny(2);
+        acl.deny(1, 2);
 
         assertFalse(acl.isAllowed(1));
         assertFalse(acl.isAllowed(2));
@@ -30,8 +28,7 @@ public class AccessControlListTest {
     @Test
     public void testDeniedModeAllowUnless() {
         AccessControlList<Integer> acl = new AccessControlList<>(AccessControlListMode.ALLOW_UNLESS_DENIED);
-        acl.allow(1);
-        acl.allow(2);
+        acl.allow(1, 2);
         acl.deny(4);
 
         assertTrue(acl.isAllowed(1));
