@@ -53,6 +53,7 @@ public class GameState {
         currentlyPicking.setTurnStatus(TurnStatus.PICKING);
         menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
         currentRound.setCustomer(currentlyPicking);
+        players.forEach(c -> c.setStatus(getStatus(c)));
         return Mono.empty();
     }
 
@@ -67,6 +68,24 @@ public class GameState {
         }
         player.setTurnStatus(TurnStatus.PICKING);
         previous.setTurnStatus(TurnStatus.FINISHED);
+        players.forEach(c -> c.setStatus(getStatus(c)));
         currentlyPicking = player;
+    }
+
+    public PlayerStatus getStatus(SnakeOilPlayer player) {
+        boolean allWordsChosen = getPlayers()
+            .stream()
+            .filter(c -> c != getCurrentRound().getCustomer())
+            .allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
+
+        if (getCurrentRound().getCustomer().equals(player)) {
+            if (allWordsChosen) {
+                return PlayerStatus.PICKING_PERSON;
+            } else {
+                return PlayerStatus.PICKING_PROFESSION;
+            }
+        } else {
+            return PlayerStatus.PICKING_CARD;
+        }
     }
 }

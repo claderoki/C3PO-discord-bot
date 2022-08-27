@@ -27,44 +27,16 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         return button.disabled(!player.getTurnStatus().equals(TurnStatus.PICKING));
     }
 
-    public PlayerStatus getStatus() {
-        boolean allWordsChosen = gameState.getPlayers()
-            .stream()
-            .filter(c -> c != gameState.getCurrentRound().getCustomer())
-            .allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
-
-        if (gameState.getCurrentRound().getCustomer().equals(player)) {
-            if (allWordsChosen) {
-                return PlayerStatus.PICKING_PERSON;
-            } else {
-                return PlayerStatus.PICKING_PROFESSION;
-            }
-        } else {
-            return PlayerStatus.PICKING_CARD;
-        }
-    }
-
     @Override
     public String getFullName() {
         int index = gameState.getPlayers().indexOf(player);
-        String ind = "[P"+(index+1)+"]";
-        String format = ind + " %s";
-
-        PlayerStatus status = getStatus();
-        switch (status) {
-            case PICKING_CARD -> {
-                return format.formatted("Choose product");
-            }
-            case PICKING_PROFESSION -> {
-                return format.formatted("Pick customer");
-            }
-            case PICKING_PERSON -> {
-                return format.formatted("Buy product");
-            }
-            default -> {
-                return format.formatted("Choose nothing..");
-            }
-        }
+        String format = "[P"+(index+1)+"] %s";
+        return switch (player.getStatus()) {
+            case PICKING_CARD -> format.formatted("Choose product");
+            case PICKING_PROFESSION -> format.formatted("Pick customer");
+            case PICKING_PERSON -> format.formatted("Buy product");
+            default -> format.formatted("Choose nothing..");
+        };
     }
 
     @Override
@@ -72,8 +44,8 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         return gameState.isTest() || event.getInteraction().getUser().equals(this.player.getUser());
     }
 
-    private Mono<Void> afterHook(PlayerStatus status) {
-        if (status == PlayerStatus.PICKING_PERSON) {
+    private Mono<Void> afterHook() {
+        if (player.getStatus() == PlayerStatus.PICKING_PERSON) {
             onFinishTurn.accept(null);
         }
         return Mono.empty();
@@ -82,17 +54,16 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     @Override
     public Mono<Void> execute(ButtonInteractionEvent event) {
         Menu menu = new Menu(context, true);
-        PlayerStatus status = getStatus();
-        MenuOption<?, ?, ?> option = switch (status) {
+        MenuOption<?, ?, ?> option = switch (player.getStatus()) {
             case PICKING_CARD -> new CardMenuOption(gameState, player);
             case PICKING_PROFESSION -> new ProfessionMenuOption(gameState, player);
             case PICKING_PERSON -> new PersonMenuOption(gameState, player);
-            default -> throw new IllegalStateException("Unexpected value: " + status);
+            default -> throw new IllegalStateException("Unexpected value: ");
         };
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return new MenuManager(menu, replier).waitFor().map(m -> afterHook(status)).then();
+        return new MenuManager(menu, replier).waitFor().map(m -> afterHook()).then();
     }
 
 }

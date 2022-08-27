@@ -17,6 +17,7 @@ public class SnakeOilPlayer {
     private final Deck<Word> words;
     private int score = 0;
     private TurnStatus turnStatus;
+    private PlayerStatus status;
 
     public void incrementScore() {
         score++;
