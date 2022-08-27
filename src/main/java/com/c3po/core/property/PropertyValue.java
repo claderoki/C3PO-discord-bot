@@ -36,6 +36,7 @@ public class PropertyValue {
         return newValue != null && !newValue.equals(value);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getParsedValue() {
         return (T)DataFormatter.parse(type, getValue());
     }

@@ -2,11 +2,9 @@ package com.c3po.core.wordnik.endpoints;
 
 import com.c3po.core.api.ApiEndpoint;
 import com.c3po.core.wordnik.responses.WordListResponse;
-import com.c3po.core.wordnik.responses.WordResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Map;
 

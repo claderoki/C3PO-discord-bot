@@ -50,7 +50,7 @@ public abstract class ApiCall {
             }
             Duration throttleDuration = getThrottleDuration(response);
             Mono<String> value = Mono.delay(throttleDuration).then(bytes.asString());
-            if (!validate(response)) {
+            if (isInvalid(response)) {
                 return value.flatMap(c -> Mono.error(new FailedCallException(response.status().code(), c)));
             }
             return value.map(endpoint::parseResponse);
@@ -69,8 +69,8 @@ public abstract class ApiCall {
         return false;
     }
 
-    protected boolean validate(HttpClientResponse response) {
-        return response.status().code() >= 200 && response.status().code() < 300;
+    protected boolean isInvalid(HttpClientResponse response) {
+        return response.status().code() < 200 || response.status().code() >= 300;
     }
 
     protected Map<String, String> getDefaultParameters() {

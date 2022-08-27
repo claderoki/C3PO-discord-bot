@@ -1,7 +1,7 @@
 package com.c3po.command.pigeon.validation;
 
 import com.c3po.connection.repository.PigeonRepository;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.service.HumanService;
 import discord4j.common.util.Snowflake;

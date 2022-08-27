@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class Milkyway {
+public final class Milkyway {
     @Builder.Default
     private int id = 0;
     private ScopeTarget target;

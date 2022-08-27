@@ -4,7 +4,7 @@ import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.Scope;
 import com.c3po.core.command.Context;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.ColorFormatter;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.model.personalrole.PersonalRoleSettings;

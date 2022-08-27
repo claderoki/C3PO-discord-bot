@@ -6,7 +6,7 @@ import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.Context;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;

@@ -1,7 +1,6 @@
 package com.c3po.listener;
 
 import com.c3po.command.SettingInfo;
-import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
@@ -9,7 +8,7 @@ import com.c3po.core.command.*;
 import com.c3po.command.SettingGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.core.setting.*;

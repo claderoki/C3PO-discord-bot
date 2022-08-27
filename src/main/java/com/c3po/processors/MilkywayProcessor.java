@@ -7,7 +7,7 @@ import com.c3po.model.milkyway.AvailablePurchase;
 import com.c3po.model.milkyway.MilkywayItem;
 import com.c3po.connection.repository.ItemRepository;
 import com.c3po.connection.repository.MilkywayRepository;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.waiter.IntParser;

@@ -1,6 +1,6 @@
 package com.c3po.helper.waiter;
 
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import lombok.Builder;
 import lombok.Getter;

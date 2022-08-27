@@ -2,7 +2,7 @@ package com.c3po.command.pigeon;
 
 import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.core.command.Context;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.cache.flags.FlagController;
@@ -42,7 +42,7 @@ public class PigeonPoopCommand extends PigeonSubCommand {
 
     private IdlePigeon getIdlePigeon(Context context, Snowflake userId) {
         if (userId == null) {
-            IdlePigeon idlePigeon = getRandomIdlePigeon(context.getEvent().getInteraction().getGuildId().get(),
+            IdlePigeon idlePigeon = getRandomIdlePigeon(context.getEvent().getInteraction().getGuildId().orElseThrow(),
                 context.getEvent().getInteraction().getUser().getId()
             );
             if (idlePigeon == null) {

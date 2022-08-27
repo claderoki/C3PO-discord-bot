@@ -6,7 +6,6 @@ import com.c3po.helper.environment.Configuration;
 import lombok.NonNull;
 import reactor.netty.http.client.HttpClientResponse;
 
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
 
@@ -27,9 +26,9 @@ public class WordnikApi extends ApiCall {
     }
 
     @Override
-    protected boolean validate(HttpClientResponse response) {
+    protected boolean isInvalid(HttpClientResponse response) {
         int remainingHour = response.responseHeaders().getInt("x-ratelimit-remaining-hour");
-        return super.validate(response) && remainingHour > 0;
+        return super.isInvalid(response) || remainingHour <= 0;
     }
 
     @Override

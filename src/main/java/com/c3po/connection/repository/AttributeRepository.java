@@ -1,7 +1,6 @@
 package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
-import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;

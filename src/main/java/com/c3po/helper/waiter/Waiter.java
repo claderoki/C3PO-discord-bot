@@ -1,8 +1,7 @@
 package com.c3po.helper.waiter;
 
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -16,7 +15,6 @@ import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;

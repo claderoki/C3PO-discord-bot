@@ -21,7 +21,6 @@ import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.*;
@@ -55,22 +54,22 @@ public class CommandManager {
         return String.valueOf(all.hashCode());
     }
 
-    private boolean ensureFile(File file) {
+    private boolean tryCreateFile(File file) {
         if (file.exists()) {
-            return true;
+            return false;
         }
         try {
-            return file.createNewFile();
+            return !file.createNewFile();
         } catch (IOException ex) {
             LogHelper.log(ex);
-            return false;
+            return true;
         }
     }
 
     @SneakyThrows
     private String getPreviousCommandsHash() {
         File file = new File(".data/commandHash");
-        if (!ensureFile(file)) {
+        if (tryCreateFile(file)) {
             return null;
         }
 
@@ -86,7 +85,7 @@ public class CommandManager {
     @SneakyThrows
     private void saveCommandHash(String hash) {
         File file = new File(".data/commandHash");
-        if (!ensureFile(file)) {
+        if (tryCreateFile(file)) {
             return;
         }
 

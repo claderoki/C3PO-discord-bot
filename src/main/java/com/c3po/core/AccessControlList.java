@@ -29,8 +29,17 @@ public class AccessControlList<T> {
         allowed.addAll(Arrays.asList(values));
     }
 
+    public final void allow(T value) {
+        allowed.add(value);
+    }
+
     @SafeVarargs
     public final void deny(T... values) {
         denied.addAll(Arrays.asList(values));
     }
+
+    public final void deny(T value) {
+        denied.add(value);
+    }
+
 }

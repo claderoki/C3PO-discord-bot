@@ -3,7 +3,6 @@ package com.c3po.core.setting;
 import com.c3po.command.SettingInfo;
 import com.c3po.core.command.CommandManager;
 import com.c3po.helper.DiscordCommandOptionType;
-import com.c3po.listener.CommandListener;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;

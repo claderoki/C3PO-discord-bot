@@ -6,8 +6,7 @@ import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
 public class Resource {
-    InputStream stream;
-
+    private final InputStream stream;
     public Resource(String name) {
         stream = getClass().getClassLoader().getResourceAsStream(name);
         assert stream != null;

@@ -5,8 +5,6 @@ import com.c3po.helper.LogHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.CacheManager;
 import com.c3po.helper.environment.Configuration;
-import com.c3po.helper.environment.ConfigurationLoader;
-import com.c3po.helper.environment.Mode;
 import com.c3po.listener.CommandListener;
 import com.c3po.listener.EventListener;
 import com.c3po.listener.MessageCreateListener;

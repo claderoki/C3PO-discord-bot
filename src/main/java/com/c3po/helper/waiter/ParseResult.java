@@ -1,6 +1,6 @@
 package com.c3po.helper.waiter;
 
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -8,18 +8,12 @@ import com.c3po.ui.Toast;
 import com.c3po.ui.ToastType;
 import com.c3po.ui.input.base.Replier;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
-import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
-import discord4j.core.spec.InteractionReplyEditMono;
 import discord4j.rest.util.Color;
 import lombok.Getter;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.HashMap;
-import java.util.Optional;
 
 @Getter
 public class Context {

@@ -3,7 +3,7 @@ package com.c3po.command.milkyway;
 import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.CommandSettings;
 import com.c3po.core.command.Context;
-import com.c3po.errors.PublicException;
+import com.c3po.error.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;

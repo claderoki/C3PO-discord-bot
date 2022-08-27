@@ -2,7 +2,6 @@ package com.c3po.core.setting.validation;
 
 import com.c3po.helper.DataType;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.service.SettingService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ public class SettingValidator {
             case LT -> left < right;
             case GTE -> left >= right;
             case LTE -> left <= right;
-            default -> false;
         };
     }
 

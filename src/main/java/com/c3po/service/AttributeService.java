@@ -2,7 +2,6 @@ package com.c3po.service;
 
 import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.ScopeTarget;
-import com.c3po.core.attribute.Attribute;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.cache.keys.AttributeCodeKey;
 import com.c3po.helper.cache.keys.AttributeIdKey;

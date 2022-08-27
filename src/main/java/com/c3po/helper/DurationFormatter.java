@@ -7,7 +7,6 @@ public class DurationFormatter {
     public static Duration parse(String from) {
         from = from.replace("and", "").replace(",", "");
         String[] values = from.split(" ");
-        String a = "";
         return Duration.ofSeconds(0);
     }
 

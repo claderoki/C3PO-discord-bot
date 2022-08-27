@@ -3,7 +3,7 @@ package com.c3po.helper.cache;
 import java.util.HashMap;
 
 public class CacheManager {
-    private static HashMap<String, Cache> instances = new HashMap<>();
+    private static final HashMap<String, Cache> instances = new HashMap<>();
 
     public static Cache get(String identifier) {
         return instances.get(identifier);

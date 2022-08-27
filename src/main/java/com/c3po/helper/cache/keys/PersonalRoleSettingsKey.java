@@ -1,7 +1,6 @@
 package com.c3po.helper.cache.keys;
 
 import com.c3po.core.ScopeTarget;
-import com.c3po.model.guildreward.GuildRewardSettings;
 import com.c3po.model.personalrole.PersonalRoleSettings;
 
 import java.time.Duration;

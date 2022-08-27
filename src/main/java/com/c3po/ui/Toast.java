@@ -11,5 +11,5 @@ public class Toast {
     private String message;
     private Duration removeAfter;
     @Builder.Default
-    private ToastType type = ToastType.ERROR;
+    private final ToastType type = ToastType.ERROR;
 }

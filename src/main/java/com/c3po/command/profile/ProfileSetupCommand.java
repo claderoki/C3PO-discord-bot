@@ -4,13 +4,11 @@ import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.command.Context;
-import com.c3po.core.command.SubCommand;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.waiter.DateParser;
 import com.c3po.helper.waiter.StringParser;
 import com.c3po.helper.waiter.TimezoneParser;
-import com.c3po.service.ProfileService;
 import com.c3po.ui.input.BackButtonMenuOption;
 import com.c3po.ui.input.CancelButtonMenuOption;
 import com.c3po.ui.input.WaiterMenuOption;
@@ -61,14 +59,14 @@ public class ProfileSetupCommand extends ProfileSubCommand {
         Menu menu = new Menu(context);
 
         for (PropertyValue propertyValue: propertyValues) {
-            MenuOption menuOption = getOptionFor(propertyValue);
+            MenuOption<?, ?, ?> menuOption = getOptionFor(propertyValue);
             if (menuOption == null) {
                 continue;
             }
-            menuOption.setSetter((v) -> {
+            menuOption.setSetter(v -> {
                 String value = DataFormatter.toRaw(v);
                 propertyValue.setValue(value);
-                return v;
+                return null;
             });
             menu.addOption(menuOption);
         }

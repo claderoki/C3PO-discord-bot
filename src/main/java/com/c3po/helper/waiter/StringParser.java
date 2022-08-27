@@ -1,6 +1,5 @@
 package com.c3po.helper.waiter;
 
-import com.c3po.helper.LogHelper;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import lombok.Builder;
 import lombok.Getter;
