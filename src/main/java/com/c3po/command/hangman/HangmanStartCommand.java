@@ -2,6 +2,7 @@ package com.c3po.command.hangman;
 
 import com.c3po.command.hangman.game.*;
 import com.c3po.command.hangman.game.core.LobbyMenu;
+import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
 import com.c3po.core.wordnik.WordnikApi;
@@ -11,17 +12,21 @@ import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.service.HumanService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 
+@Component
 public class HangmanStartCommand extends SubCommand {
-    private final HumanService humanService = new HumanService();
+    @Autowired
+    private HumanService humanService;
     private final static List<String> wordCache = new ArrayList<>();
     private final static int bet = 25;
 
-    protected HangmanStartCommand(HangmanCommandGroup group) {
-        super(group, "start", "no description");
+    protected HangmanStartCommand() {
+        super(CommandCategory.HANGMAN, "start", "no description");
     }
 
     private Mono<Set<User>> getUsers(Context context) {

@@ -1,8 +1,8 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.command.pigeon.menu.scenario.ScenarioMenu;
-import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.command.pigeon.validation.PigeonValidationResult;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.repository.ExplorationRepository;
 import com.c3po.connection.repository.HumanRepository;
 import com.c3po.connection.repository.StreakRepository;
@@ -17,6 +17,9 @@ import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.service.ExplorationService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.spec.EmbedCreateFields;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -24,20 +27,29 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class PigeonSpaceCommand extends PigeonSubCommand {
-    protected final ExplorationService explorationService = new ExplorationService();
-    protected final ExplorationRepository explorationRepository;
-    protected final HumanRepository humanRepository;
-    protected final StreakRepository streakRepository = StreakRepository.db();
+    @Autowired
+    protected ExplorationService explorationService;
 
-    protected PigeonSpaceCommand(PigeonCommandGroup group) {
-        super(group, "space", "no description.");
-        humanRepository = HumanRepository.db();
-        explorationRepository = ExplorationRepository.db();
+    @Autowired
+    protected ExplorationRepository explorationRepository;
+
+    @Autowired
+    protected HumanRepository humanRepository;
+
+    @Autowired
+    protected StreakRepository streakRepository;
+
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
+
+    protected PigeonSpaceCommand() {
+        super("space", "no description.");
     }
 
-    protected PigeonValidation getValidation() {
-        return PigeonValidation.builder()
+    protected PigeonValidationSettings getValidationSettings() {
+        return PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .requiredPigeonStatus(PigeonStatus.SPACE_EXPLORING)
             .build();
@@ -81,7 +93,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
 
     private Mono<Void> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
         FullExplorationLocation location = explorationService.getAllLocations().get(exploration.getLocationId());
-        ScenarioMenu menu = new ScenarioMenu(context, location, exploration, pigeon);
+        ScenarioMenu menu = new ScenarioMenu(beanFactory, context, location, exploration, pigeon);
         return new MenuManager(menu).waitFor().flatMap(c -> {
             List<ExplorationScenarioWinnings> totalWinnings = menu.getTotalWinnings();
             for (var winnings: totalWinnings) {
@@ -106,8 +118,9 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
 
-        PigeonValidation validation = getValidation();
-        PigeonValidationResult result = validation.validate(userId);
+
+        PigeonValidationSettings settings = getValidationSettings();
+        PigeonValidationResult result = validation.validate(settings, userId);
 
         Exploration exploration = explorationRepository.getExploration(result.getPigeonId());
         LocalDateTime now = DateTimeHelper.now();

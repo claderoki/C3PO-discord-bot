@@ -26,6 +26,7 @@ import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -33,17 +34,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class SettingGroup {
-    private final SettingService settingService = new SettingService();
-    private final SettingRepository settingRepository = SettingRepository.db();
+    @Autowired
+    private SettingService settingService;
 
+    @Autowired
+    private SettingRepository settingRepository;
+
+    @Autowired
+    private SettingValidationCache settingValidationCache;
+
+
+    private final String settingKey;
     private final String category;
     private final String settingParam;
-    private final Integer settingId;
+    private Integer settingId;
 
     public SettingGroup(String category, String settingKey) {
         this.category = category;
+        this.settingKey = settingKey;
         this.settingParam = settingKey.replace("_id", "");
-        this.settingId = settingService.getId(category, settingKey);
     }
 
     protected String getValueFromEvent(ChatInputInteractionEvent event) {
@@ -106,10 +115,11 @@ public class SettingGroup {
     }
 
     public Mono<Void> handle(ChatInputInteractionEvent event) {
+        this.settingId = settingService.getId(category, settingKey);
         Setting setting = settingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
 
-        return CommandSettingValidation.validate(commandSettings, event).map(valid -> {
+        return CommandSettingValidation.validate(commandSettings, event).flatMap(valid -> {
             if (!valid) {
                 return Mono.empty();
             }
@@ -121,7 +131,7 @@ public class SettingGroup {
 
             ScopeTarget target = scopeToTarget(setting.getScope(), event);
             ArrayList<Integer> requiredSettings = new ArrayList<>();
-            ArrayList<SettingValidation> validations = SettingValidationCache.get().get(settingId);
+            ArrayList<SettingValidation> validations = settingValidationCache.get().get(settingId);
             requiredSettings.add(settingId);
             requiredSettings.addAll(getRequiredSettings(validations));
             HashMap<Integer, PropertyValue> settingValues = settingRepository.getHydratedPropertyValues(target, category, requiredSettings);

@@ -1,10 +1,12 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.model.pigeon.stat.StatType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PigeonCleanCommand extends PigeonStatCommand {
-    protected PigeonCleanCommand(PigeonCommandGroup group) {
-        super(group, "clean", "no message");
+    protected PigeonCleanCommand() {
+        super("clean", "no message");
     }
 
     @Override

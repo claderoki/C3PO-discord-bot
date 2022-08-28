@@ -4,8 +4,9 @@ import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.model.exploration.*;
 import com.c3po.model.pigeon.PigeonWinnings;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,20 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
+@Scope("singleton")
 public class ExplorationRepository extends Repository {
-    protected static ExplorationRepository DB;
-
-    public static ExplorationRepository db() {
-        if (DB == null) {
-            DB = new ExplorationRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    public ExplorationRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
     public void createExploration(int locationId, LocalDateTime arrivalDate, int pigeonId) {
         execute("INSERT INTO `exploration` (planet_location_id, start_date, arrival_date, finished, pigeon_id) VALUES (?, UTC_TIMESTAMP(), ?, 0, ?)",
             new IntParameter(locationId),

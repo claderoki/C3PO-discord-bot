@@ -3,7 +3,6 @@ package com.c3po.command.milkyway;
 import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.connection.repository.ItemRepository;
 import com.c3po.core.attribute.KnownAttribute;
-import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.Context;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.error.PublicException;
@@ -12,16 +11,23 @@ import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.service.AttributeService;
 import com.c3po.service.HumanService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class MilkywayDenyCommand extends MilkywaySubCommand {
-    private final HumanService humanService = new HumanService();
-    private final AttributeService attributeService = new AttributeService();
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
-    private final ItemRepository itemRepository = ItemRepository.db();
+    @Autowired
+    private HumanService humanService;
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private AttributeRepository attributeRepository;
+    @Autowired
+    private ItemRepository itemRepository;
 
-    protected MilkywayDenyCommand(CommandGroup group) {
-        super(group, "deny", "Deny a milkyway");
+    protected MilkywayDenyCommand() {
+        super("deny", "Deny a milkyway");
         this.addOption(option -> option.name("id")
             .description("The identifier to deny")
             .required(true)

@@ -29,6 +29,7 @@ import discord4j.core.object.reaction.ReactionEmoji;
 import lombok.Getter;
 import lombok.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -38,12 +39,18 @@ import java.util.concurrent.TimeoutException;
 
 @Getter
 public class MilkywayProcessor {
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
-    private final ItemRepository itemRepository = ItemRepository.db();
-    private final MilkywayRepository milkywayRepository = MilkywayRepository.db();
-    private final MilkywayService milkywayService = new MilkywayService();
-    private final AttributeService attributeService = new AttributeService();
-    private final HumanService humanService = new HumanService();
+    @Autowired
+    private AttributeRepository attributeRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private MilkywayRepository milkywayRepository;
+    @Autowired
+    private MilkywayService milkywayService;
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private HumanService humanService;
 
     private final ChatInputInteractionEvent event;
     private final boolean godmode;

@@ -1,7 +1,7 @@
 package com.c3po.command.pigeon;
 
-import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.command.pigeon.validation.PigeonValidationResult;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.core.command.Context;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
@@ -11,14 +11,16 @@ import com.c3po.model.pigeon.PigeonStatus;
 import discord4j.common.util.Snowflake;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class PigeonProfileCommand extends PigeonSubCommand {
-    protected PigeonProfileCommand(PigeonCommandGroup group) {
-        super(group, "profile", "no description.");
+    protected PigeonProfileCommand() {
+        super("profile", "no description.");
         this.addOption(option -> option.name("user")
             .description("The user whos pigeon you want to look at")
             .required(false)
@@ -47,8 +49,8 @@ public class PigeonProfileCommand extends PigeonSubCommand {
         };
     }
 
-    protected PigeonValidation getValidation() {
-        return PigeonValidation.builder()
+    protected PigeonValidationSettings getValidationSettings() {
+        return PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .build();
     }
@@ -74,8 +76,8 @@ public class PigeonProfileCommand extends PigeonSubCommand {
             userId = context.getEvent().getInteraction().getUser().getId();
         }
 
-        PigeonValidation validation = getValidation();
-        PigeonValidationResult result = validation.validate(userId);
+        PigeonValidationSettings settings = getValidationSettings();
+        PigeonValidationResult result = validation.validate(settings, userId.asLong());
         Pigeon pigeon = pigeonService.getPigeon(result.getPigeonId());
 
         EmbedCreateSpec embed = EmbedHelper.normal()

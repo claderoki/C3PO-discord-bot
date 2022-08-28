@@ -3,21 +3,27 @@ package com.c3po.service;
 import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.keys.AttributeCodeKey;
 import com.c3po.helper.cache.keys.AttributeIdKey;
 import com.c3po.helper.cache.keys.AttributeValueKey;
 import com.c3po.helper.cache.CacheManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class AttributeService extends Service {
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
+@org.springframework.stereotype.Service
+public class AttributeService {
+    Cache cache = CacheManager.get("attributes");
+
+    @Autowired
+    private AttributeRepository attributeRepository;
 
     public PropertyValue getAttributeValue(ScopeTarget target, int attributeId) {
         AttributeValueKey key = new AttributeValueKey(target, attributeId);
-        return CacheManager.get().computeIfAbsent(key, (k) -> {
+        return cache.computeIfAbsent(key, (k) -> {
             Optional<PropertyValue> possibleValue = attributeRepository.getHydratedPropertyValue(target, attributeId);
             return possibleValue.orElse(null);
         });
@@ -32,17 +38,17 @@ public class AttributeService extends Service {
             AttributeIdKey idKey = new AttributeIdKey(code);
             AttributeCodeKey codeKey = new AttributeCodeKey(id);
 
-            CacheManager.get().set(idKey, id);
-            CacheManager.get().set(codeKey, code);
+            cache.set(idKey, id);
+            cache.set(codeKey, code);
         }
     }
 
     protected Integer getCachedId(String code) {
         AttributeIdKey key = new AttributeIdKey(code);
-        return CacheManager.get().get(key);
+        return cache.get(key);
     }
 
-    public Integer getId(String code) {
+    public int getId(String code) {
         Integer id = getCachedId(code);
         if (id != null) {
             return id;
@@ -53,7 +59,7 @@ public class AttributeService extends Service {
 
     protected String getCachedCode(Integer id) {
         AttributeCodeKey key = new AttributeCodeKey(id);
-        return CacheManager.get().get(key);
+        return cache.get(key);
     }
 
     public String getCode(Integer id) {

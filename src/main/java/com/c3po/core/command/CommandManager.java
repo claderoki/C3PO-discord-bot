@@ -1,11 +1,9 @@
 package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
-import com.c3po.command.hangman.HangmanCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
-import com.c3po.command.poll.PollCommandGroup;
 import com.c3po.command.profile.ProfileCommandGroup;
 import com.c3po.command.snakeoil.SnakeOilCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
@@ -21,24 +19,36 @@ import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.*;
 
 @NoArgsConstructor
+@Component
 public class CommandManager {
-    private final SettingRepository settingRepository = SettingRepository.db();
+    @Autowired
+    private SettingRepository settingRepository;
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
     final Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
+    @Autowired
+    private ProfileCommandGroup profileCommandGroup;
+    @Autowired
+    private MilkywayCommandGroup milkywayCommandGroup;
+    @Autowired
+    private PersonalRoleCommandGroup personalRoleCommandGroup;
+    @Autowired
+    private PigeonCommandGroup pigeonCommandGroup;
+
+
     private void registerCommands() {
-        register(new MilkywayCommandGroup());
-        register(new PersonalRoleCommandGroup());
-        register(new PollCommandGroup());
-        register(new ProfileCommandGroup());
-        register(new PigeonCommandGroup());
-        register(new HangmanCommandGroup());
+        register(milkywayCommandGroup);
+        register(personalRoleCommandGroup);
+        register(profileCommandGroup);
+        register(pigeonCommandGroup);
         register(new SnakeOilCommandGroup());
     }
 

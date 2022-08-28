@@ -1,6 +1,6 @@
 package com.c3po.command.pigeon;
 
-import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.core.command.Context;
 import com.c3po.error.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
@@ -15,12 +15,13 @@ import com.c3po.model.pigeon.stat.HumanGold;
 import com.c3po.model.pigeon.stat.PigeonCleanliness;
 import discord4j.common.util.Snowflake;
 import discord4j.core.spec.EmbedCreateFields;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
+@Component
 public class PigeonPoopCommand extends PigeonSubCommand {
 
-    protected PigeonPoopCommand(PigeonCommandGroup group) {
-        super(group, "poop", "no description.");
+    protected PigeonPoopCommand() {
+        super("poop", "no description.");
         this.addOption(option -> option.name("user")
             .description("The user you wish to order your pigeon to defecate on.")
             .required(false)
@@ -50,11 +51,11 @@ public class PigeonPoopCommand extends PigeonSubCommand {
             }
             return idlePigeon;
         } else {
-            var otherValidation = PigeonValidation.builder()
+            var otherSettings = PigeonValidationSettings.builder()
                 .needsActivePigeon(true)
                 .requiredPigeonStatus(PigeonStatus.IDLE)
                 .build();
-            var otherResult = otherValidation.validate(userId);
+            var otherResult = validation.validate(otherSettings, userId.asLong());
             return new IdlePigeon(otherResult.getPigeonId(), userId.asLong());
         }
     }
@@ -62,13 +63,13 @@ public class PigeonPoopCommand extends PigeonSubCommand {
     @Override
     public Mono<Void> execute(Context context) throws RuntimeException {
         Snowflake userId = context.getOptions().optSnowflake("user");
-        var validation = PigeonValidation.builder()
+        var settings = PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .requiredPigeonStatus(PigeonStatus.IDLE)
             .goldNeeded(userId == null ? 100 : 0)
             .build();
 
-        var result = validation.validate(context.getEvent().getInteraction().getUser());
+        var result = validation.validate(settings, context.getEvent().getInteraction().getUser().getId().asLong());
 
         FlagController poopController = new FlagController(new PigeonLastPoop(result.getPigeonId()));
         if (!poopController.validate()) {
@@ -78,8 +79,8 @@ public class PigeonPoopCommand extends PigeonSubCommand {
         IdlePigeon idlePigeon = getIdlePigeon(context, userId);
 
         PigeonWinnings initiatorWinnings = new PigeonWinnings();
-        if (validation.getGoldNeeded() > 0) {
-            initiatorWinnings.addStat(new HumanGold(-validation.getGoldNeeded()));
+        if (settings.getGoldNeeded() > 0) {
+            initiatorWinnings.addStat(new HumanGold(-settings.getGoldNeeded()));
         }
         initiatorWinnings.addStat(new PigeonCleanliness(5));
 

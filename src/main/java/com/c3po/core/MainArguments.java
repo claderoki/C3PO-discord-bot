@@ -1,4 +1,4 @@
-package com.c3po;
+package com.c3po.core;
 
 import com.c3po.helper.ValueParser;
 

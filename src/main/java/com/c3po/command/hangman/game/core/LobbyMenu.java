@@ -13,6 +13,7 @@ import com.c3po.ui.input.base.MenuOption;
 import discord4j.core.object.entity.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -21,8 +22,10 @@ import java.util.stream.Collectors;
 
 @Setter
 public class LobbyMenu extends Menu {
-    private final HumanRepository humanRepository = HumanRepository.db();
-    private final HumanService humanService = new HumanService();
+    @Autowired
+    private HumanRepository humanRepository;
+    @Autowired
+    private HumanService humanService;
 
     @Getter
     private final Set<User> users = Collections.synchronizedSet(new HashSet<>());

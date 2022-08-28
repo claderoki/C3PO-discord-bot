@@ -5,6 +5,7 @@ import com.c3po.command.snakeoil.game.*;
 import com.c3po.command.snakeoil.game.card.Deck;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
+import com.c3po.connection.repository.ReminderRepository;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
 import com.c3po.core.resource.Resource;
@@ -12,6 +13,7 @@ import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +23,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SnakeOilStartCommand extends SubCommand {
+
+    @Autowired
+    protected ReminderRepository reminderRepository;
 
     protected SnakeOilStartCommand(SnakeOilCommandGroup group) {
         super(group, "start", "Start the game.");

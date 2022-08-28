@@ -50,10 +50,8 @@ public class SettingTransformer {
                 .replace("_id", "")
                 .replace("_", "");
 
-            String fullName = category + " " + name;
-
             // TODO: move side effect here that adds data to the command listener to somewhere more logical.
-            commandManager.register(fullName, new SettingInfo(category, setting.getKey()));
+            commandManager.register(category + " " + name, new SettingInfo(category, setting.getKey()));
             ImmutableApplicationCommandOptionData.Builder finalOption = ApplicationCommandOptionData.builder();
             hydrateFinalSettingOption(finalOption, setting);
 

@@ -7,10 +7,15 @@ import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.cache.CacheManager;
 import com.c3po.model.guildreward.GuildRewardSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class GuildRewardService extends Service {
-    private final SettingRepository settingRepository = SettingRepository.db();
-    private final SettingService settingService = new SettingService();
+@org.springframework.stereotype.Service
+public class GuildRewardService {
+
+    @Autowired
+    private SettingRepository settingRepository;
+    @Autowired
+    private SettingService settingService;
 
     public GuildRewardSettings getSettings(ScopeTarget target) {
         return CacheManager.get().computeIfAbsent(new GuildRewardSettingsKey(target), key -> {

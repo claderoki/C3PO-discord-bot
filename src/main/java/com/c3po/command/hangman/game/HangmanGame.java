@@ -5,6 +5,7 @@ import com.c3po.connection.repository.HumanRepository;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.Emoji;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -12,7 +13,9 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class HangmanGame extends Game {
-    private final HumanRepository humanRepository = HumanRepository.db();
+
+    @Autowired
+    private HumanRepository humanRepository;
 
     private final HangmanWord word;
     private final HangmanUI ui;

@@ -1,31 +1,21 @@
 package com.c3po.connection.repository;
 
-import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.command.pigeon.validation.PigeonValidationData;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.model.pigeon.*;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.model.pigeon.stat.core.Stat;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+@Scope("singleton")
 public class PigeonRepository extends Repository {
-    protected static PigeonRepository DB;
-
-    public static PigeonRepository db() {
-        if (DB == null) {
-            DB = new PigeonRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected PigeonRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
     public synchronized Integer getActiveId(int humanId) {
         Result result = getOne("SELECT `id` FROM `pigeon` WHERE human_id = ? AND `condition` = 'active'", new IntParameter(humanId));
         if (result == null) {
@@ -157,20 +147,20 @@ public class PigeonRepository extends Repository {
             .collect(Collectors.toSet());
     }
 
-    public synchronized PigeonValidationData getValidationData(PigeonValidation validation) {
+    public synchronized PigeonValidationData getValidationData(PigeonValidationSettings settings, int humanId) {
         List<Parameter> parameters = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT");
         query.append("(`human`.`gold` >= ?) AS `has_gold_needed`, ");
-        parameters.add(new IntParameter(validation.getGoldNeeded()));
+        parameters.add(new IntParameter(settings.getGoldNeeded()));
         query.append("(`pigeon`.`id`) AS `pigeon_id`, ");
         query.append("(`human`.`id`) AS `human_id`, ");
 
-        if (validation.getRequiredPigeonStatus() != null) {
+        if (settings.getRequiredPigeonStatus() != null) {
             query.append("(`pigeon`.`status` IS NOT NULL AND `pigeon`.`status` = ?) AS `has_required_status`, ");
-            parameters.add(new StringParameter(validation.getRequiredPigeonStatus().toString()));
+            parameters.add(new StringParameter(settings.getRequiredPigeonStatus().toString()));
         }
 
-        if (validation.isNeedsAvailablePvpAction()) {
+        if (settings.isNeedsAvailablePvpAction()) {
             query.append("(`pigeon`.`last_used_pvp` IS NULL OR DATE_ADD(`pigeon`.`last_used_pvp`, INTERVAL 3 HOUR) <= UTC_TIMESTAMP()) AS `has_available_pvp_action`,");
         }
         query.append("(SELECT COUNT(*) > 0 from `pigeon` p WHERE `p`.`human_id` = `human`.`id` AND `p`.`condition` = 'dead' AND `p`.`death_notified` = 0) as should_notify_death,");
@@ -179,7 +169,7 @@ public class PigeonRepository extends Repository {
         query.append(" FROM `human` ");
         query.append("LEFT JOIN pigeon ON `pigeon`.`human_id` = `human`.`id` AND `pigeon`.`condition` = 'active' ");
         query.append("WHERE `human`.`id` = ? LIMIT 1 ");
-        parameters.add(new IntParameter(validation.getHumanId()));
+        parameters.add(new IntParameter(humanId));
 
         Result result = getOne(query.toString(), parameters);
         return PigeonValidationData.builder()

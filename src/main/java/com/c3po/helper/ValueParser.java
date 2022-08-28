@@ -28,11 +28,11 @@ public interface ValueParser {
     }
 
     default String getString(String key) {
-        return get(key, (c) -> c);
+        return get(key, c -> c);
     }
 
     default String getStringOr(String key, String defaultValue) {
-        return getOr(key, (c) -> c, defaultValue);
+        return getOr(key, c -> c, defaultValue);
     }
 
     default int getInt(String key) {

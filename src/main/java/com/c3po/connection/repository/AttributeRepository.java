@@ -6,23 +6,14 @@ import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;
 import com.c3po.helper.DataType;
 import com.c3po.helper.PlaceholderList;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.*;
 
+@Service
+@Scope("singleton")
 public class AttributeRepository extends Repository {
-    protected static AttributeRepository DB;
-
-    public static AttributeRepository db() {
-        if (DB == null) {
-            DB = new AttributeRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected AttributeRepository(DataSource dataSource) {
-        super(dataSource);
-    }
 
     private void create(ScopeTarget target, int attributeId, String value) {
         String query = """

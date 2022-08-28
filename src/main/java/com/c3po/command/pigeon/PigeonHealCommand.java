@@ -1,10 +1,12 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.model.pigeon.stat.StatType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PigeonHealCommand extends PigeonStatCommand {
-    protected PigeonHealCommand(PigeonCommandGroup group) {
-        super(group, "heal", "no message");
+    protected PigeonHealCommand() {
+        super("heal", "no message");
     }
 
     @Override

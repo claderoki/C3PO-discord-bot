@@ -12,15 +12,17 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.reaction.ReactionEmoji;
 import discord4j.core.spec.EmbedCreateFields;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
+@Component
 public class ProfileViewCommand extends ProfileSubCommand {
 
-    protected ProfileViewCommand(ProfileCommandGroup group) {
-        super(group, "view", "View your own, or someone else's profile.");
+    protected ProfileViewCommand() {
+        super("view", "View your own, or someone else's profile.");
         this.addOption(option -> option.name("member")
             .description("The member who's profile you'd like to view.")
             .required(false)

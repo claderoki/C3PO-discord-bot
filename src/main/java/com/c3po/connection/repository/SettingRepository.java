@@ -11,27 +11,16 @@ import com.c3po.core.setting.*;
 import com.c3po.core.setting.validation.Condition;
 import com.c3po.core.setting.validation.SettingValidation;
 import com.c3po.core.setting.validation.ValueType;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
+@Service
+@org.springframework.context.annotation.Scope("singleton")
 public class SettingRepository extends Repository {
-    protected static SettingRepository DB;
-
-    public static SettingRepository db() {
-        if (DB == null) {
-            DB = new SettingRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected SettingRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
     private void create(PropertyValue propertyValue) {
         String query = "INSERT INTO `setting_value` (`user_id`, `guild_id`, `value`, `setting_id`) VALUES (?, ?, ?, ?)";
         execute(query,

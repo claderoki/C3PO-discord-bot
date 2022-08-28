@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Result implements ValueParser {
+public final class Result implements ValueParser {
     private final Map<String, String> values;
 
     public Set<String> getColumns() {
@@ -24,6 +24,7 @@ public class Result implements ValueParser {
             }
         } catch (SQLException e) {
             LogHelper.log(e);
+            throw new RuntimeException(e);
         }
     }
 

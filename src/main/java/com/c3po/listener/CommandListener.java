@@ -17,19 +17,23 @@ import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.spec.EmbedCreateSpec;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 
+@Component
 public class CommandListener implements EventListener<ChatInputInteractionEvent> {
-    private final CommandManager commandManager;
-
-    private final static SettingService settingService = new SettingService();
-    private final SettingRepository settingRepository = SettingRepository.db();
-
-    public CommandListener(CommandManager commandManager) {
-        this.commandManager = commandManager;
-    }
+    @Autowired
+    private CommandManager commandManager;
+    @Autowired
+    private SettingService settingService;
+    @Autowired
+    private SettingRepository settingRepository;
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
 
     private final static HashMap<String, HashMap<String, String>> settingMap = new HashMap<>();
 
@@ -57,7 +61,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return base.toString();
     }
 
-    private static String valuesToView(HashMap<Integer, PropertyValue> settingValues) {
+    private String valuesToView(HashMap<Integer, PropertyValue> settingValues) {
         StringBuilder builder = new StringBuilder();
         for (PropertyValue settingValue: settingValues.values()) {
             String key = settingService.getCode(settingValue.getParentId());
@@ -77,6 +81,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             return event.reply().withContent("```\n%s```".formatted(content));
         }
         SettingGroup settingGroup = new SettingGroup(category, settingKey);
+        beanFactory.autowireBean(settingGroup);
         LogHelper.log("Setting group " + settingKey + " is being started", LogScope.DEVELOPMENT);
         Mono<Void> commandResult = settingGroup.handle(event);
         LogHelper.log("Setting group " + settingKey + " is finished", LogScope.DEVELOPMENT);
@@ -94,11 +99,10 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         if (command != null) {
             Context context = new Context(event);
             return CommandSettingValidation.validate(command.getSettings(), event).flatMap(valid -> {
-                if (valid) {
-                    return processCommand(command, context);
-                } else {
+                if (!valid) {
                     return Mono.empty();
                 }
+                return processCommand(command, context);
             });
         }
         return Mono.empty();
@@ -120,6 +124,20 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return Mono.empty();
     }
 
+    private Mono<Void> handleError(BucketManager bucketManager, Context context, Throwable exception) {
+        if (bucketManager != null) {
+            bucketManager.after();
+        }
+        if (exception instanceof PublicException publicException) {
+            EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
+            return context.getReplier().replyOrEdit(c -> c.withEmbeds(embed),
+                c -> c.withEmbedsOrNull(Collections.singleton(embed)))
+                .then();
+        }
+        LogHelper.log(exception);
+        return Mono.empty();
+    }
+
     private Mono<Void> processCommand(Command command, Context context) {
         BucketManager bucketManager = command.getBucket().map(c -> new BucketManager(c, command, context)).orElse(null);
         if (bucketManager != null && !bucketManager.validate()) {
@@ -129,18 +147,10 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         try {
             return Mono.defer(() -> beforeCommand(bucketManager, command))
                 .then(command.run(context))
-                .then(Mono.defer(() -> afterCommand(bucketManager, command)));
+                .then(Mono.defer(() -> afterCommand(bucketManager, command)))
+                .onErrorResume(e -> handleError(bucketManager, context, e));
         } catch (Exception e) {
-            if (bucketManager != null) {
-                bucketManager.after();
-            }
-            if (e instanceof PublicException publicException) {
-                EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
-                return context.getEvent().reply().withEmbeds(embed)
-                    .onErrorResume(c -> context.getEvent().editReply().withEmbedsOrNull(Collections.singleton(embed)).then());
-            }
-            LogHelper.log(e);
-            return Mono.empty();
+            return handleError(bucketManager, context, e);
         }
     }
 

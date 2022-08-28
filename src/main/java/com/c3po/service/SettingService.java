@@ -6,12 +6,16 @@ import com.c3po.helper.cache.keys.SettingIdKey;
 import com.c3po.helper.cache.keys.SettingKey;
 import com.c3po.core.setting.Setting;
 import com.c3po.helper.cache.CacheManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SettingService extends Service {
-    private final SettingRepository settingRepository = SettingRepository.db();
+@org.springframework.stereotype.Service
+public class SettingService {
+
+    @Autowired
+    private SettingRepository settingRepository;
 
     private void cacheIdAndCodes() {
         HashMap<String, HashMap<String, Integer>> identifiers = settingRepository.getSettingIdentifiers();

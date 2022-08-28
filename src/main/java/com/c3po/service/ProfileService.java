@@ -8,25 +8,47 @@ import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.helper.ValueFormatter;
 import com.c3po.model.pigeon.Pigeon;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
+@Service
 public class ProfileService {
-    private final HumanService humanService = new HumanService();
-    private final PigeonService pigeonService = new PigeonService();
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
-    private final HumanRepository humanRepository = HumanRepository.db();
+    @Autowired
+    private HumanService humanService;
+    @Autowired
+    private PigeonService pigeonService;
 
-    private static final Integer[] editableAttributeIds = {
-        KnownAttribute.countryId,
-        KnownAttribute.cityId,
-        KnownAttribute.dateOfBirthId,
-        KnownAttribute.timezoneId
-    };
+    @Autowired
+    private AttributeService attributeService;
 
-    private List<PropertyValue> getProfilePropertyValues(ScopeTarget target, Integer... attributeIds) {
+    @Autowired
+    private AttributeRepository attributeRepository;
+
+    @Autowired
+    private HumanRepository humanRepository;
+
+    private static final ArrayList<Integer> editableAttributeIds = new ArrayList<>();
+
+    private ArrayList<Integer> getEditableAttributeIds() {
+        if (editableAttributeIds.isEmpty()) {
+            editableAttributeIds.addAll(Stream.of(
+                    KnownAttribute.countryKey,
+                    KnownAttribute.cityKey,
+                    KnownAttribute.dateOfBirthKey,
+                    KnownAttribute.timezoneKey
+            ).map(attributeService::getId).toList());
+        }
+        return editableAttributeIds;
+    }
+
+    private List<PropertyValue> getProfilePropertyValues(ScopeTarget target, List<Integer> attributeIds) {
         Scope scope = target.getScope();
 
         List<PropertyValue> values = new ArrayList<>(attributeRepository.getHydratedPropertyValues(target, attributeIds).values());
@@ -38,7 +60,7 @@ public class ProfileService {
     }
 
     public List<PropertyValue> getEditableProfilePropertyValues(ScopeTarget target) {
-        return getProfilePropertyValues(target, editableAttributeIds);
+        return getProfilePropertyValues(target, getEditableAttributeIds());
     }
 
     public Profile getProfile(ScopeTarget target) {
@@ -51,17 +73,33 @@ public class ProfileService {
             profile = new Profile();
         }
 
-        for(PropertyValue value: getProfilePropertyValues(target)) {
-            profile.set(value.getParentId(), value.getValue());
+        ValueFormatter formatter = new ValueFormatter();
+        for(PropertyValue propertyValue: getProfilePropertyValues(target, List.of())) {
+            int attributeId = propertyValue.getParentId();
+            String value = propertyValue.getValue();
+
+            if (attributeId == attributeService.getId(KnownAttribute.timezoneKey)) {
+                if (value != null) {
+                    profile.setTimezone(ZoneId.of(value));
+                }
+            } else if (attributeId == attributeService.getId(KnownAttribute.countryKey)) {
+                profile.setCountry(value);
+            } else if (attributeId == attributeService.getId(KnownAttribute.dateOfBirthKey)) {
+                profile.setDateOfBirth(formatter.optDate(value));
+            } else if (attributeId == attributeService.getId(KnownAttribute.cityKey)) {
+                profile.setCity(value);
+            } else if (attributeId == attributeService.getId(KnownAttribute.cloverKey) && profile instanceof MemberProfile memberProfile) {
+                memberProfile.setClovers(formatter.optLong(value));
+            }
         }
 
         Integer humanId = humanService.getHumanId(target.getUserId());
         Long gold = humanRepository.getGold(humanId);
-        profile.set("gold", gold.toString());
+        profile.setGold(gold);
         Integer pigeonId = pigeonService.getCurrentId(humanId);
         if (pigeonId != null) {
             Pigeon pigeon = pigeonService.getPigeon(pigeonId);
-            profile.set("pigeonName", pigeon.getName());
+            profile.setPigeonName(pigeon.getName());
         }
 
         return profile;

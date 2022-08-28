@@ -1,5 +1,6 @@
 package com.c3po.connection;
 
+import com.c3po.database.DataSourceLoader;
 import com.c3po.database.Parameter;
 import com.c3po.database.Result;
 import com.c3po.database.SQLRuntimeException;
@@ -15,6 +16,10 @@ public class Repository {
 
     public Repository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public Repository() {
+        this(DataSourceLoader.instance());
     }
 
     private String[] getColumnLabels(ResultSet set) throws SQLException {
@@ -43,7 +48,7 @@ public class Repository {
         return statement;
     }
 
-    protected void execute(Connection connection, String query, Parameter... params) {
+    protected final void execute(Connection connection, String query, Parameter... params) {
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -51,7 +56,7 @@ public class Repository {
         }
     }
 
-    protected void execute(String query, Parameter... params) {
+    protected final void execute(String query, Parameter... params) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = preparedStatement(connection, query, params)) {
                 statement.executeUpdate();
@@ -61,7 +66,7 @@ public class Repository {
         }
     }
 
-    protected List<Result> query(Connection connection, String query, Parameter... params) {
+    protected final List<Result> query(Connection connection, String query, Parameter... params) {
         ArrayList<Result> results = new ArrayList<>();
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             try (ResultSet rs = statement.executeQuery()) {
@@ -79,7 +84,7 @@ public class Repository {
         return results;
     }
 
-    protected List<Result> query(String query, Parameter... params) {
+    protected final List<Result> query(String query, Parameter... params) {
         try (Connection connection = getConnection()) {
             return query(connection, query, params);
         } catch (SQLException e) {
@@ -87,11 +92,11 @@ public class Repository {
         }
     }
 
-    protected List<Result> query(String query, Collection<Parameter> params) {
+    protected final List<Result> query(String query, Collection<Parameter> params) {
         return query(query, params.toArray(new Parameter[0]));
     }
 
-    protected Result getOne(String query, Parameter... params) {
+    protected final Result getOne(String query, Parameter... params) {
         List<Result> results = query(query, params);
         if (results.isEmpty()) {
             return null;
@@ -99,8 +104,7 @@ public class Repository {
         return results.get(0);
     }
 
-    protected Result getOne(String query, Collection<Parameter> params) {
+    protected final Result getOne(String query, Collection<Parameter> params) {
         return getOne(query, params.toArray(new Parameter[0]));
     }
-
 }

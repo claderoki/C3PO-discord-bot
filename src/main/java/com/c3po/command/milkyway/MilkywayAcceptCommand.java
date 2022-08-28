@@ -1,6 +1,5 @@
 package com.c3po.command.milkyway;
 
-import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.Context;
 import com.c3po.error.PublicException;
 import com.c3po.core.ScopeTarget;
@@ -10,6 +9,7 @@ import com.c3po.model.milkyway.MilkywaySettings;
 import com.c3po.model.milkyway.MilkywayStatus;
 import discord4j.common.util.Snowflake;
 import discord4j.core.spec.TextChannelCreateSpec;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -17,9 +17,10 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+@Component
 public class MilkywayAcceptCommand extends MilkywaySubCommand {
-    protected MilkywayAcceptCommand(CommandGroup group) {
-        super(group, "accept", "Accept a milkyway.");
+    protected MilkywayAcceptCommand() {
+        super("accept", "Accept a milkyway.");
         this.addOption(option -> option.name("id")
             .description("The identifier to accept")
             .required(true)

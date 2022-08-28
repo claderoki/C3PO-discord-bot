@@ -12,6 +12,8 @@ import com.c3po.processors.Processor;
 import com.c3po.service.AttributeService;
 import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -20,13 +22,24 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Random;
 
+@Component
 public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
-    private final static AttributeService attributeService = new AttributeService();
+    @Autowired
+    private AttributeRepository attributeRepository;
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private GuildRewardService guildRewardService;
 
     private static final HashMap<String, OffsetDateTime> lastRewards = new HashMap<>();
-    private static final int attributeId = attributeService.getId(KnownAttribute.CLOVERS);
-    private final GuildRewardService guildRewardService = new GuildRewardService();
+    private static Integer attributeId = null;
+
+    private int getAttributeId() {
+        if (attributeId == null) {
+            attributeId = attributeService.getId(KnownAttribute.cloverKey);
+        }
+        return attributeId;
+    }
 
     public boolean shouldProcess(MessageCreateEvent event) {
         return event.getGuildId().isPresent() && event.getMember().isPresent();
@@ -60,7 +73,7 @@ public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
         }
 
         if (shouldReward(target, settings.getTimeout())) {
-            PropertyValue value = attributeService.getAttributeValue(target, attributeId);
+            PropertyValue value = attributeService.getAttributeValue(target, getAttributeId());
             int pointsToReward = getPointsToReward(settings);
             value.increment(pointsToReward);
             attributeRepository.save(value);

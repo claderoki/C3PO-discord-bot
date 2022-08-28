@@ -1,13 +1,13 @@
 package com.c3po.command.personalrole;
 
 import com.c3po.core.command.Context;
-import com.c3po.core.command.SubCommand;
 import com.c3po.helper.DiscordCommandOptionType;
-import reactor.core.publisher.Mono;
+import org.springframework.stereotype.Component;
 
-public class PersonalRoleNameCommand extends SubCommand {
-    protected PersonalRoleNameCommand(PersonalRoleCommandGroup group) {
-        super(group, "name", "Setup the name of your role.");
+@Component
+public class PersonalRoleNameCommand extends PersonalRoleSubCommand {
+    protected PersonalRoleNameCommand() {
+        super("name", "Setup the name of your role.");
         this.addOption(option -> option.name("name")
             .description("The name of your role.")
             .required(true)
@@ -15,10 +15,8 @@ public class PersonalRoleNameCommand extends SubCommand {
     }
 
     @Override
-    public Mono<Void> execute(Context context) throws RuntimeException {
+    protected PersonalRoleProcessor getProcessor(Context context) {
         String name = context.getOptions().getString("name");
-        PersonalRoleProcessor processor = new PersonalRoleProcessor(PersonalRoleType.NAME, name, context);
-        return processor.execute();
+        return new PersonalRoleProcessor(PersonalRoleType.NAME, name, context);
     }
-
 }

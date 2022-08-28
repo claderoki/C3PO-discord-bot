@@ -13,12 +13,14 @@ import com.c3po.service.ItemService;
 import com.c3po.ui.input.SingleUseButtonMenuOption;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public class ScenarioMenuOption extends SingleUseButtonMenuOption {
-    protected final ItemService itemService = new ItemService();
+    @Autowired
+    protected ItemService itemService;
 
     private final ExplorationAction action;
     private final double goldModifier;
@@ -27,9 +29,9 @@ public class ScenarioMenuOption extends SingleUseButtonMenuOption {
 
     public ScenarioMenuOption(ExplorationAction action, double goldModifier) {
         super(action.name());
+        emoji = action.symbol();
         this.action = action;
         this.goldModifier = goldModifier;
-        emoji = action.symbol();
     }
 
     private PigeonWinnings toWinnings(ExplorationScenario scenario) {
@@ -66,7 +68,6 @@ public class ScenarioMenuOption extends SingleUseButtonMenuOption {
                 gold.setValue(gold.getValue());
             }
             this.winnings = new ExplorationScenarioWinnings(winnings, action.id());
-
             return event.createFollowup().withEmbeds(EmbedHelper.base()
                 .title(action.symbol() + " " + action.name())
                 .description(scenario.getText() + "\n\n" + winnings.format())

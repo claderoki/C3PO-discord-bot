@@ -22,10 +22,17 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class PersonalRoleProcessor {
-    private final PersonalRoleService personalRoleService = new PersonalRoleService();
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    private PersonalRoleService personalRoleService;
+    private AttributeService attributeService;
+    private AttributeRepository attributeRepository;
 
-    public final static Integer personalRoleAttributeId = new AttributeService().getId("personal_role");
+    public void setAutos(PersonalRoleService personalRoleService,AttributeService attributeService,AttributeRepository attributeRepository) {
+        this.personalRoleService = personalRoleService;
+        this.attributeService = attributeService;
+        this.attributeRepository = attributeRepository;
+    }
+
+    public static Integer personalRoleAttributeId = null;
 
     private final PersonalRoleType type;
     private final String rawValue;
@@ -38,6 +45,10 @@ public class PersonalRoleProcessor {
     private Member member;
 
     private Mono<Void> load() {
+        if (personalRoleAttributeId == null) {
+            personalRoleAttributeId = attributeService.getId("personal_role");
+        }
+
         settings = personalRoleService.getSettings(context.getTarget(Scope.GUILD));
         personalRoleAttributeValue = attributeRepository
             .getHydratedPropertyValue(context.getTarget(Scope.MEMBER), personalRoleAttributeId)

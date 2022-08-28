@@ -3,23 +3,12 @@ package com.c3po.connection.repository;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.model.reminder.NewReminder;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-
+@Service
+@Scope("singleton")
 public class ReminderRepository extends Repository {
-    protected static ReminderRepository DB;
-
-    public static ReminderRepository db() {
-        if (DB == null) {
-            DB = new ReminderRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected ReminderRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
     public synchronized void create(NewReminder reminder) {
         String query = """
             INSERT INTO `reminder`

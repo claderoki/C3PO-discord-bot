@@ -1,13 +1,15 @@
 package com.c3po.command.profile;
 
-import com.c3po.core.command.CommandGroup;
+import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.SubCommand;
 import com.c3po.service.ProfileService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class ProfileSubCommand extends SubCommand {
-    protected final ProfileService profileService = new ProfileService();
+    @Autowired
+    protected ProfileService profileService;
 
-    protected ProfileSubCommand(CommandGroup group, String name, String description) {
-        super(group, name, description);
+    protected ProfileSubCommand(String name, String description) {
+        super(CommandCategory.PROFILE, name, description);
     }
 }

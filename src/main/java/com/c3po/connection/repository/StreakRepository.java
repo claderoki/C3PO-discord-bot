@@ -1,27 +1,16 @@
 package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
-import com.c3po.database.DataSourceLoader;
 import com.c3po.database.LongParameter;
 import com.c3po.database.Result;
 import com.c3po.database.StringParameter;
 import com.c3po.model.streak.Streak;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-
+@Service
+@Scope("singleton")
 public class StreakRepository extends Repository {
-    protected static StreakRepository DB;
-
-    public static StreakRepository db() {
-        if (DB == null) {
-            DB = new StreakRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected StreakRepository(DataSource dataSource) {
-        super(dataSource);
-    }
 
     public synchronized Streak get(long humanId, String key) {
         String query = """

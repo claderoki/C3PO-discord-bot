@@ -2,27 +2,16 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Service
+@Scope("singleton")
 public class HumanRepository extends Repository {
-    protected static HumanRepository DB;
-
-    public static HumanRepository db() {
-        if (DB == null) {
-            DB = new HumanRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected HumanRepository(DataSource dataSource) {
-        super(dataSource);
-    }
 
     public Integer getHumanId(Long userId) {
         Result result = getOne("SELECT `id` FROM `human` WHERE `user_id` = ?", new LongParameter(userId));

@@ -7,11 +7,13 @@ import com.c3po.processors.MilkywayProcessor;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import discord4j.core.spec.EmbedCreateSpec;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class MilkywayCreateCommand extends MilkywaySubCommand {
-    protected MilkywayCreateCommand(CommandGroup group) {
-        super(group, "create", "Create a milkyway");
+    protected MilkywayCreateCommand() {
+        super("create", "Create a milkyway");
         this.addOption(option -> option.name("name")
             .description("The name")
             .required(true)
@@ -32,6 +34,7 @@ public class MilkywayCreateCommand extends MilkywaySubCommand {
         String description = context.getOptions().optString("description");
 
         MilkywayProcessor processor = new MilkywayProcessor(context.getEvent(), false);
+        beanFactory.autowireBean(processor);
 
         return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Working...").build())
             .then(processor.create(name, description).flatMap(milkyway -> context.getEvent().getClient().getChannelById(Snowflake.of(processor.getSettings().getLogChannelId())).flatMap(channel -> {

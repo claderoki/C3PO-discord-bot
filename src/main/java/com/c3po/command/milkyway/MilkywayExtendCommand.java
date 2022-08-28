@@ -1,6 +1,5 @@
 package com.c3po.command.milkyway;
 
-import com.c3po.core.command.CommandGroup;
 import com.c3po.core.command.CommandSettings;
 import com.c3po.core.command.Context;
 import com.c3po.error.PublicException;
@@ -10,11 +9,13 @@ import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.processors.MilkywayProcessor;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.ChannelModifyRequest;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class MilkywayExtendCommand extends MilkywaySubCommand {
-    protected MilkywayExtendCommand(CommandGroup group) {
-        super(group, "extend", "Extend an existing milkyway channel");
+    protected MilkywayExtendCommand() {
+        super("extend", "Extend an existing milkyway channel");
         this.addOption(option -> option.name("channel")
             .description("Milkyway channel")
             .required(true)
@@ -38,6 +39,8 @@ public class MilkywayExtendCommand extends MilkywaySubCommand {
             }
 
             MilkywayProcessor processor = new MilkywayProcessor(context.getEvent(), false);
+            beanFactory.autowireBean(processor);
+
             return processor.extend(milkyway)
                 .flatMap(expiresAt -> channel.getRestChannel().modify(ChannelModifyRequest.builder()
                     .topic(MilkywayHelper.getChannelDescriptionFor(milkyway, expiresAt))

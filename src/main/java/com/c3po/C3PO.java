@@ -1,4 +1,4 @@
-package com.c3po.core;
+package com.c3po;
 
 import com.c3po.core.command.CommandManager;
 import com.c3po.helper.LogHelper;
@@ -14,6 +14,8 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.ClientPresence;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import reactor.core.publisher.Mono;
@@ -24,10 +26,12 @@ import java.util.concurrent.TimeoutException;
 
 @SpringBootApplication
 public class C3PO {
-    private final CommandManager commandManager;
+    @Autowired
+    private CommandManager commandManager;
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
 
     public C3PO() {
-        commandManager = new CommandManager();
         CacheManager.set(new Cache());
         CacheManager.set("flags", new Cache());
     }
@@ -60,8 +64,8 @@ public class C3PO {
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
         commandManager.registerAll(gateway.getRestClient(), false);
 
-        register(gateway, new CommandListener(commandManager));
-        register(gateway, new MessageCreateListener());
+        register(gateway, beanFactory.createBean(CommandListener.class));
+        register(gateway, beanFactory.createBean(MessageCreateListener.class));
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();

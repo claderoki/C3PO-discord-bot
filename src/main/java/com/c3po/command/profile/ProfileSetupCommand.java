@@ -9,26 +9,33 @@ import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.waiter.DateParser;
 import com.c3po.helper.waiter.StringParser;
 import com.c3po.helper.waiter.TimezoneParser;
+import com.c3po.service.AttributeService;
 import com.c3po.ui.input.BackButtonMenuOption;
 import com.c3po.ui.input.CancelButtonMenuOption;
 import com.c3po.ui.input.WaiterMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import com.c3po.ui.input.base.MenuOption;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class ProfileSetupCommand extends ProfileSubCommand {
-    private final AttributeRepository attributeRepository = AttributeRepository.db();
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private AttributeRepository attributeRepository;;
 
-    protected ProfileSetupCommand(ProfileCommandGroup group) {
-        super(group, "setup", "Setup your profile.");
+    protected ProfileSetupCommand() {
+        super("setup", "Setup your profile.");
     }
 
     private MenuOption<?,?,?> getOptionFor(PropertyValue propertyValue) {
-        if (propertyValue.getParentId() == KnownAttribute.dateOfBirthId) {
+        if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.dateOfBirthKey)) {
             return new WaiterMenuOption<>(
                 "Date of birth",
                 new DateParser(),
@@ -36,17 +43,17 @@ public class ProfileSetupCommand extends ProfileSubCommand {
             )
                 .withEmoji("\uD83D\uDCC5")
                 ;
-        } else if (propertyValue.getParentId() == KnownAttribute.countryId) {
+        } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.countryKey)) {
             return new WaiterMenuOption<>("Country",
                 StringParser.builder().min(2).max(2).build(),
                 propertyValue.getParsedValue())
                 .withEmoji("\uD83D\uDDFA")
                 ;
-        } else if (propertyValue.getParentId() == KnownAttribute.cityId) {
+        } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.cityKey)) {
             return new WaiterMenuOption<>("City", StringParser.builder().build(), propertyValue.getParsedValue())
                 .withEmoji("\uD83D\uDCCD")
                 ;
-        } else if (propertyValue.getParentId() == KnownAttribute.timezoneId) {
+        } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.timezoneKey)) {
             return new WaiterMenuOption<>("Timezone", TimezoneParser.builder().build(), propertyValue.getParsedValue())
                 .withEmoji("\uD83D\uDCCD")
                 ;

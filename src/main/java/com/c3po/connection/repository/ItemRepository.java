@@ -4,24 +4,15 @@ import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.PlaceholderList;
 import com.c3po.model.item.ItemCategory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+@Scope("singleton")
 public class ItemRepository extends Repository {
-    protected static ItemRepository DB;
-
-    public static ItemRepository db() {
-        if (DB == null) {
-            DB = new ItemRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected ItemRepository(DataSource dataSource) {
-        super(dataSource);
-    }
 
     public Map<Integer, Integer> getItemAmounts(Integer humanId, List<Integer> itemIds) {
         return getItemAmounts(humanId, itemIds.toArray(Integer[]::new));

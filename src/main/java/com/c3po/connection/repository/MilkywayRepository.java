@@ -9,27 +9,17 @@ import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.model.milkyway.PurchaseType;
 import discord4j.common.util.Snowflake;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
+@Scope("singleton")
 public class MilkywayRepository extends Repository {
-    protected static MilkywayRepository DB;
-
-    public static MilkywayRepository db() {
-        if (DB == null) {
-            DB = new MilkywayRepository(DataSourceLoader.instance());
-        }
-        return DB;
-    }
-
-    protected MilkywayRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
     public Long getIncrementIdentifier(long guildId) {
         Result result = getOne("SELECT MAX(`identifier`) as `identifier` FROM `milkyway` WHERE `guild_id` = ?", new LongParameter(guildId));
         if (result == null) {

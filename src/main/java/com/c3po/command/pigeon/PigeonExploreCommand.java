@@ -1,7 +1,7 @@
 package com.c3po.command.pigeon;
 
-import com.c3po.command.pigeon.validation.PigeonValidation;
 import com.c3po.command.pigeon.validation.PigeonValidationResult;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.repository.ExplorationRepository;
 import com.c3po.connection.repository.ReminderRepository;
 import com.c3po.core.command.Context;
@@ -14,24 +14,28 @@ import com.c3po.service.ExplorationService;
 import com.c3po.ui.input.VoidMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Component
 public class PigeonExploreCommand extends PigeonSubCommand {
-    protected final ExplorationRepository explorationRepository;
-    protected final ReminderRepository reminderRepository;
-    protected final ExplorationService explorationService = new ExplorationService();
+    @Autowired
+    protected ExplorationRepository explorationRepository;
+    @Autowired
+    protected ReminderRepository reminderRepository;
+    @Autowired
+    protected ExplorationService explorationService;
 
-    protected PigeonExploreCommand(PigeonCommandGroup group) {
-        super(group, "explore", "no description.");
-        explorationRepository = ExplorationRepository.db();
-        reminderRepository = ReminderRepository.db();
+    protected PigeonExploreCommand() {
+        super("explore", "no description.");
     }
 
-    protected PigeonValidation getValidation() {
-        return PigeonValidation.builder()
+    protected PigeonValidationSettings getValidationSettings() {
+        return PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .requiredPigeonStatus(PigeonStatus.IDLE)
             .build();
@@ -41,8 +45,8 @@ public class PigeonExploreCommand extends PigeonSubCommand {
     public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
 
-        PigeonValidation validation = getValidation();
-        PigeonValidationResult result = validation.validate(userId);
+        PigeonValidationSettings settings = getValidationSettings();
+        PigeonValidationResult result = validation.validate(settings, userId);
 
         FullExplorationLocation location = RandomHelper.choice(explorationService.getAllLocations().values().stream().toList());
 

@@ -1,18 +1,17 @@
 package com.c3po.command.personalrole;
 
 import com.c3po.core.command.Context;
-import com.c3po.core.command.SubCommand;
-import reactor.core.publisher.Mono;
+import org.springframework.stereotype.Component;
 
-public class PersonalRoleDeleteCommand extends SubCommand {
-    protected PersonalRoleDeleteCommand(PersonalRoleCommandGroup group) {
-        super(group, "delete", "Delete your own role.");
+@Component
+public class PersonalRoleDeleteCommand extends PersonalRoleSubCommand {
+    protected PersonalRoleDeleteCommand() {
+        super("delete", "Delete your own role.");
     }
 
     @Override
-    public Mono<Void> execute(Context context) throws RuntimeException {
-        PersonalRoleProcessor processor = new PersonalRoleProcessor(PersonalRoleType.DELETE, null, context);
-        return processor.execute();
+    protected PersonalRoleProcessor getProcessor(Context context) {
+        return new PersonalRoleProcessor(PersonalRoleType.DELETE, null, context);
     }
 
 }

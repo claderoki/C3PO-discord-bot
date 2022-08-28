@@ -1,6 +1,6 @@
 package com.c3po.command.pigeon;
 
-import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.repository.HumanRepository;
 import com.c3po.core.command.Context;
 import com.c3po.error.PublicException;
@@ -11,17 +11,22 @@ import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.HumanGold;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class PigeonTrainCommand extends PigeonSubCommand {
-    private final HumanRepository humanRepository = HumanRepository.db();
 
-    protected PigeonTrainCommand(PigeonCommandGroup group) {
-        super(group, "train", "no description.");
+    @Autowired
+    private HumanRepository humanRepository;
+
+    protected PigeonTrainCommand() {
+        super( "train", "no description.");
     }
 
-    protected PigeonValidation getValidation() {
-        return PigeonValidation.builder()
+    protected PigeonValidationSettings getValidationSettings() {
+        return PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .requiredPigeonStatus(PigeonStatus.IDLE)
             .build();
@@ -29,8 +34,8 @@ public class PigeonTrainCommand extends PigeonSubCommand {
 
     @Override
     public Mono<Void> execute(Context context) throws RuntimeException {
-        var validation = getValidation();
-        var result = validation.validate(context.getEvent().getInteraction().getUser());
+        var settings = getValidationSettings();
+        var result = validation.validate(settings, context.getEvent().getInteraction().getUser().getId().asLong());
         FlagController flagController = new FlagController(new PigeonLastTrained(result.getPigeonId()));
         if (!flagController.validate()) {
             throw new PublicException("Your pigeon is still on a break from its previous exercise session.");

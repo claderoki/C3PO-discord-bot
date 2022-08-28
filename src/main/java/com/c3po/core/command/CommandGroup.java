@@ -16,9 +16,17 @@ public abstract class CommandGroup extends Command {
     protected CommandGroup(CommandCategory category, String name, String description) {
         super(category, name, description, DiscordCommandOptionType.SUB_COMMAND_GROUP);
     }
+    protected CommandGroup(CommandCategory category, String description) {
+        this(category, category.getValue(), description);
+    }
 
     public void addCommand(SubCommand command) {
         commands.add(command);
+    }
+    public void addCommands(SubCommand... commands) {
+        for(SubCommand command: commands) {
+            addCommand(command);
+        }
     }
 
     @Override

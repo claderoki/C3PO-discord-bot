@@ -5,11 +5,13 @@ import com.c3po.helper.cache.keys.HumanIdKey;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.cache.CacheManager;
 import discord4j.common.util.Snowflake;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-public class HumanService extends Service {
-    private final HumanRepository humanRepository = HumanRepository.db();
+@org.springframework.stereotype.Service
+public class HumanService {
+
+    @Autowired
+    private HumanRepository humanRepository;
 
     public Integer getHumanId(long userId) {
         return CacheManager.get().computeIfAbsent(new HumanIdKey(ScopeTarget.user(userId)), (key) -> {

@@ -1,10 +1,12 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.model.pigeon.stat.StatType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PigeonPlayCommand extends PigeonStatCommand {
-    protected PigeonPlayCommand(PigeonCommandGroup group) {
-        super(group, "play", "no message");
+    protected PigeonPlayCommand() {
+        super("play", "no message");
     }
 
     @Override

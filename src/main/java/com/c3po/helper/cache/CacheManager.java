@@ -6,7 +6,7 @@ public class CacheManager {
     private static final HashMap<String, Cache> instances = new HashMap<>();
 
     public static Cache get(String identifier) {
-        return instances.get(identifier);
+        return instances.computeIfAbsent(identifier, c -> new Cache());
     }
 
     public static Cache get() {

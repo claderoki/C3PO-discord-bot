@@ -1,25 +1,31 @@
 package com.c3po.command.pigeon;
 
 import com.c3po.command.pigeon.validation.PigeonValidation;
+import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.repository.PigeonRepository;
-import com.c3po.core.command.CommandGroup;
+import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.Context;
 import com.c3po.core.command.SubCommand;
 import com.c3po.service.PigeonService;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 public abstract class PigeonSubCommand extends SubCommand {
-    protected final PigeonService pigeonService;
-    protected final PigeonRepository pigeonRepository;
+    @Autowired
+    protected PigeonService pigeonService;
 
-    protected PigeonSubCommand(CommandGroup group, String name, String description) {
-        super(group, name, description);
-        pigeonService = new PigeonService();
-        pigeonRepository = PigeonRepository.db();
+    @Autowired
+    protected PigeonRepository pigeonRepository;
+
+    @Autowired
+    protected PigeonValidation validation;
+
+    protected PigeonSubCommand(String name, String description) {
+        super(CommandCategory.PIGEON, name, description);
     }
 
-    protected PigeonValidation getValidation() {
-        return PigeonValidation.builder()
+    protected PigeonValidationSettings getValidationSettings() {
+        return PigeonValidationSettings.builder()
             .needsActivePigeon(true)
             .build();
     }

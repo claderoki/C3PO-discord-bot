@@ -1,6 +1,6 @@
 package com.c3po;
 
-import com.c3po.core.C3PO;
+import com.c3po.core.MainArguments;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.ConfigurationLoader;
@@ -13,7 +13,8 @@ public class Main {
             MainArguments arguments = MainArguments.from(args);
             Mode mode = Mode.valueOf(arguments.getStringOr("mode", Mode.DEVELOPMENT.name()).toUpperCase());
             Configuration.initiate(ConfigurationLoader.load(mode));
-            runWithoutSpring();
+//            runWithoutSpring();
+            runWithSpring();
         } catch (Exception e) {
             LogHelper.log(e);
         }
