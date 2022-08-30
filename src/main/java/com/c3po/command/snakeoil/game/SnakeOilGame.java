@@ -22,11 +22,11 @@ public class SnakeOilGame extends Game {
         for(SnakeOilPlayer player: gameState.getPlayers()) {
             player.getWords().drawFrom(gameState.getWords(), 6);
             SnakeOilButton button = new SnakeOilButton(gameState, player);
-            button.setOnFinishTurn(o -> gameState.newTurn(menu, ui));
             menu.addOption(button);
         }
         menu.addOption(new ShowDeckButton(gameState));
         menu.addOption(new ShowInstructionsButton());
-        return gameState.newTurn(menu, ui).then(new MenuManager(menu).waitFor()).then();
+        gameState.newTurn();
+        return new MenuManager(menu).waitFor().then();
     }
 }

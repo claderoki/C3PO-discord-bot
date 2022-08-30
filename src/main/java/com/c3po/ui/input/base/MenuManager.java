@@ -2,6 +2,7 @@ package com.c3po.ui.input.base;
 
 import com.c3po.helper.Unicode;
 import com.c3po.ui.Toast;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
@@ -36,11 +37,11 @@ public class MenuManager {
     }
 
     private Mono<Void> afterProcess(MenuOption<?, ComponentInteractionEvent, ?> option) {
-        menu.incrementOptionsHandled();
+        Mono<Void> mono = Mono.empty();
         if (option.shouldContinue()) {
-            return sendMessage().then();
+            mono = mono.then(sendMessage()).then();
         }
-        return Mono.empty();
+        return mono.then(Mono.fromRunnable(menu::incrementOptionsHandled));
     }
 
     private InteractionApplicationCommandCallbackReplyMono reply(InteractionApplicationCommandCallbackReplyMono replyMono) {
@@ -57,7 +58,7 @@ public class MenuManager {
         List<LayoutComponent> components = menu.getComponents();
         EmbedCreateSpec embed = menu.getEmbed();
         return editMono.withEmbedsOrNull(embed == null ? null : Collections.singleton(embed))
-            .withComponentsOrNull(menu.shouldContinue() ? components : null);
+            .withComponentsOrNull(components);
     }
 
     private Mono<Message> sendMessage() {
@@ -65,8 +66,9 @@ public class MenuManager {
     }
 
     public Mono<Menu> waitFor() {
+        GatewayDiscordClient client = menu.getContext().getEvent().getClient();
         return sendMessage().then(
-            menu.getContext().getEvent().getClient().on(ComponentInteractionEvent.class)
+            client.on(ComponentInteractionEvent.class)
                 .filter(menu::isAllowed)
                 .timeout(menu.getTimeout())
                 .flatMap(this::processEvent)

@@ -3,7 +3,9 @@ package com.c3po.command.snakeoil.game;
 import com.c3po.command.snakeoil.game.card.Card;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
+import com.c3po.helper.Cycler;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -13,11 +15,13 @@ import java.util.stream.Collectors;
 
 @Setter
 @Getter
+@RequiredArgsConstructor
 public class RoundState {
     private final HashMap<SnakeOilPlayer, ArrayList<Word>> words = new HashMap<>();
+    private final Cycler<SnakeOilPlayer> cycler;
+    private Profession profession;
     private SnakeOilPlayer winner;
     private SnakeOilPlayer customer;
-    private Profession profession;
 
     public void addWord(SnakeOilPlayer player, Word word) {
         words.computeIfAbsent(player, c -> new ArrayList<>())

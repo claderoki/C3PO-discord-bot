@@ -32,7 +32,7 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
         return event.deferEdit().then(executor.apply(event));
     }
 
-    protected boolean shouldContinue() {
+    public boolean shouldContinue() {
         return shouldContinue;
     }
 

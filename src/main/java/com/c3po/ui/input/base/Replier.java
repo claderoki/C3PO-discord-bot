@@ -14,7 +14,6 @@ import java.util.function.Function;
 
 @Setter
 public class Replier {
-//    private static final HashMap<String, Boolean> replies = new HashMap<>();
     private final Event event;
     private boolean ephemeral = false;
     @Getter
@@ -26,15 +25,6 @@ public class Replier {
 
     public Replier(ComponentInteractionEvent event) {
         this.event = event;
-    }
-
-    private String getId() {
-        if (event instanceof ComponentInteractionEvent e) {
-            return e.getCustomId();
-        } else if (event instanceof ChatInputInteractionEvent e) {
-            return e.getInteraction().getId().asString();
-        }
-        throw new RuntimeException("Can't happen.");
     }
 
     private InteractionApplicationCommandCallbackReplyMono _reply() {
@@ -79,10 +69,7 @@ public class Replier {
 
         return replier.apply(reply())
             .onErrorResume(c -> editor.apply(editReply()).then())
-            .then(Mono.defer(() -> {
-                setReplied(true);
-                return Mono.empty();
-            }))
+            .then(Mono.fromRunnable(() -> setReplied(true)))
             ;
     }
 

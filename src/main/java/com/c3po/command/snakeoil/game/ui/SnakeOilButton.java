@@ -40,21 +40,14 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    protected boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(ComponentInteractionEvent event) {
         return gameState.isTest() || event.getInteraction().getUser().equals(this.player.getUser());
-    }
-
-    private Mono<Void> afterHook() {
-        if (player.getStatus() == PlayerStatus.PICKING_PERSON) {
-            onFinishTurn.accept(null);
-        }
-        return Mono.empty();
     }
 
     @Override
     public Mono<Void> execute(ButtonInteractionEvent event) {
         Menu menu = new Menu(context, true);
-        MenuOption<?, ?, ?> option = switch (player.getStatus()) {
+        SnakeOilMenuOption<?> option = switch (player.getStatus()) {
             case PICKING_CARD -> new CardMenuOption(gameState, player);
             case PICKING_PROFESSION -> new ProfessionMenuOption(gameState, player);
             case PICKING_PERSON -> new PersonMenuOption(gameState, player);
@@ -63,7 +56,6 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return new MenuManager(menu, replier).waitFor().map(m -> afterHook()).then();
+        return new MenuManager(menu, replier).waitFor().then();
     }
-
 }

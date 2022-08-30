@@ -3,73 +3,58 @@ package com.c3po.command.snakeoil.game;
 import com.c3po.command.snakeoil.game.card.Deck;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
+import com.c3po.helper.Cycler;
+import com.c3po.helper.LogHelper;
 import com.c3po.ui.input.base.Menu;
 import discord4j.core.object.entity.Message;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Getter
 public class GameState {
     private final List<SnakeOilPlayer> players;
     private final Deck<Profession> professions;
     private final Deck<Word> words;
     private final boolean test;
+    private final Cycler<SnakeOilPlayer> cycler;
     private final ArrayList<RoundState> rounds = new ArrayList<>();
     private RoundState currentRound;
     @Setter
     private Message previousNotification;
     private SnakeOilPlayer currentlyPicking;
 
-    public void resetTurn() {
+    public GameState(List<SnakeOilPlayer> players, Deck<Profession> professions, Deck<Word> words, boolean test) {
+        this.players = players;
+        this.professions = professions;
+        this.words = words;
+        this.test = test;
+        this.cycler = new Cycler<>(players);
+    }
+
+    private void resetTurn() {
         players.forEach(c -> c.setTurnStatus(TurnStatus.WAITING_FOR_TURN));
-        currentRound = new RoundState();
+        int currentPlayerIndex = currentlyPicking == null ? 0 : players.indexOf(currentlyPicking);
+        currentRound = new RoundState(new Cycler<>(players, currentPlayerIndex));
         rounds.add(currentRound);
     }
 
-    public SnakeOilPlayer getNextPlayer(SnakeOilPlayer current) {
-        if (current == null) {
-            return players.get(0);
-        } else {
-            int currentIndex = players.indexOf(current);
-            if (currentIndex == players.size()-1) {
-                return players.get(0);
-            } else {
-                return players.get(currentIndex+1);
-            }
-        }
-    }
-
-    public Mono<Void> newTurn(Menu menu, SnakeOilUI ui) {
-        RoundState previousRound = currentRound;
+    public void newTurn() {
         resetTurn();
-        SnakeOilPlayer previousCustomer = previousRound != null ? previousRound.getCustomer() : null;
-        currentlyPicking = getNextPlayer(previousCustomer);
+        currentlyPicking = cycler.next();
         currentlyPicking.setTurnStatus(TurnStatus.PICKING);
-        menu.setEmbedConsumer(e -> ui.getEmbed(this, e));
         currentRound.setCustomer(currentlyPicking);
         players.forEach(c -> c.setStatus(getStatus(c)));
-        return Mono.empty();
     }
 
     public void nextPicking() {
-        SnakeOilPlayer previous = currentlyPicking;
-        SnakeOilPlayer player;
-        boolean cardPickersFinished = players.stream().filter(c -> c != currentRound.getCustomer()).allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
-        if (cardPickersFinished && currentRound.getWinner() == null) {
-            player = currentRound.getCustomer();
-        } else {
-            player = getNextPlayer(previous);
-        }
-        player.setTurnStatus(TurnStatus.PICKING);
-        previous.setTurnStatus(TurnStatus.FINISHED);
+        currentlyPicking.setTurnStatus(TurnStatus.FINISHED);
+        currentlyPicking = currentRound.getCycler().next();
+        currentlyPicking.setTurnStatus(TurnStatus.PICKING);
         players.forEach(c -> c.setStatus(getStatus(c)));
-        currentlyPicking = player;
     }
 
     public PlayerStatus getStatus(SnakeOilPlayer player) {
@@ -78,7 +63,7 @@ public class GameState {
             .filter(c -> c != getCurrentRound().getCustomer())
             .allMatch(c -> c.getTurnStatus().equals(TurnStatus.FINISHED));
 
-        if (getCurrentRound().getCustomer().equals(player)) {
+        if (currentRound.getCustomer().equals(player)) {
             if (allWordsChosen) {
                 return PlayerStatus.PICKING_PERSON;
             } else {

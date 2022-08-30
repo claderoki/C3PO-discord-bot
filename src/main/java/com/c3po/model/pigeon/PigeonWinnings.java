@@ -38,18 +38,15 @@ public class PigeonWinnings extends Winnings {
         }
     }
 
-
     /**
      * @param winnings winnings
      * @return A new PigeonWinnings object.
      */
     public static PigeonWinnings merge(PigeonWinnings... winnings) {
         PigeonWinnings newWinnings = new PigeonWinnings();
-        var stats = new LinkedHashMap<StatType, Stat>();
         for(PigeonWinnings winning: winnings) {
             newWinnings.add(winning);
         }
-        newWinnings.setStats(stats);
         return newWinnings;
     }
 

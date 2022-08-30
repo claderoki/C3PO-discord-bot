@@ -83,6 +83,9 @@ public class PigeonRepository extends Repository {
 
         query.append(" WHERE `pigeon`.`id` = ?");
 
+        if (query.toString().contains("SET WHERE")) {
+            return;
+        }
         execute(query.toString(), new IntParameter(pigeonId));
     }
 

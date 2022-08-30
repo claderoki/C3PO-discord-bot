@@ -5,7 +5,7 @@ public class StartButtonMenuOption extends BooleanMenuOption {
         super(name);
     }
 
-    protected boolean shouldContinue() {
+    public boolean shouldContinue() {
         return false;
     }
 

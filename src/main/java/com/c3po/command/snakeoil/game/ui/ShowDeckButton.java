@@ -25,7 +25,7 @@ public class ShowDeckButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    protected boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(ComponentInteractionEvent event) {
         return playerIds.contains(event.getInteraction().getUser().getId());
     }
 

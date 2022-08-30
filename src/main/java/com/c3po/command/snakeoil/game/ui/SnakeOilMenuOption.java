@@ -13,7 +13,7 @@ public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
     protected final SnakeOilPlayer player;
 
     @Override
-    protected boolean shouldContinue() {
+    public boolean shouldContinue() {
         return false;
     }
 
@@ -38,19 +38,23 @@ public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
     @Override
     final public Mono<Void> execute(SelectMenuInteractionEvent event) {
         return super.execute(event)
-            .then(Mono.defer(() -> {
-                afterHook();
-                gameState.nextPicking();
-                return followup(context.getEvent().createFollowup())
-                    .flatMap(m -> {
-                        Mono<Void> mono = Mono.empty();
-                        if (gameState.getPreviousNotification() != null) {
-                            mono = gameState.getPreviousNotification().delete();
-                        }
-                        gameState.setPreviousNotification(m);
-                        return mono;
-                    });
+            .then(Mono.fromRunnable(this::afterHook))
+            .then(Mono.fromRunnable(gameState::nextPicking))
+            .then(Mono.defer(() -> followup(context.getEvent().createFollowup())))
+            .flatMap(m -> {
+                Mono<Void> mono = Mono.empty();
+                if (gameState.getPreviousNotification() != null) {
+                    mono = gameState.getPreviousNotification().delete();
+                }
+                gameState.setPreviousNotification(m);
+                return mono;
+            })
+            .then(event.deferEdit())
+            .then(Mono.fromRunnable(() -> {
+                if (this instanceof PersonMenuOption) {
+                    gameState.newTurn();
+                }
             }))
-            .then(event.deferEdit());
+            ;
     }
 }

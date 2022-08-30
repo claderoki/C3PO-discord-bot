@@ -18,7 +18,7 @@ public class BackButtonMenuOption extends ButtonMenuOption<Void> {
         return event.deferEdit();
     }
 
-    protected boolean shouldContinue() {
+    public boolean shouldContinue() {
         return false;
     }
 

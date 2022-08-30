@@ -13,7 +13,7 @@ public class ShowInstructionsButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    protected boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(ComponentInteractionEvent event) {
         return true;
     }
 

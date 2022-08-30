@@ -126,7 +126,8 @@ public class CommandManager {
         if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
             Long[] guildIds = {
                 695416318681415790L,
-                729843647347949638L
+                729843647347949638L,
+                1013158959315701930L
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)

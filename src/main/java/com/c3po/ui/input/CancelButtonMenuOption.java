@@ -14,7 +14,7 @@ public class CancelButtonMenuOption extends BooleanMenuOption {
         return getValue() != null && getValue();
     }
 
-    protected boolean shouldContinue() {
+    public boolean shouldContinue() {
         return false;
     }
 

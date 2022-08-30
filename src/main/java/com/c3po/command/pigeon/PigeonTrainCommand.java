@@ -65,9 +65,6 @@ public class PigeonTrainCommand extends PigeonSubCommand {
         pigeonRepository.updateWinnings(pigeon.getId(), pigeonWinnings);
 
         return context.getEvent().reply().withEmbeds(EmbedHelper.normal("Your pigeon bulks up\n" + pigeonWinnings.format()).build())
-            .then(Mono.defer(() -> {
-                flagController.spend();
-                return Mono.empty();
-        }));
+            .then(Mono.fromRunnable(flagController::spend));
     }
 }

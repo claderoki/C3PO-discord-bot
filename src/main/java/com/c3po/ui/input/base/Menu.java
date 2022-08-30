@@ -16,6 +16,7 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Setter
@@ -25,7 +26,7 @@ public class Menu {
     protected final Context context;
     protected final AccessControlList<Snowflake> acl = new AccessControlList<>();
     protected Integer maximumOptionsAllowed;
-    protected int optionsHandled;
+    protected AtomicInteger optionsHandled = new AtomicInteger(0);
     protected Consumer<EmbedCreateSpec.Builder> embedConsumer = null;
     protected Duration timeout = Duration.ofSeconds(360);
 
@@ -43,7 +44,11 @@ public class Menu {
     }
 
     public void incrementOptionsHandled() {
-        optionsHandled++;
+        optionsHandled.getAndIncrement();
+    }
+
+    public int getOptionsHandled() {
+        return optionsHandled.get();
     }
 
     public void addOption(MenuOption<?, ?, ?> option) {
@@ -103,7 +108,7 @@ public class Menu {
         if (maximumOptionsAllowed == null) {
             return true;
         }
-        return maximumOptionsAllowed > (optionsHandled+1);
+        return optionsHandled.get() < maximumOptionsAllowed;
     }
 
     public boolean isAllowed(ComponentInteractionEvent event) {

@@ -20,11 +20,6 @@ public class SubMenuOption extends ButtonMenuOption<Long> {
         this.subMenu = subMenu;
     }
 
-    @Override
-    protected String getPrettyValue() {
-        return DataFormatter.prettify(subMenu.getDefaultOption().getValue());
-    }
-
     private boolean hasBackButton() {
         return true;
     }

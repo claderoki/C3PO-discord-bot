@@ -101,12 +101,10 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
             }
 
             int actionsRemaining = exploration.getActionsRemaining() - menu.getOptionsHandled();
-            if (actionsRemaining == 0) {
-                return executeFinalSequence(pigeon, context, exploration, totalWinnings).then(Mono.defer(() -> {
-                    pigeonRepository.updateStatus(pigeon.getId(), PigeonStatus.IDLE);
-                    explorationRepository.finish(exploration.getId());
-                    return Mono.empty();
-                }));
+            if (actionsRemaining <= 0) {
+                return executeFinalSequence(pigeon, context, exploration, totalWinnings)
+                    .then(Mono.fromRunnable(() -> pigeonRepository.updateStatus(pigeon.getId(), PigeonStatus.IDLE)))
+                    .then(Mono.fromRunnable(() -> explorationRepository.finish(exploration.getId())));
             }
 
             explorationRepository.updateActionsRemaining(exploration.getId(), actionsRemaining);

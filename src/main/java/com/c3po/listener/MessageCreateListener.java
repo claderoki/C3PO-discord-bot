@@ -23,9 +23,6 @@ public class MessageCreateListener implements EventListener<MessageCreateEvent> 
 
     @PostConstruct
     public void postConstruct() {
-
-        processors.add(guildRewardProcessor);
-
         if (Configuration.instance().getMode().equals(Mode.PRODUCTION)) {
             processors.add(guildRewardProcessor);
         }
