@@ -3,11 +3,9 @@ package com.c3po.model.pigeon;
 import com.c3po.model.Winnings;
 import com.c3po.model.pigeon.stat.core.Stat;
 import com.c3po.model.pigeon.stat.StatFactory;
-import com.c3po.model.pigeon.stat.StatType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 @Getter

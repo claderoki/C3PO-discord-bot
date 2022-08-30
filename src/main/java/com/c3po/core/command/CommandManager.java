@@ -42,14 +42,15 @@ public class CommandManager {
     private PersonalRoleCommandGroup personalRoleCommandGroup;
     @Autowired
     private PigeonCommandGroup pigeonCommandGroup;
-
+    @Autowired
+    private SnakeOilCommandGroup snakeOilCommandGroup;
 
     private void registerCommands() {
         register(milkywayCommandGroup);
         register(personalRoleCommandGroup);
         register(profileCommandGroup);
         register(pigeonCommandGroup);
-        register(new SnakeOilCommandGroup());
+        register(snakeOilCommandGroup);
     }
 
     private void registerSettings() {

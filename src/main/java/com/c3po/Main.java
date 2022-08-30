@@ -13,7 +13,6 @@ public class Main {
             MainArguments arguments = MainArguments.from(args);
             Mode mode = Mode.valueOf(arguments.getStringOr("mode", Mode.DEVELOPMENT.name()).toUpperCase());
             Configuration.initiate(ConfigurationLoader.load(mode));
-//            runWithoutSpring();
             runWithSpring();
         } catch (Exception e) {
             LogHelper.log(e);
@@ -25,10 +24,4 @@ public class Main {
             .build()
             .run();
     }
-
-    private static void runWithoutSpring() {
-        C3PO c3po = new C3PO();
-        c3po.run();
-    }
-
 }

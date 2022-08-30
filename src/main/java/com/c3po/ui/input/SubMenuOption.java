@@ -1,6 +1,5 @@
 package com.c3po.ui.input;
 
-import com.c3po.core.DataFormatter;
 import com.c3po.ui.input.base.ButtonMenuOption;
 import com.c3po.ui.input.base.MenuManager;
 import com.c3po.ui.input.base.SubMenu;
