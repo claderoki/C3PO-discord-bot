@@ -33,7 +33,7 @@ public class MenuManager {
         }
         return option.execute(event)
             .then(Mono.defer(() -> afterProcess(option)))
-            .then(Mono.just(menu.shouldContinue() && option.shouldContinue()));
+            .then(Mono.defer(() -> Mono.just(menu.shouldContinue() && option.shouldContinue())));
     }
 
     private Mono<Void> afterProcess(MenuOption<?, ComponentInteractionEvent, ?> option) {

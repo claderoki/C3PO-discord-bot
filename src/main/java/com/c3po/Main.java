@@ -13,15 +13,11 @@ public class Main {
             MainArguments arguments = MainArguments.from(args);
             Mode mode = Mode.valueOf(arguments.getStringOr("mode", Mode.DEVELOPMENT.name()).toUpperCase());
             Configuration.initiate(ConfigurationLoader.load(mode));
-            runWithSpring();
+            new SpringApplicationBuilder(C3PO.class)
+                .build()
+                .run();
         } catch (Exception e) {
             LogHelper.log(e);
         }
-    }
-
-    private static void runWithSpring() {
-        new SpringApplicationBuilder(C3PO.class)
-            .build()
-            .run();
     }
 }
