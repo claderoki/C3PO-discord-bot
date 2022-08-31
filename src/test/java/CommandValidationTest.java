@@ -20,7 +20,7 @@ public class CommandValidationTest {
         when(command.getSettings()).thenReturn(CommandSettings.builder().build());
         Member member = mock(Member.class);
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.all()));
-        Boolean validated = CommandSettingValidation.validate(command.getSettings(), Optional.of(member), Optional.of(Snowflake.of(1))).block();
+        Boolean validated = CommandSettingValidation.validate(command.getSettings(), member, Snowflake.of(1)).block();
         assertEquals(Boolean.TRUE, validated);
     }
 
@@ -30,7 +30,7 @@ public class CommandValidationTest {
         when(command.getSettings()).thenReturn(CommandSettings.builder().adminOnly(true).build());
         Member member = mock(Member.class);
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.none()));
-        Boolean validated = CommandSettingValidation.validate(command.getSettings(), Optional.of(member), Optional.of(Snowflake.of(1))).block();
+        Boolean validated = CommandSettingValidation.validate(command.getSettings(), member, Snowflake.of(1)).block();
         assertEquals(Boolean.FALSE, validated);
     }
 
@@ -40,7 +40,7 @@ public class CommandValidationTest {
         when(command.getSettings()).thenReturn(CommandSettings.builder().adminOnly(true).build());
         Member member = mock(Member.class);
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.all()));
-        Boolean validated = CommandSettingValidation.validate(command.getSettings(), Optional.of(member), Optional.of(Snowflake.of(1))).block();
+        Boolean validated = CommandSettingValidation.validate(command.getSettings(), member, Snowflake.of(1)).block();
         assertEquals(Boolean.TRUE, validated);
     }
 
@@ -49,7 +49,7 @@ public class CommandValidationTest {
         Command command = mock(Command.class);
         when(command.getSettings()).thenReturn(CommandSettings.builder().guildOnly(true).build());
         Member member = mock(Member.class);
-        Boolean validated = CommandSettingValidation.validate(command.getSettings(), Optional.of(member), Optional.empty()).block();
+        Boolean validated = CommandSettingValidation.validate(command.getSettings(), member, null).block();
         assertEquals(Boolean.FALSE, validated);
     }
 
@@ -58,7 +58,7 @@ public class CommandValidationTest {
         Command command = mock(Command.class);
         when(command.getSettings()).thenReturn(CommandSettings.builder().guildOnly(true).build());
         Member member = mock(Member.class);
-        Boolean validated = CommandSettingValidation.validate(command.getSettings(), Optional.of(member), Optional.of(Snowflake.of(1))).block();
+        Boolean validated = CommandSettingValidation.validate(command.getSettings(), member, Snowflake.of(1)).block();
         assertEquals(Boolean.TRUE, validated);
     }
 }
