@@ -1,6 +1,11 @@
 package com.c3po;
 
 import com.c3po.core.command.CommandManager;
+import com.c3po.core.wordnik.WordnikApi;
+import com.c3po.core.wordnik.endpoints.GetRandomWords;
+import com.c3po.core.wordnik.endpoints.GetWordDefinition;
+import com.c3po.core.wordnik.responses.WordDefinitionListResponse;
+import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.CacheManager;
@@ -18,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 

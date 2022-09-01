@@ -8,10 +8,20 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class ApiCall {
+    private final static ConcurrentHashMap<String, Throttle> throttles = new ConcurrentHashMap<>();
     protected abstract <E extends ApiEndpoint<?>> String getBaseUri(E endpoint);
+
+    protected String getKeyHash() {
+        return null;
+    }
+
+    protected Throttle getThrottle() {
+        return null;
+    }
 
     private <E extends ApiEndpoint<?>> Map<String, String> getAllParameters(E endpoint) {
         Map<String, String> defaultParameters = getDefaultParameters();
@@ -37,7 +47,7 @@ public abstract class ApiCall {
         return getBaseUri(endpoint) + "/" + endpoint.getEndpoint() + (rawParameters != null ? ("?"+rawParameters) : "");
     }
 
-    private <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint, int retryCount) {
+    private <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> _call(E endpoint, int retryCount) {
         HttpClient client = HttpClient.create();
         var receiver = switch (endpoint.getMethod()) {
             case GET -> client.get().uri(getFullUri(endpoint));
@@ -46,12 +56,12 @@ public abstract class ApiCall {
 
         return receiver.responseSingle((response, bytes) -> {
             if (shouldRetry(response) && retryCount < endpoint.getMaxRetries()) {
-                return call(endpoint, retryCount+1);
+                return Mono.delay(Duration.ofSeconds(60)).then(call(endpoint, retryCount+1));
             }
             Duration throttleDuration = getThrottleDuration(response);
             Mono<String> value = Mono.delay(throttleDuration).then(bytes.asString());
             if (isInvalid(response)) {
-                return value.flatMap(c -> Mono.error(new FailedCallException(response.status().code(), c)));
+                return value.flatMap(c -> Mono.error(new FailedCallException(response.status().code(), c, retryCount)));
             }
             return value.map(endpoint::parseResponse);
         });
@@ -59,6 +69,10 @@ public abstract class ApiCall {
 
     public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) {
         return call(endpoint, 0);
+    }
+
+    private <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint, int retryCount) {
+        return Mono.defer(() -> _call(endpoint, retryCount));
     }
 
     protected Duration getThrottleDuration(HttpClientResponse response) {

@@ -1,6 +1,7 @@
 package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
+import com.c3po.command.hangman.HangmanCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
@@ -44,6 +45,8 @@ public class CommandManager {
     private PigeonCommandGroup pigeonCommandGroup;
     @Autowired
     private SnakeOilCommandGroup snakeOilCommandGroup;
+    @Autowired
+    private HangmanCommandGroup hangmanCommandGroup;
 
     private void registerCommands() {
         register(milkywayCommandGroup);
@@ -51,6 +54,7 @@ public class CommandManager {
         register(profileCommandGroup);
         register(pigeonCommandGroup);
         register(snakeOilCommandGroup);
+        register(hangmanCommandGroup);
     }
 
     private void registerSettings() {
