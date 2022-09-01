@@ -8,20 +8,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class ApiCall {
-    private final static ConcurrentHashMap<String, Throttle> throttles = new ConcurrentHashMap<>();
     protected abstract <E extends ApiEndpoint<?>> String getBaseUri(E endpoint);
-
-    protected String getKeyHash() {
-        return null;
-    }
-
-    protected Throttle getThrottle() {
-        return null;
-    }
 
     private <E extends ApiEndpoint<?>> Map<String, String> getAllParameters(E endpoint) {
         Map<String, String> defaultParameters = getDefaultParameters();

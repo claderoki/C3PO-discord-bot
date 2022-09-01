@@ -23,10 +23,7 @@ public class AttributeService {
 
     public PropertyValue getAttributeValue(ScopeTarget target, int attributeId) {
         AttributeValueKey key = new AttributeValueKey(target, attributeId);
-        return cache.computeIfAbsent(key, (k) -> {
-            Optional<PropertyValue> possibleValue = attributeRepository.getHydratedPropertyValue(target, attributeId);
-            return possibleValue.orElse(null);
-        });
+        return cache.computeIfAbsent(key, (k) -> attributeRepository.getHydratedPropertyValue(target, attributeId).orElse(null));
     }
 
     private void cacheIdAndCodes() {

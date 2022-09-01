@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Scope("singleton")
 public class HumanRepository extends Repository {
 
     public Integer getHumanId(Long userId) {

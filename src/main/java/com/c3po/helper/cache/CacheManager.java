@@ -10,7 +10,7 @@ public class CacheManager {
     }
 
     public static Cache get() {
-        return instances.get("global");
+        return get("global");
     }
 
     public static void set(String identifier, Cache cache) {
@@ -18,7 +18,7 @@ public class CacheManager {
     }
 
     public static void set(Cache cache) {
-        instances.put("global", cache);
+        set("global", cache);
     }
 
 }

@@ -41,7 +41,7 @@ public class MilkywayDenyCommand extends MilkywaySubCommand {
     private void givebackPayment(Milkyway milkyway) {
         switch (milkyway.getPurchaseType()) {
             case POINT -> {
-                PropertyValue cloverAttributeValue = attributeService.getAttributeValue(milkyway.getTarget(), attributeService.getId(KnownAttribute.CLOVERS));
+                PropertyValue cloverAttributeValue = attributeService.getAttributeValue(milkyway.getTarget(), attributeService.getId(KnownAttribute.cloverKey));
                 cloverAttributeValue.increment(milkyway.getAmount());
                 attributeRepository.save(cloverAttributeValue);
             }

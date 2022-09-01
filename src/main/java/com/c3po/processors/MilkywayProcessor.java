@@ -179,7 +179,7 @@ public class MilkywayProcessor {
         if (!godmode) {
             // No point grabbing these since they won't be used if godmode is on anyway.
             humanId = humanService.getHumanId(memberTarget.getUserId());
-            cloverAttributeValue = attributeService.getAttributeValue(memberTarget, attributeService.getId(KnownAttribute.CLOVERS));
+            cloverAttributeValue = attributeService.getAttributeValue(memberTarget, attributeService.getId(KnownAttribute.cloverKey));
         }
     }
 

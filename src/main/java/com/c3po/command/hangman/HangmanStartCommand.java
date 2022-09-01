@@ -8,12 +8,15 @@ import com.c3po.core.command.SubCommand;
 import com.c3po.core.wordnik.WordnikApi;
 import com.c3po.core.wordnik.endpoints.GetRandomWords;
 import com.c3po.core.wordnik.endpoints.GetWordDefinition;
+import com.c3po.core.wordnik.responses.WordListResponse;
 import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.service.HumanService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
@@ -22,6 +25,10 @@ import java.util.*;
 public class HangmanStartCommand extends SubCommand {
     @Autowired
     private HumanService humanService;
+
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
+
     private final static List<String> wordCache = new ArrayList<>();
     private final static int bet = 25;
 
@@ -41,37 +48,25 @@ public class HangmanStartCommand extends SubCommand {
             wordCache.remove(word);
             return Mono.just(word);
         } else {
-            return api.call(new GetRandomWords()).flatMap(words->{
-                int i = 0;
-                for(WordResponse word: words.getWords()) {
-                    if (i > 0) {
-                        wordCache.add(word.getWord());
-                    }
-                    i++;
-                }
-                return Mono.just(wordCache.get(0));
-            });
+            return api.call(new GetRandomWords())
+                .map(WordListResponse::getWords)
+                .flux()
+                .flatMap(Flux::fromIterable)
+                .map(WordResponse::getWord)
+                .doOnEach(w -> wordCache.add(w.get()))
+                .then(Mono.defer(() -> getWord(api)))
+            ;
         }
     }
 
     private Mono<HangmanWord> getHangmanWord() {
-        try {
-            WordnikApi api = new WordnikApi();
-            return getWord(api).flatMap(word -> {
-                try {
-                return api.call(new GetWordDefinition(word))
-                    .map(definitions -> HangmanWord.builder()
-                        .value(word.toLowerCase())
-                        .uneditedValue(word)
-                        .description(definitions.getDefinitions().get(0).getText())
-                        .build());
-                } catch (Exception e) {
-                    return Mono.just(HangmanWord.builder().build());
-                }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        WordnikApi api = new WordnikApi();
+        return getWord(api).flatMap(word -> api.call(new GetWordDefinition(word))
+            .map(definitions -> HangmanWord.builder()
+                .value(word.toLowerCase())
+                .uneditedValue(word)
+                .description(definitions.getDefinitions().get(0).getText())
+                .build()));
     }
 
     private HangmanPlayer toPlayer(User user) {
@@ -86,7 +81,11 @@ public class HangmanStartCommand extends SubCommand {
             .map(users -> users.stream().map(this::toPlayer).toList())
             .filter(users -> !users.isEmpty())
             .flatMap(players -> getHangmanWord()
-                .map(word -> new HangmanGame(word, new HangmanUI(context), new GameState(players)))
+                .map(word -> {
+                    HangmanGame game = new HangmanGame(word, new HangmanUI(context), new GameState(players));
+                    beanFactory.autowireBean(game);
+                    return game;
+                })
                 .flatMap(HangmanGame::start))
             .then();
     }
