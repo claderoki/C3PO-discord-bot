@@ -18,11 +18,4 @@ public class SubMenu extends Menu {
         return true;
     }
 
-    public String getBackButtonCustomId() {
-        return this.getClass().getSimpleName() + "backButton";
-    }
-
-    private Button getBackButton() {
-        return Button.secondary(getBackButtonCustomId(), "Back");
-    }
 }
