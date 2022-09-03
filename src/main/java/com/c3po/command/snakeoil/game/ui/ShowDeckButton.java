@@ -2,7 +2,7 @@ package com.c3po.command.snakeoil.game.ui;
 
 import com.c3po.command.snakeoil.game.GameState;
 import com.c3po.command.snakeoil.game.SnakeOilPlayer;
-import com.c3po.command.snakeoil.game.card.Card;
+import com.c3po.game.card.Card;
 import com.c3po.helper.Emoji;
 import com.c3po.ui.input.base.*;
 import discord4j.common.util.Snowflake;
@@ -25,7 +25,7 @@ public class ShowDeckButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(ButtonInteractionEvent event) {
         return playerIds.contains(event.getInteraction().getUser().getId());
     }
 

@@ -1,6 +1,6 @@
 package com.c3po.command.snakeoil.game;
 
-import com.c3po.command.snakeoil.game.card.Card;
+import com.c3po.game.card.Card;
 import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.core.command.Context;
 import discord4j.core.spec.EmbedCreateFields;

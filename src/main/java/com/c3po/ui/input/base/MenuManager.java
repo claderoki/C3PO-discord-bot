@@ -10,6 +10,7 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import discord4j.core.spec.InteractionReplyEditMono;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -17,11 +18,11 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 @RequiredArgsConstructor
-public class MenuManager {
-    private final Menu menu;
+public class MenuManager<M extends Menu> {
+    private final M menu;
     private final Replier replier;
 
-    public MenuManager(Menu menu) {
+    public MenuManager(M menu) {
         this(menu, new Replier(menu.getContext().getEvent()));
     }
 
@@ -65,7 +66,7 @@ public class MenuManager {
         return replier.replyOrEdit(this::reply, this::editReply);
     }
 
-    public Mono<Menu> waitFor() {
+    public Mono<M> waitFor() {
         GatewayDiscordClient client = menu.getContext().getEvent().getClient();
         return sendMessage().then(
             client.on(ComponentInteractionEvent.class)

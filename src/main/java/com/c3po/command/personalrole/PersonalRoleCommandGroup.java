@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class PersonalRoleCommandGroup extends CommandGroup {
     @Autowired
     public PersonalRoleCommandGroup(PersonalRoleColorCommand color, PersonalRoleNameCommand name, PersonalRoleDeleteCommand delete) {
-        super(CommandCategory.PERSONAL_ROLE,"personalrole","Personal role");
+        super(CommandCategory.PERSONAL_ROLE,"Personal role");
         addCommands(color, name, delete);
     }
 }

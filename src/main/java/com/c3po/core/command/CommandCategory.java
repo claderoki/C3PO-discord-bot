@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 public enum CommandCategory {
     GUILDREWARDS("guildrewards"),
     PROFILE("profile"),
-    POLLS("polls"),
+    POLLS("poll"),
     PIGEON("pigeon"),
     MILKYWAY("milkyway"),
     HANGMAN("hangman"),
     SNAKE_OIL("snakeoil"),
     PERSONAL_ROLE("personalrole"),
-    ;
+    BLACKJACK("blackjack");
 
     private final String value;
 

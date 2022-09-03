@@ -1,6 +1,6 @@
 package com.c3po.command.snakeoil.game;
 
-import com.c3po.command.snakeoil.game.card.Deck;
+import com.c3po.game.card.Deck;
 import com.c3po.command.snakeoil.game.card.Word;
 import discord4j.core.object.entity.User;
 import lombok.Getter;

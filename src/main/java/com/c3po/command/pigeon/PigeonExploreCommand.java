@@ -73,6 +73,6 @@ public class PigeonExploreCommand extends PigeonSubCommand {
         });
         menu.addOption(option);
 
-        return new MenuManager(menu).waitFor().then();
+        return new MenuManager<>(menu).waitFor().then();
     }
 }

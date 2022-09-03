@@ -10,7 +10,7 @@ public class ProfileCommandGroup extends CommandGroup {
 
     @Autowired
     public ProfileCommandGroup(ProfileViewCommand view, ProfileSetupCommand setup) {
-        super(CommandCategory.PROFILE,"profile","Profile info");
+        super(CommandCategory.PROFILE,"Profile info");
         addCommand(view);
         addCommand(setup);
     }

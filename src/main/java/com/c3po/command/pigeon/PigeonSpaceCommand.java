@@ -94,7 +94,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     private Mono<Void> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
         FullExplorationLocation location = explorationService.getAllLocations().get(exploration.getLocationId());
         ScenarioMenu menu = new ScenarioMenu(beanFactory, context, location, exploration, pigeon);
-        return new MenuManager(menu).waitFor().flatMap(c -> {
+        return new MenuManager<>(menu).waitFor().flatMap(c -> {
             List<ExplorationScenarioWinnings> totalWinnings = menu.getTotalWinnings();
             for (var winnings: totalWinnings) {
                 explorationRepository.createWinnings(exploration.getId(), winnings.actionId(), winnings.pigeonWinnings());

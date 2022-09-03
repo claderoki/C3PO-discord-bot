@@ -1,4 +1,4 @@
-package com.c3po.command.snakeoil.game.card;
+package com.c3po.game.card;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -40,7 +40,7 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
     }
 
     @Override
-    public boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(ButtonInteractionEvent event) {
         return gameState.isTest() || event.getInteraction().getUser().equals(this.player.getUser());
     }
 
@@ -56,6 +56,6 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
         menu.addOption(option);
         Replier replier = new Replier(event);
         replier.setEphemeral(true);
-        return new MenuManager(menu, replier).waitFor().then();
+        return new MenuManager<>(menu, replier).waitFor().then();
     }
 }

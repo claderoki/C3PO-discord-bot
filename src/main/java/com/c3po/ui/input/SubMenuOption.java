@@ -2,17 +2,13 @@ package com.c3po.ui.input;
 
 import com.c3po.ui.input.base.ButtonMenuOption;
 import com.c3po.ui.input.base.MenuManager;
+import com.c3po.ui.input.base.Replier;
 import com.c3po.ui.input.base.SubMenu;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import reactor.core.publisher.Mono;
 
-public class SubMenuOption extends ButtonMenuOption<Long> {
+public class SubMenuOption extends ButtonMenuOption<Void> {
     private final SubMenu subMenu;
-
-    public SubMenuOption(String name, Long value, SubMenu subMenu) {
-        super(name, value);
-        this.subMenu = subMenu;
-    }
 
     public SubMenuOption(String name, SubMenu subMenu) {
         super(name);
@@ -28,6 +24,6 @@ public class SubMenuOption extends ButtonMenuOption<Long> {
         if (hasBackButton()) {
             subMenu.addOption(new BackButtonMenuOption());
         }
-        return new MenuManager(subMenu).waitFor().then();
+        return new MenuManager<>(subMenu, new Replier(event)).waitFor().then();
     }
 }

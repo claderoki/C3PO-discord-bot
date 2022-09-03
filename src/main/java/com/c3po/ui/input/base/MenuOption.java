@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Getter
 @Setter
@@ -18,6 +19,8 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     private final String customId;
 
     private T value;
+    @Setter
+    private Predicate<F> allowedIf;
     protected Function<T, Void> setter;
     private boolean ownerOnly = false;
     protected @NonNull Context context;
@@ -72,7 +75,10 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
         return !shouldContinue();
     }
 
-    public boolean isAllowed(ComponentInteractionEvent event) {
+    public boolean isAllowed(F event) {
+        if (allowedIf != null) {
+            return allowedIf.test(event);
+        }
         if (ownerOnly) {
             return event.getInteraction().getUser().getId().equals(context.getEvent().getInteraction().getUser().getId());
         } else {

@@ -3,6 +3,7 @@ package com.c3po.ui.input.base;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import discord4j.core.spec.InteractionReplyEditMono;
@@ -19,7 +20,7 @@ public class Replier {
     @Getter
     private boolean isReplied = false;
 
-    public Replier(ChatInputInteractionEvent event) {
+    public Replier(DeferrableInteractionEvent event) {
         this.event = event;
     }
 
@@ -30,7 +31,7 @@ public class Replier {
     private InteractionApplicationCommandCallbackReplyMono _reply() {
         if (event instanceof ComponentInteractionEvent e) {
             return e.reply().withEphemeral(ephemeral);
-        } else if (event instanceof ChatInputInteractionEvent e) {
+        } else if (event instanceof DeferrableInteractionEvent e) {
             return e.reply().withEphemeral(ephemeral);
         }
         throw new RuntimeException("Can't happen.");
@@ -47,7 +48,7 @@ public class Replier {
     private InteractionReplyEditMono _editReply() {
         if (event instanceof ComponentInteractionEvent e) {
             return e.editReply();
-        } else if (event instanceof ChatInputInteractionEvent e) {
+        } else if (event instanceof DeferrableInteractionEvent e) {
             return e.editReply();
         }
         throw new RuntimeException("Can't happen.");

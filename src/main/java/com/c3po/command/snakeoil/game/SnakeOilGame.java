@@ -27,6 +27,6 @@ public class SnakeOilGame extends Game {
         menu.addOption(new ShowDeckButton(gameState));
         menu.addOption(new ShowInstructionsButton());
         gameState.newTurn();
-        return new MenuManager(menu).waitFor().then();
+        return new MenuManager<>(menu).waitFor().then();
     }
 }

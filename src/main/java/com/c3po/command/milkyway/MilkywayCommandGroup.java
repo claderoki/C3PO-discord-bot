@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class MilkywayCommandGroup extends CommandGroup {
     @Autowired
     public MilkywayCommandGroup(MilkywayAcceptCommand accept, MilkywayDenyCommand deny, MilkywayCreateCommand create, MilkywayExtendCommand extend) {
-        super(CommandCategory.MILKYWAY,"milkyway","Milkies");
+        super(CommandCategory.MILKYWAY,"Milkies");
         this.addCommands(accept, deny, create, extend);
     }
 }

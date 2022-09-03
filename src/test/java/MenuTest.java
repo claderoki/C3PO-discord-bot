@@ -35,7 +35,7 @@ public class MenuTest {
         int amountToHandle = 0;
         boolean stop = false;
         for(MenuOptionSettings settings: optionSettings) {
-            MenuOption<?,?,?> option = mock(MenuOption.class);
+            MenuOption option = mock(MenuOption.class);
             when(option.getCustomId()).thenReturn(settings.getCustomId());
             if (settings.isExecute()) {
                 ComponentInteractionEvent optionEvent = mock(ComponentInteractionEvent.class);
@@ -67,7 +67,7 @@ public class MenuTest {
         options.forEach(menu::addOption);
         Replier replier = mock(Replier.class);
         when(replier.replyOrEdit(any(), any())).thenReturn(Mono.just(mock(Message.class)));
-        MenuManager menuManager = new MenuManager(menu, replier);
+        MenuManager<Menu> menuManager = new MenuManager<>(menu, replier);
         menuManager.waitFor().block();
 
         if (menu.getOptionsHandled() != amountToHandle) {

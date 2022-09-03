@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HangmanCommandGroup extends CommandGroup {
     public HangmanCommandGroup(HangmanStartCommand start) {
-        super(CommandCategory.HANGMAN, "hangman", "no description");
+        super(CommandCategory.HANGMAN, "no description");
         addCommands(start);
     }
 }

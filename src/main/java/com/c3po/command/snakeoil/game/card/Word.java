@@ -1,5 +1,6 @@
 package com.c3po.command.snakeoil.game.card;
 
+import com.c3po.game.card.Card;
 import lombok.Getter;
 
 @Getter

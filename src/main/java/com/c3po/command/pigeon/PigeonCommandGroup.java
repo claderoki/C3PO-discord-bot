@@ -19,8 +19,7 @@ public class PigeonCommandGroup extends CommandGroup {
             PigeonTrainCommand train,
             PigeonBuyCommand buy,
             PigeonPoopCommand poop) {
-
-        super(CommandCategory.PIGEON,"pigeon","Pigeons");
+        super(CommandCategory.PIGEON,"Pigeons");
         addCommands(profile,explore,space,clean,play,feed,heal,train,buy,poop);
     }
 }

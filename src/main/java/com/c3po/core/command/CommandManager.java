@@ -1,6 +1,7 @@
 package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
+import com.c3po.command.blackjack.BlackjackCommandGroup;
 import com.c3po.command.hangman.HangmanCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
@@ -31,10 +32,6 @@ import java.util.*;
 public class CommandManager {
     @Autowired
     private SettingRepository settingRepository;
-    final HashMap<String, Command> commands = new HashMap<>();
-    final HashMap<String, SettingInfo> settings = new HashMap<>();
-    final Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
-
     @Autowired
     private ProfileCommandGroup profileCommandGroup;
     @Autowired
@@ -47,6 +44,12 @@ public class CommandManager {
     private SnakeOilCommandGroup snakeOilCommandGroup;
     @Autowired
     private HangmanCommandGroup hangmanCommandGroup;
+    @Autowired
+    private BlackjackCommandGroup blackjackCommandGroup;
+
+    final HashMap<String, Command> commands = new HashMap<>();
+    final HashMap<String, SettingInfo> settings = new HashMap<>();
+    final Map<String, ApplicationCommandRequest> commandRequestList = new HashMap<>();
 
     private void registerCommands() {
         register(milkywayCommandGroup);
@@ -55,6 +58,7 @@ public class CommandManager {
         register(pigeonCommandGroup);
         register(snakeOilCommandGroup);
         register(hangmanCommandGroup);
+        register(blackjackCommandGroup);
     }
 
     private void registerSettings() {

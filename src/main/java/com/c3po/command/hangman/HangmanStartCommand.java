@@ -38,7 +38,7 @@ public class HangmanStartCommand extends SubCommand {
 
     private Mono<Set<User>> getUsers(Context context) {
         LobbyMenu menu = new LobbyMenu(context, bet);
-        return new MenuManager(menu).waitFor()
+        return new MenuManager<>(menu).waitFor()
             .then(Mono.just(menu.getUsers()));
     }
 

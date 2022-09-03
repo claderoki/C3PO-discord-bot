@@ -28,7 +28,7 @@ public class LobbyMenu extends Menu {
     private HumanService humanService;
 
     @Getter
-    private final Set<User> users = Collections.synchronizedSet(new HashSet<>());
+    private final LinkedHashSet<User> users = new LinkedHashSet<>();
     private int goldNeeded;
 
     public LobbyMenu(Context context, int goldNeeded) {

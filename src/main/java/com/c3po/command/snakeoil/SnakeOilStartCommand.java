@@ -2,7 +2,7 @@ package com.c3po.command.snakeoil;
 
 import com.c3po.command.hangman.game.core.LobbyMenu;
 import com.c3po.command.snakeoil.game.*;
-import com.c3po.command.snakeoil.game.card.Deck;
+import com.c3po.game.card.Deck;
 import com.c3po.command.snakeoil.game.card.Profession;
 import com.c3po.command.snakeoil.game.card.Word;
 import com.c3po.core.command.CommandCategory;
@@ -55,7 +55,7 @@ public class SnakeOilStartCommand extends SubCommand {
                 .collect(Collectors.toSet())
                 .map(LinkedHashSet::new);
         }
-        return new MenuManager(new LobbyMenu(context)).waitFor().map(m -> new LinkedHashSet<>(((LobbyMenu)m).getUsers()));
+        return new MenuManager<>(new LobbyMenu(context)).waitFor().map(LobbyMenu::getUsers);
     }
 
     private Set<String> readLines(String csvFile) {

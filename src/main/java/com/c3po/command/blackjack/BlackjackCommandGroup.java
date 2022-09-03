@@ -1,4 +1,4 @@
-package com.c3po.command.snakeoil;
+package com.c3po.command.blackjack;
 
 import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.CommandGroup;
@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SnakeOilCommandGroup extends CommandGroup {
+public class BlackjackCommandGroup extends CommandGroup {
     @Autowired
-    public SnakeOilCommandGroup(SnakeOilStartCommand start) {
-        super(CommandCategory.SNAKE_OIL,"Snake oil game");
+    public BlackjackCommandGroup(BlackjackStartCommand start) {
+        super(CommandCategory.BLACKJACK,"Blackjack game");
         addCommands(start);
     }
 }

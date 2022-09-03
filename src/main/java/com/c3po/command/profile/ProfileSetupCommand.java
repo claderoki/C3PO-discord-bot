@@ -91,7 +91,7 @@ public class ProfileSetupCommand extends ProfileSubCommand {
         menu.addOption(cancelOption);
         menu.setEmbedConsumer(e -> e.description("Setup your profile"));
 
-        return new MenuManager(menu).waitFor().map(a -> {
+        return new MenuManager<>(menu).waitFor().map(a -> {
             if (!cancelOption.isCancelled()) {
                 attributeRepository.save(propertyValues);
             }

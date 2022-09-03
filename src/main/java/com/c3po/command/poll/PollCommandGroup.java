@@ -5,7 +5,7 @@ import com.c3po.core.command.CommandGroup;
 
 public class PollCommandGroup extends CommandGroup {
     public PollCommandGroup() {
-        super(CommandCategory.POLLS,"poll","Polls");
+        super(CommandCategory.POLLS,"Polls");
         addCommand(new PollCreateCommand(this));
     }
 }
