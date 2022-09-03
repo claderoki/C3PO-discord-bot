@@ -38,12 +38,7 @@ public class ProfileViewCommand extends ProfileSubCommand {
             .cityName(profile.getCity())
             .countryCode(profile.getCountry())
             .build();
-
-        try {
-            return new OpenWeatherMapApi().call(endpoint).flatMap(t -> Mono.just(Optional.of(t)));
-        } catch (Exception e) {
-            return Mono.just(Optional.empty());
-        }
+        return new OpenWeatherMapApi().call(endpoint).map(Optional::of);
     }
 
     private String formatEmoji(ReactionEmoji emoji) {
@@ -103,7 +98,7 @@ public class ProfileViewCommand extends ProfileSubCommand {
             Profile profile = profileService.getProfile(target);
 
             String username = user.getUsername();
-            return profileToField(username, profile).flatMap(field -> context.getEvent().reply()
+            return profileToField(username, profile).flatMap(field -> context.getReplier().reply()
                 .withEmbeds(EmbedHelper.normal(null)
                     .addField(field)
                     .build())

@@ -53,9 +53,9 @@ public class HangmanStartCommand extends SubCommand {
                 .flux()
                 .flatMap(Flux::fromIterable)
                 .map(WordResponse::getWord)
+                .filter(Objects::nonNull)
                 .doOnEach(w -> wordCache.add(w.get()))
-                .then(Mono.defer(() -> getWord(api)))
-            ;
+                .then(Mono.defer(() -> getWord(api)));
         }
     }
 

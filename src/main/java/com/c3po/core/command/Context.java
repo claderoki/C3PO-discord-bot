@@ -64,7 +64,7 @@ public class Context {
             .withEmbeds(getEmbedFor(toast.getType()).description(toast.getMessage()).build())
             .flatMap(m -> {
                 if (toast.getRemoveAfter() != null) {
-                    return Mono.empty().and(Mono.defer(() -> Mono.delay(toast.getRemoveAfter()).then(m.delete())));
+                    Mono.delay(toast.getRemoveAfter()).then(m.delete()).subscribe();
                 }
                 return Mono.empty();
             }
