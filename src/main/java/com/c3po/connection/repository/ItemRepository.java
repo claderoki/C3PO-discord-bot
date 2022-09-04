@@ -32,7 +32,7 @@ public class ItemRepository extends Repository {
             """.formatted(placeholderList.getQuestionMarks());
 
         List<Integer> missingItemIds = new ArrayList<>(List.of(itemIds));
-        for(Result result: query(query, placeholderList.getParameters())) {
+        for(Result result: getMany(query, placeholderList.getParameters())) {
             Integer itemId = result.getInt("item_id");
             Integer amount = result.getInt("amount");
             amounts.put(itemId, amount);
@@ -72,7 +72,7 @@ public class ItemRepository extends Repository {
             GROUP BY `item_category`.`id`
             """;
 
-        for(Result result: query(query)) {
+        for(Result result: getMany(query)) {
             Integer parentId = result.optInt("parent_id");
             int id = result.getInt("id");
             String name = result.getString("name");

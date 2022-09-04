@@ -10,9 +10,7 @@ import com.c3po.helper.cache.keys.AttributeValueKey;
 import com.c3po.helper.cache.CacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @org.springframework.stereotype.Service
 public class AttributeService {
@@ -45,6 +43,13 @@ public class AttributeService {
         return cache.get(key);
     }
 
+    protected List<Integer> getCachedIds(String... codes) {
+        return Arrays.stream(codes)
+            .map(AttributeIdKey::new)
+            .map(k -> cache.get(k))
+            .toList();
+    }
+
     public int getId(String code) {
         Integer id = getCachedId(code);
         if (id != null) {
@@ -52,6 +57,14 @@ public class AttributeService {
         }
         cacheIdAndCodes();
         return getCachedId(code);
+    }
+
+    public List<Integer> getIds(String... codes) {
+        List<Integer> id = getCachedIds(codes);
+        if (id.stream().anyMatch(Objects::isNull)) {
+            cacheIdAndCodes();
+        }
+        return getCachedIds(codes);
     }
 
     protected String getCachedCode(Integer id) {

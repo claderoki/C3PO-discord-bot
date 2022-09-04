@@ -114,7 +114,7 @@ public class MilkywayRepository extends Repository {
     public List<ExpiredMilkyway> getExpiredMilkyways() {
         String query = "SELECT `id`, `channel_id` FROM `milkyway` WHERE `status` = 'accepted' AND `expires_at` > UTC_TIMESTAMP()";
         List<ExpiredMilkyway> milkyways = new ArrayList<>();
-        for( Result result: query(query)) {
+        for( Result result: getMany(query)) {
             milkyways.add(ExpiredMilkyway.builder()
                 .channelId(result.getLong("channel_id"))
                 .id(result.getInt("id"))

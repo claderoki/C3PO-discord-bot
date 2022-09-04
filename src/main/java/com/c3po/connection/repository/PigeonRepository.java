@@ -144,7 +144,7 @@ public class PigeonRepository extends Repository {
             AND `pigeon`.`status` = 'idle'
             ORDER BY RAND()
             """;
-        return query(query, new LongParameter(guildId))
+        return getMany(query, new LongParameter(guildId))
             .stream()
             .map(r -> new IdlePigeon(r.getInt("pigeon_id"), r.getLong("user_id")))
             .collect(Collectors.toSet());
@@ -192,7 +192,7 @@ public class PigeonRepository extends Repository {
 
     public synchronized List<PigeonWinnings> getWinnings(int explorationId) {
         String query = "SELECT * FROM `exploration_winnings` WHERE `exploration_id` = ?";
-        return query(query, new IntParameter(explorationId)).stream()
+        return getMany(query, new IntParameter(explorationId)).stream()
             .map(result -> {
                 PigeonWinnings winnings = new PigeonWinnings();
                 Integer itemId = result.optInt("item_id");

@@ -91,7 +91,7 @@ public class SettingRepository extends Repository {
 
         query.append(" GROUP BY `setting`.`id`");
 
-        for (Result result: this.query(query.toString(), params)) {
+        for (Result result: this.getMany(query.toString(), params)) {
             int id = result.getInt("id");
             PropertyValue.PropertyValueBuilder builder = PropertyValue.builder()
                 .target(target)
@@ -138,7 +138,7 @@ public class SettingRepository extends Repository {
             params.add(new LongParameter(target.getUserId()));
         }
 
-        for (Result result: this.query(query.toString(), params)) {
+        for (Result result: this.getMany(query.toString(), params)) {
             values.put(result.getInt("setting_id"),
                 PropertyValue.builder()
                     .value(result.optString("value"))
@@ -163,7 +163,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<Integer, Setting> getSettings(String category) {
         HashMap<Integer, Setting> settings = new HashMap<>();
-        for (Result result: query("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
+        for (Result result: getMany("SELECT * FROM `setting` WHERE `setting`.`category` = ?", new StringParameter(category))) {
             settings.put(result.getInt("id"), resultToSetting(result));
         }
 
@@ -177,7 +177,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<String, HashMap<String, Setting>> getAllSettings() {
         HashMap<String, HashMap<String, Setting>> settings = new HashMap<>();
-        for (Result result: query("SELECT * FROM `setting` ORDER BY `setting`.`category`")) {
+        for (Result result: getMany("SELECT * FROM `setting` ORDER BY `setting`.`category`")) {
             settings.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())
                 .put(result.getString("key"), resultToSetting(result));
         }
@@ -187,7 +187,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<String, HashMap<String, Integer>> getSettingIdentifiers() {
         HashMap<String, HashMap<String, Integer>> identifiers = new HashMap<>();
-        for (Result result: query("SELECT `id`, `key`, `category` FROM `setting`")) {
+        for (Result result: getMany("SELECT `id`, `key`, `category` FROM `setting`")) {
             identifiers.computeIfAbsent(result.getString("category"), (c) -> new HashMap<>())
                 .put(result.getString("key"), result.getInt("id"));
         }
@@ -197,7 +197,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<Integer, ArrayList<SettingValidation>> getValidations() {
         HashMap<Integer, ArrayList<SettingValidation>> validations = new HashMap<>();
-        for (Result result: query("SELECT * FROM `setting_validation`")) {
+        for (Result result: getMany("SELECT * FROM `setting_validation`")) {
             validations.computeIfAbsent(result.getInt("setting_id"), (c) -> new ArrayList<>())
                 .add(SettingValidation.builder()
                     .condition(Condition.valueOf(result.getString("condition")))

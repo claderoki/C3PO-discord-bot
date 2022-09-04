@@ -15,6 +15,10 @@ public abstract class SubCommand extends Command {
         this.groupName = category.getValue();
     }
 
+    protected SubCommand(CommandCategory category, String name) {
+        this(category, name, "no description");
+    }
+
     public String getFullName() {
         return "%s %s".formatted(groupName, this.getName());
     }

@@ -14,7 +14,8 @@ public enum CommandCategory {
     HANGMAN("hangman"),
     SNAKE_OIL("snakeoil"),
     PERSONAL_ROLE("personalrole"),
-    BLACKJACK("blackjack");
+    BLACKJACK("blackjack"),
+    INSECTA("insecta");
 
     private final String value;
 

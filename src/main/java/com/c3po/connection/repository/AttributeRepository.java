@@ -66,7 +66,7 @@ public class AttributeRepository extends Repository {
         save(propertyValues.toArray(PropertyValue[]::new));
     }
 
-    public HashMap<Integer, PropertyValue> getHydratedPropertyValues(ScopeTarget target, Collection<Integer> ids) {
+    public HashMap<Integer, PropertyValue> getHydratedPropertyValues(ScopeTarget target, List<Integer> ids) {
         return getHydratedPropertyValues(target, ids.toArray(new Integer[0]));
     }
 
@@ -116,7 +116,7 @@ public class AttributeRepository extends Repository {
 
         query.append(" GROUP BY `attribute`.`id`");
 
-        for (Result result: this.query(query.toString(), params)) {
+        for (Result result: this.getMany(query.toString(), params)) {
             int id = result.getInt("id");
             PropertyValue.PropertyValueBuilder builder = PropertyValue.builder()
                 .target(target)
@@ -160,7 +160,7 @@ public class AttributeRepository extends Repository {
             params.add(new LongParameter(target.getUserId()));
         }
 
-        for (Result result: this.query(query.toString(), params)) {
+        for (Result result: this.getMany(query.toString(), params)) {
             values.put(result.getInt("attribute_id"),
                 PropertyValue.builder()
                     .value(result.optString("value"))
@@ -173,7 +173,7 @@ public class AttributeRepository extends Repository {
 
     public HashMap<String, Integer> getAttributeIdentifiers() {
         HashMap<String, Integer> identifiers = new HashMap<>();
-        for (Result result: query("SELECT `id`, `key` FROM `attribute`")) {
+        for (Result result: getMany("SELECT `id`, `key` FROM `attribute`")) {
             identifiers.put(result.getString("key"), result.getInt("id"));
         }
 

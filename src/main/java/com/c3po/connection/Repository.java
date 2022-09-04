@@ -66,7 +66,7 @@ public class Repository {
         }
     }
 
-    protected final List<Result> query(Connection connection, String query, Parameter... params) {
+    protected final List<Result> getMany(Connection connection, String query, Parameter... params) {
         ArrayList<Result> results = new ArrayList<>();
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
             try (ResultSet rs = statement.executeQuery()) {
@@ -84,20 +84,20 @@ public class Repository {
         return results;
     }
 
-    protected final List<Result> query(String query, Parameter... params) {
+    protected final List<Result> getMany(String query, Parameter... params) {
         try (Connection connection = getConnection()) {
-            return query(connection, query, params);
+            return getMany(connection, query, params);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
     }
 
-    protected final List<Result> query(String query, Collection<Parameter> params) {
-        return query(query, params.toArray(new Parameter[0]));
+    protected final List<Result> getMany(String query, Collection<Parameter> params) {
+        return getMany(query, params.toArray(new Parameter[0]));
     }
 
     protected final Result getOne(String query, Parameter... params) {
-        List<Result> results = query(query, params);
+        List<Result> results = getMany(query, params);
         if (results.isEmpty()) {
             return null;
         }

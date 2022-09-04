@@ -65,7 +65,7 @@ public class ExplorationRepository extends Repository {
             INNER JOIN `exploration_action_scenario_winnings` ON `exploration_action_scenario_winnings`.`id` = `exploration_action_scenario`.`scenario_winnings_id`
         """;
         Map<Integer, List<ExplorationScenario>> scenarios = new HashMap<>();
-        for (Result result: query(query)) {
+        for (Result result: getMany(query)) {
             ExplorationScenario scenario = ExplorationScenario.builder()
                 .cleanliness(result.getInt("cleanliness"))
                 .food(result.getInt("food"))
@@ -87,7 +87,7 @@ public class ExplorationRepository extends Repository {
         Map<Integer, List<ExplorationScenario>> scenarios = getAllScenarios();
         String query = "SELECT `id`, `name`, `symbol`, `location_id` FROM `exploration_action`";
         Map<Integer, List<ExplorationAction>> actions = new HashMap<>();
-        for (Result result: query(query)) {
+        for (Result result: getMany(query)) {
             actions.computeIfAbsent(result.getInt("location_id"), a -> new ArrayList<>())
                 .add(new ExplorationAction(
                     result.getInt("id"),
@@ -114,7 +114,7 @@ public class ExplorationRepository extends Repository {
             INNER JOIN `exploration_planet` ON `exploration_planet`.`id` = `exploration_planet_location`.`planet_id`
             WHERE `exploration_planet_location`.`active` = 1
         """;
-        for(Result result: query(query)) {
+        for(Result result: getMany(query)) {
             FullExplorationLocation location = new FullExplorationLocation(
                 result.getInt("id"),
                 result.getInt("planet_id"),
