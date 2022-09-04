@@ -3,6 +3,7 @@ package com.c3po.core.command;
 import com.c3po.command.SettingInfo;
 import com.c3po.command.blackjack.BlackjackCommandGroup;
 import com.c3po.command.hangman.HangmanCommandGroup;
+import com.c3po.command.insecta.InsectaCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
@@ -46,6 +47,8 @@ public class CommandManager {
     private HangmanCommandGroup hangmanCommandGroup;
     @Autowired
     private BlackjackCommandGroup blackjackCommandGroup;
+    @Autowired
+    private InsectaCommandGroup insectaCommandGroup;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
@@ -59,6 +62,7 @@ public class CommandManager {
         register(snakeOilCommandGroup);
         register(hangmanCommandGroup);
         register(blackjackCommandGroup);
+        register(insectaCommandGroup);
     }
 
     private void registerSettings() {

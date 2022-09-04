@@ -7,9 +7,9 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class InsectaWinning {
+public class InsectaWinningDTO {
     private final String key;
     private final long userId;
     private final long value;
-    private boolean collected;
+    private boolean collected = false;
 }

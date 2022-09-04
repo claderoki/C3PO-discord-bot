@@ -12,8 +12,12 @@ public class InsectaWinnings {
 
     public void add(InsectaWinnings winnings) {
         for(var entrySet: winnings.getValues().entrySet()) {
-            values.computeIfPresent(entrySet.getKey(), (c, v) -> entrySet.getValue() + v);
-            values.computeIfAbsent(entrySet.getKey(), c -> entrySet.getValue());
+            add(entrySet.getKey(), entrySet.getValue());
         }
+    }
+
+    public void add(Insecta insecta, long amount) {
+        values.putIfAbsent(insecta, 0L);
+        values.computeIfPresent(insecta, (c, v) -> v + amount);
     }
 }

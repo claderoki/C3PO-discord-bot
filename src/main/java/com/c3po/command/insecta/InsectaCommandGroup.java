@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InsectaCommandGroup extends CommandGroup {
-    public InsectaCommandGroup() {
+    public InsectaCommandGroup(InsectaBuyCommand buy, InsectaCollectCommand collect) {
         super(CommandCategory.INSECTA, "no description");
+        addCommands(buy, collect);
     }
 }

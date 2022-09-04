@@ -1,6 +1,18 @@
 package com.c3po.command.insecta.core;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
-public record InsectaProfile(Integer id, long hexacoin, LocalDateTime lastCollected, Insectarium insectarium) {
+@Builder
+@Setter
+@Getter
+public class InsectaProfile {
+    private Integer id;
+    private long hexacoin;
+    private LocalDateTime lastCollected;
+    private long userId;
+    private Insectarium insectarium;
 }
