@@ -45,6 +45,10 @@ public final class Deck<T extends Card<?>> {
         }
     }
 
+    public void drawFrom(Deck<T> deck) {
+        drawFrom(deck, 1);
+    }
+
     public T take() {
         T card = cards.get(0);
         cards.remove(card);

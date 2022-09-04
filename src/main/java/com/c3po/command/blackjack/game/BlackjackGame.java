@@ -1,6 +1,5 @@
 package com.c3po.command.blackjack.game;
 
-import com.c3po.command.blackjack.menu.BlackjackMenuOption;
 import com.c3po.ui.input.SubMenuOption;
 import com.c3po.ui.input.VoidMenuOption;
 import com.c3po.ui.input.base.Menu;
@@ -15,8 +14,22 @@ public class BlackjackGame {
     private final BlackjackUI ui;
 
     private SubMenu getPlayerSubmenu(BlackjackPlayer player) {
-        SubMenu subMenu = new SubMenu(ui.getContext(), new VoidMenuOption("Hit"));
-        subMenu.addOption(new VoidMenuOption("Draw"));
+        var hitOption = new VoidMenuOption("Hit");
+        hitOption.setExecutor((e) -> {
+            player.getCards().drawFrom(gameState.getDeck());
+            gameState.nextTurn();
+            return Mono.empty();
+        });
+        hitOption.setShouldContinue(false);
+
+        var drawOption = new VoidMenuOption("Draw");
+        drawOption.setShouldContinue(false);
+        drawOption.setExecutor((e) -> {
+            gameState.nextTurn();
+            return Mono.empty();
+        });
+        SubMenu subMenu = new SubMenu(ui.getContext(), hitOption);
+        subMenu.addOption(drawOption);
         return subMenu;
     }
 

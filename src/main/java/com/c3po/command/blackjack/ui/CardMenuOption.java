@@ -1,4 +1,4 @@
-package com.c3po.command.blackjack.menu;
+package com.c3po.command.blackjack.ui;
 
 import com.c3po.game.card.Card;
 import com.c3po.game.card.Deck;

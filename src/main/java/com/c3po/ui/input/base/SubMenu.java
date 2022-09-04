@@ -13,9 +13,4 @@ public class SubMenu extends Menu {
         this.defaultOption = defaultOption;
         this.addOption(defaultOption);
     }
-
-    private boolean hasBackButton() {
-        return true;
-    }
-
 }

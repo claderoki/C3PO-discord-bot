@@ -12,12 +12,12 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
     @Setter
     private boolean shouldContinue = true;
 
+    @Setter
+    private Function<ButtonInteractionEvent, Mono<Void>> executor;
+
     public VoidMenuOption(String name) {
         super(name);
     }
-
-    @Setter
-    private Function<ButtonInteractionEvent, Mono<Void>> executor;
 
     @Override
     public Button.Style getButtonStyle() {
@@ -29,7 +29,7 @@ public class VoidMenuOption extends ButtonMenuOption<Void> {
         if (executor == null) {
             return event.deferEdit();
         }
-        return event.deferEdit().then(executor.apply(event));
+        return event.deferEdit().then(Mono.defer(() -> executor.apply(event)));
     }
 
     public boolean shouldContinue() {

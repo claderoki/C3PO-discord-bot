@@ -20,15 +20,8 @@ public class SubMenuOption extends ButtonMenuOption<Void> {
         this.edit = edit;
     }
 
-    private boolean hasBackButton() {
-        return true;
-    }
-
     @Override
     public Mono<Void> execute(ButtonInteractionEvent event) {
-//        if (hasBackButton()) {
-//            subMenu.addOption(new BackButtonMenuOption());
-//        }
         Replier replier;
         if (!edit) {
             replier = new Replier(subMenu.getContext().getEvent());
