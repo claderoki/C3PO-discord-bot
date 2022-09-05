@@ -15,4 +15,8 @@ public class InsectaProfile {
     private LocalDateTime lastCollected;
     private long userId;
     private Insectarium insectarium;
+
+    public void incrementHexacoin(long amount) {
+        hexacoin += amount;
+    }
 }

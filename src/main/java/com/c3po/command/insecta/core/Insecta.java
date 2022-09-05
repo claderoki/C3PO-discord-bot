@@ -6,6 +6,9 @@ public abstract class Insecta {
     public abstract int getRatePerSecond();
     public abstract int getCost();
     public abstract String getKey();
+    public String getDidYouKnow() {
+        return null;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -3,7 +3,12 @@ package com.c3po.command.insecta.core;
 public class Mosquito extends Insecta {
     @Override
     public int getRatePerSecond() {
-        return 3;
+        return 1;
+    }
+
+    @Override
+    public String getDidYouKnow() {
+        return "Mosquito's drink blood to help produce eggs; meaning only female mosquito's drink blood.";
     }
 
     @Override
@@ -14,10 +19,5 @@ public class Mosquito extends Insecta {
     @Override
     public String getKey() {
         return "mosquito";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
     }
 }

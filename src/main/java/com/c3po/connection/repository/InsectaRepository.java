@@ -37,8 +37,8 @@ public class InsectaRepository extends Repository {
             .toList();
     }
 
-    public synchronized void setCollectedAll(long userId) {
-        String query = "UPDATE `insecta_winning` SET `collected` = 1 WHERE `user_id` = ?";
+    public synchronized void removeAllCollected(long userId) {
+        String query = "DELETE FROM `insecta_winning` WHERE `user_id` = ?";
         execute(query, new LongParameter(userId));
     }
 

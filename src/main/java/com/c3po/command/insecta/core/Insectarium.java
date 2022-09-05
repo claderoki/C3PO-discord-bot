@@ -24,4 +24,8 @@ public class Insectarium {
         values.computeIfPresent(insecta, (k, v) -> v + amount);
     }
 
+    public long getCount(Insecta insecta) {
+        return values.getOrDefault(insecta, 0L);
+    }
+
 }
