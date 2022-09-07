@@ -18,14 +18,15 @@ import java.util.stream.Collectors;
 public class InsectaRepository extends Repository {
     public synchronized void saveWinnings(InsectaWinningDTO winning) {
         String query = """
-            INSERT INTO `insecta_winning` (`key`, `value`, `user_id`, `collected`)
-            VALUES (?,?,?,?)
+            INSERT INTO `insecta_winning` (`key`, `value`, `user_id`, `collected`, `initial_datetime`)
+            VALUES (?,?,?,?, ?)
             """;
         execute(query,
             new StringParameter(winning.getKey()),
             new LongParameter(winning.getValue()),
             new LongParameter(winning.getUserId()),
-            new BoolParameter(winning.isCollected())
+            new BoolParameter(winning.isCollected()),
+            new DateTimeParameter(winning.getInitialDate())
         );
     }
 
@@ -33,7 +34,13 @@ public class InsectaRepository extends Repository {
         String query = "SELECT * FROM `insecta_winning` WHERE `collected` = 0 AND `user_id` = ?";
         return getMany(query, new LongParameter(userId))
             .stream()
-            .map(c -> new InsectaWinningDTO(c.getString("key"), c.getLong("user_id"), c.getLong("value")))
+            .map(c -> InsectaWinningDTO.builder()
+                .key(c.getString("key"))
+                .value(c.getLong("value"))
+                .userId(c.getLong("user_id"))
+                .collected(false)
+                .initialDate(c.getDateTime("initial_datetime"))
+                .build())
             .toList();
     }
 

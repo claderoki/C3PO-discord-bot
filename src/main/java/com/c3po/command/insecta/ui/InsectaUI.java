@@ -3,6 +3,8 @@ package com.c3po.command.insecta.ui;
 import com.c3po.command.insecta.core.Insecta;
 import com.c3po.command.insecta.core.InsectaProfile;
 import com.c3po.command.insecta.core.InsectaWinnings;
+import com.c3po.helper.DateTimeDelta;
+import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.ui.input.base.Replier;
 import discord4j.core.spec.EmbedCreateFields;
@@ -10,14 +12,21 @@ import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 @RequiredArgsConstructor
 public class InsectaUI {
     private final Replier replier;
 
-    public Mono<Void> sendCollectOverview(InsectaWinnings winnings, InsectaProfile profile) {
+    public Mono<Void> sendCollectOverview(InsectaWinnings winnings, InsectaProfile profile, LocalDateTime firstCollected) {
+        long seconds = ChronoUnit.SECONDS.between(firstCollected, DateTimeHelper.now());
+        DateTimeDelta delta = DateTimeDelta.fromSeconds(seconds);
+
         long totalGained = 0L;
 
         EmbedCreateSpec.Builder embed = EmbedHelper.base();
+        embed.description("After %s, you get:".formatted(delta.format()));
         for(var winning: winnings.getValues().entrySet()) {
             Insecta insecta = winning.getKey();
             String value = "+" + winning.getValue();

@@ -56,8 +56,14 @@ public class InsectaBuyCommand extends InsectaSubCommand {
         }
 
         InsectaWinnings winnings = insectaService.collect(profile);
-        winnings.getValues().forEach((k, v) -> insectaRepository.saveWinnings(new InsectaWinningDTO(k.getKey(), userId, v)));
-
+        InsectaProfile finalProfile = profile;
+        winnings.getValues().forEach((k, v) -> insectaRepository.saveWinnings(InsectaWinningDTO.builder()
+                .key(k.getKey())
+                .initialDate(finalProfile.getLastCollected())
+                .collected(false)
+                .value(v)
+                .userId(userId)
+            .build()));
         profile.getInsectarium().add(insecta, amount);
         profile.incrementHexacoin(-cost);
         profile.setLastCollected(DateTimeHelper.now());

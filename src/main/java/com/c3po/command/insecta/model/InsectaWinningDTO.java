@@ -1,15 +1,19 @@
 package com.c3po.command.insecta.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
+import java.time.LocalDateTime;
+
 @Getter
-@Setter
+@Builder
 public class InsectaWinningDTO {
-    private final String key;
-    private final long userId;
-    private final long value;
+    private String key;
+    private long userId;
+    private long value;
+    @Builder.Default
     private boolean collected = false;
+    private LocalDateTime initialDate;
 }

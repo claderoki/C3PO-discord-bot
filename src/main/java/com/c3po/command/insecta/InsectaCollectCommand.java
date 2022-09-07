@@ -11,6 +11,8 @@ import com.c3po.helper.DateTimeHelper;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,22 @@ public class InsectaCollectCommand extends InsectaSubCommand {
             return Mono.error(new PublicException("No profile...."));
         }
         List<InsectaWinningDTO> uncollectedWinnings =  insectaRepository.getUncollectedWinnings(userId);
+
+        LocalDateTime firstCollected = uncollectedWinnings.stream()
+            .map(InsectaWinningDTO::getInitialDate)
+            .min(Comparator.comparingLong(c -> c.toEpochSecond(DateTimeHelper.offset)))
+            .orElse(profile.getLastCollected())
+        ;
+
         InsectaWinnings winnings = insectaService.collect(profile);
-        winnings.getValues().forEach((k, v) -> insectaRepository.saveWinnings(new InsectaWinningDTO(k.getKey(), userId, v)));
+        winnings.getValues().forEach((k, v) -> insectaRepository.saveWinnings(InsectaWinningDTO.builder()
+                .initialDate(profile.getLastCollected())
+                .collected(false)
+                .key(k.getKey())
+                .value(v)
+                .userId(userId)
+            .build()));
+
         uncollectedWinnings.forEach(w -> winnings.add(InsectaFactory.get(w.getKey()), w.getValue()));
         long totalGained = winnings.getValues().values().stream().mapToLong(c -> c).sum();
         profile.incrementHexacoin(totalGained);
@@ -37,6 +53,6 @@ public class InsectaCollectCommand extends InsectaSubCommand {
         insectaRepository.updateProfile(profile);
         insectaRepository.removeAllCollected(userId);
         InsectaUI ui = new InsectaUI(context.getReplier());
-        return ui.sendCollectOverview(winnings, profile);
+        return ui.sendCollectOverview(winnings, profile, firstCollected);
     }
 }
