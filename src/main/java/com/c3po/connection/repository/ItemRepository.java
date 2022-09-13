@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Scope("singleton")
 public class ItemRepository extends Repository {
 
     public Map<Integer, Integer> getItemAmounts(Integer humanId, List<Integer> itemIds) {

@@ -2,11 +2,17 @@ package com.c3po.ui.input.base;
 
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.object.component.Button;
+import lombok.Setter;
+
+import java.util.function.Predicate;
 
 public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractionEvent, Button> {
     public ButtonMenuOption(String name) {
         super(name);
     }
+
+    @Setter
+    private Predicate<Void> disabledIf;
 
     public ButtonMenuOption(String name, T value) {
         super(name, value);
@@ -21,6 +27,9 @@ public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractio
     }
 
     public Button modifyButton(Button button) {
+        if (disabledIf != null && disabledIf.test(null)) {
+            return button.disabled(true);
+        }
         return button;
     }
 

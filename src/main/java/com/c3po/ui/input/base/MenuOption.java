@@ -80,7 +80,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
             return allowedIf.test(event);
         }
         if (ownerOnly) {
-            return event.getInteraction().getUser().getId().equals(context.getEvent().getInteraction().getUser().getId());
+            return event.getInteraction().getUser().equals(context.getEvent().getInteraction().getUser());
         } else {
             return true;
         }

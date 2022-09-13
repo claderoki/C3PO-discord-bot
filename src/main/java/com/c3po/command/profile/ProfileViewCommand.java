@@ -98,7 +98,7 @@ public class ProfileViewCommand extends ProfileSubCommand {
             Profile profile = profileService.getProfile(target);
 
             String username = user.getUsername();
-            return profileToField(username, profile).flatMap(field -> context.getReplier().reply()
+            return profileToField(username, profile).flatMap(field -> context.getInteractor().reply()
                 .withEmbeds(EmbedHelper.normal(null)
                     .addField(field)
                     .build())

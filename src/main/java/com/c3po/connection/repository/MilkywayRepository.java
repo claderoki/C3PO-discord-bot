@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Scope("singleton")
 public class MilkywayRepository extends Repository {
     public Long getIncrementIdentifier(long guildId) {
         Result result = getOne("SELECT MAX(`identifier`) as `identifier` FROM `milkyway` WHERE `guild_id` = ?", new LongParameter(guildId));

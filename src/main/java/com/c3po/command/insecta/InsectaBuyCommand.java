@@ -69,7 +69,7 @@ public class InsectaBuyCommand extends InsectaSubCommand {
         profile.setLastCollected(DateTimeHelper.now());
         insectaRepository.updateProfile(profile);
 
-        InsectaUI ui = new InsectaUI(context.getReplier());
+        InsectaUI ui = new InsectaUI(context.getInteractor());
         return ui.sendPurchaseView(profile, insecta, amount);
 
     }

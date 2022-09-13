@@ -2,7 +2,7 @@ package com.c3po.ui.input;
 
 import com.c3po.ui.input.base.ButtonMenuOption;
 import com.c3po.ui.input.base.MenuManager;
-import com.c3po.ui.input.base.Replier;
+import com.c3po.ui.input.base.Interactor;
 import com.c3po.ui.input.base.SubMenu;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import lombok.Setter;
@@ -22,13 +22,13 @@ public class SubMenuOption extends ButtonMenuOption<Void> {
 
     @Override
     public Mono<Void> execute(ButtonInteractionEvent event) {
-        Replier replier;
+        Interactor interactor;
         if (!edit) {
-            replier = new Replier(subMenu.getContext().getEvent());
+            interactor = new Interactor(subMenu.getContext().getEvent());
         } else {
-            replier = new Replier(event);
+            interactor = new Interactor(event);
         }
-        replier.setEphemeral(ephemeral);
-        return new MenuManager<>(subMenu, replier).waitFor().then();
+        interactor.setEphemeral(ephemeral);
+        return new MenuManager<>(subMenu, interactor).waitFor().then();
     }
 }

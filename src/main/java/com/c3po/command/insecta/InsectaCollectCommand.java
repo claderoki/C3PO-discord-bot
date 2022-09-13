@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class InsectaCollectCommand extends InsectaSubCommand {
@@ -52,7 +51,7 @@ public class InsectaCollectCommand extends InsectaSubCommand {
         profile.setLastCollected(DateTimeHelper.now());
         insectaRepository.updateProfile(profile);
         insectaRepository.removeAllCollected(userId);
-        InsectaUI ui = new InsectaUI(context.getReplier());
+        InsectaUI ui = new InsectaUI(context.getInteractor());
         return ui.sendCollectOverview(winnings, profile, firstCollected);
     }
 }

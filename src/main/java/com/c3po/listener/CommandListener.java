@@ -130,7 +130,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         }
         if (exception instanceof PublicException publicException) {
             EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
-            return context.getReplier().replyOrEdit(c -> c.withEmbeds(embed),
+            return context.getInteractor().replyOrEdit(c -> c.withEmbeds(embed),
                 c -> c.withEmbedsOrNull(Collections.singleton(embed)))
                 .then();
         }

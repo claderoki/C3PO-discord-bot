@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@Scope("singleton")
 public class ExplorationRepository extends Repository {
     public void createExploration(int locationId, LocalDateTime arrivalDate, int pigeonId) {
         execute("INSERT INTO `exploration` (planet_location_id, start_date, arrival_date, finished, pigeon_id) VALUES (?, UTC_TIMESTAMP(), ?, 0, ?)",

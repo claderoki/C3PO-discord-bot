@@ -2,7 +2,7 @@ import com.c3po.core.command.Context;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import com.c3po.ui.input.base.MenuOption;
-import com.c3po.ui.input.base.Replier;
+import com.c3po.ui.input.base.Interactor;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -65,9 +65,9 @@ public class MenuTest {
         when(context.getEvent()).thenReturn(event);
         Menu menu = new Menu(context);
         options.forEach(menu::addOption);
-        Replier replier = mock(Replier.class);
-        when(replier.replyOrEdit(any(), any())).thenReturn(Mono.just(mock(Message.class)));
-        MenuManager<Menu> menuManager = new MenuManager<>(menu, replier);
+        Interactor interactor = mock(Interactor.class);
+        when(interactor.replyOrEdit(any(), any())).thenReturn(Mono.just(mock(Message.class)));
+        MenuManager<Menu> menuManager = new MenuManager<>(menu, interactor);
         menuManager.waitFor().block();
 
         if (menu.getOptionsHandled() != amountToHandle) {

@@ -6,7 +6,7 @@ import com.c3po.core.command.option.OptionContainer;
 import com.c3po.helper.EventHelper;
 import com.c3po.ui.Toast;
 import com.c3po.ui.ToastType;
-import com.c3po.ui.input.base.Replier;
+import com.c3po.ui.input.base.Interactor;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
@@ -20,12 +20,12 @@ public class Context {
     private final ChatInputInteractionEvent event;
     private final OptionContainer options;
     private final HashMap<Scope, ScopeTarget> targets = new HashMap<>();
-    private final Replier replier;
+    private final Interactor interactor;
 
     public Context(ChatInputInteractionEvent event) {
         this.event = event;
         this.options = EventHelper.getOptionContainer(event);
-        this.replier = new Replier(event);
+        this.interactor = new Interactor(event);
     }
 
     private ScopeTarget getUncachedTarget(Scope scope) {

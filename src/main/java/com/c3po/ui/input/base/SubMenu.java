@@ -9,8 +9,13 @@ public class SubMenu extends Menu {
     private final MenuOption<?, ?, ?> defaultOption;
 
     public SubMenu(Context context, MenuOption<?, ?, ?> defaultOption) {
-        super(context);
+        this(context, defaultOption, false);
+    }
+
+    public SubMenu(Context context, MenuOption<?, ?, ?> defaultOption, boolean allowEveryone) {
+        super(context, allowEveryone);
         this.defaultOption = defaultOption;
         this.addOption(defaultOption);
     }
+
 }

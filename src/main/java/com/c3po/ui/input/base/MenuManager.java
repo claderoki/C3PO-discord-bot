@@ -10,7 +10,6 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import discord4j.core.spec.InteractionReplyEditMono;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -20,10 +19,10 @@ import java.util.concurrent.TimeoutException;
 @RequiredArgsConstructor
 public class MenuManager<M extends Menu> {
     private final M menu;
-    private final Replier replier;
+    private final Interactor interactor;
 
     public MenuManager(M menu) {
-        this(menu, new Replier(menu.getContext().getEvent()));
+        this(menu, new Interactor(menu.getContext().getEvent()));
     }
 
     @SuppressWarnings("unchecked")
@@ -63,7 +62,7 @@ public class MenuManager<M extends Menu> {
     }
 
     private Mono<Message> sendMessage() {
-        return replier.replyOrEdit(this::reply, this::editReply);
+        return interactor.replyOrEdit(this::reply, this::editReply);
     }
 
     public Mono<M> waitFor() {

@@ -1,6 +1,7 @@
 package com.c3po.core.command;
 
 import com.c3po.command.SettingInfo;
+import com.c3po.command.battle.BattleCommandGroup;
 import com.c3po.command.blackjack.BlackjackCommandGroup;
 import com.c3po.command.hangman.HangmanCommandGroup;
 import com.c3po.command.insecta.InsectaCommandGroup;
@@ -31,24 +32,16 @@ import java.util.*;
 @NoArgsConstructor
 @Component
 public class CommandManager {
-    @Autowired
-    private SettingRepository settingRepository;
-    @Autowired
-    private ProfileCommandGroup profileCommandGroup;
-    @Autowired
-    private MilkywayCommandGroup milkywayCommandGroup;
-    @Autowired
-    private PersonalRoleCommandGroup personalRoleCommandGroup;
-    @Autowired
-    private PigeonCommandGroup pigeonCommandGroup;
-    @Autowired
-    private SnakeOilCommandGroup snakeOilCommandGroup;
-    @Autowired
-    private HangmanCommandGroup hangmanCommandGroup;
-    @Autowired
-    private BlackjackCommandGroup blackjackCommandGroup;
-    @Autowired
-    private InsectaCommandGroup insectaCommandGroup;
+    @Autowired private SettingRepository settingRepository;
+    @Autowired private ProfileCommandGroup profileCommandGroup;
+    @Autowired private MilkywayCommandGroup milkywayCommandGroup;
+    @Autowired private PersonalRoleCommandGroup personalRoleCommandGroup;
+    @Autowired private PigeonCommandGroup pigeonCommandGroup;
+    @Autowired private SnakeOilCommandGroup snakeOilCommandGroup;
+    @Autowired private HangmanCommandGroup hangmanCommandGroup;
+    @Autowired private BlackjackCommandGroup blackjackCommandGroup;
+    @Autowired private InsectaCommandGroup insectaCommandGroup;
+    @Autowired private BattleCommandGroup battleCommandGroup;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
@@ -63,6 +56,7 @@ public class CommandManager {
         register(hangmanCommandGroup);
         register(blackjackCommandGroup);
         register(insectaCommandGroup);
+        register(battleCommandGroup);
     }
 
     private void registerSettings() {
@@ -140,7 +134,8 @@ public class CommandManager {
             Long[] guildIds = {
                 695416318681415790L,
                 729843647347949638L,
-                1013158959315701930L
+                1013158959315701930L,
+                1018656324797599797L
             };
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)

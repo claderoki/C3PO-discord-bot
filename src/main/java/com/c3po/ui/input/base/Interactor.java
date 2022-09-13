@@ -1,30 +1,36 @@
 package com.c3po.ui.input.base;
 
 import discord4j.core.event.domain.Event;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
+import discord4j.core.spec.InteractionFollowupCreateMono;
 import discord4j.core.spec.InteractionReplyEditMono;
 import lombok.Getter;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.Function;
 
 @Setter
-public class Replier {
+public class Interactor {
     private final Event event;
     private boolean ephemeral = false;
     @Getter
     private boolean isReplied = false;
 
-    public Replier(DeferrableInteractionEvent event) {
+    private HashMap<String, List<Message>> followups = new HashMap<>();
+
+    public Interactor(DeferrableInteractionEvent event) {
         this.event = event;
     }
 
-    public Replier(ComponentInteractionEvent event) {
+    public Interactor(ComponentInteractionEvent event) {
         this.event = event;
     }
 
@@ -72,6 +78,35 @@ public class Replier {
             .onErrorResume(c -> editor.apply(editReply()).then())
             .then(Mono.fromRunnable(() -> setReplied(true)))
             ;
+    }
+
+    private InteractionFollowupCreateMono _followup() {
+        if (event instanceof ComponentInteractionEvent e) {
+            return e.createFollowup();
+        } else if (event instanceof DeferrableInteractionEvent e) {
+            return e.createFollowup();
+        }
+        throw new RuntimeException("Can't happen.");
+    }
+
+    public Mono<Message> followup(Function<InteractionFollowupCreateMono, InteractionFollowupCreateMono> func, Integer maxOnScreen, String key) {
+        return Mono.defer(() -> {
+            if (maxOnScreen != null) {
+                var messages = followups.get(key);
+                if (messages != null && messages.size() >= maxOnScreen) {
+                    return messages.get(messages.size()-1).delete();
+                }
+            }
+            return Mono.empty();
+        }).then(func.apply(_followup())
+            .map(m -> {
+                followups.computeIfAbsent(key, a -> new ArrayList<>()).add(m);
+                return m;
+            }));
+    }
+
+    public Mono<Message> followup(Function<InteractionFollowupCreateMono, InteractionFollowupCreateMono> func) {
+        return followup(func, null, "global");
     }
 
 }

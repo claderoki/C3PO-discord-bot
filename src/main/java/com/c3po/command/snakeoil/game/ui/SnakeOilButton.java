@@ -3,7 +3,6 @@ package com.c3po.command.snakeoil.game.ui;
 import com.c3po.command.snakeoil.game.*;
 import com.c3po.ui.input.base.*;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.Button;
 import lombok.Setter;
 import reactor.core.publisher.Mono;
@@ -54,8 +53,8 @@ public class SnakeOilButton extends ButtonMenuOption<Void> {
             default -> throw new IllegalStateException("Unexpected value: ");
         };
         menu.addOption(option);
-        Replier replier = new Replier(event);
-        replier.setEphemeral(true);
-        return new MenuManager<>(menu, replier).waitFor().then();
+        Interactor interactor = new Interactor(event);
+        interactor.setEphemeral(true);
+        return new MenuManager<>(menu, interactor).waitFor().then();
     }
 }

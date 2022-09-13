@@ -6,7 +6,7 @@ import com.c3po.command.insecta.core.InsectaWinnings;
 import com.c3po.helper.DateTimeDelta;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.ui.input.base.Replier;
+import com.c3po.ui.input.base.Interactor;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 
 @RequiredArgsConstructor
 public class InsectaUI {
-    private final Replier replier;
+    private final Interactor interactor;
 
     public Mono<Void> sendCollectOverview(InsectaWinnings winnings, InsectaProfile profile, LocalDateTime firstCollected) {
         long seconds = ChronoUnit.SECONDS.between(firstCollected, DateTimeHelper.now());
@@ -36,7 +36,7 @@ public class InsectaUI {
         }
 
         embed.footer(EmbedCreateFields.Footer.of("total: " + totalGained, null));
-        return replier.reply().withEmbeds(embed.build());
+        return interactor.reply().withEmbeds(embed.build());
     }
 
     public Mono<Void> sendPurchaseView(InsectaProfile profile, Insecta insecta, Long amount) {
@@ -48,6 +48,6 @@ public class InsectaUI {
         }
 
         embed.description("You just purchased %s %s's for %s hexacoins".formatted(amount, insecta.getKey(), cost));
-        return replier.reply().withEmbeds(embed.build());
+        return interactor.reply().withEmbeds(embed.build());
     }
 }
