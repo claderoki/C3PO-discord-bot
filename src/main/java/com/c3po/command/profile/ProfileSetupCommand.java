@@ -28,7 +28,7 @@ public class ProfileSetupCommand extends ProfileSubCommand {
     @Autowired
     private AttributeService attributeService;
     @Autowired
-    private AttributeRepository attributeRepository;;
+    private AttributeRepository attributeRepository;
 
     protected ProfileSetupCommand() {
         super("setup", "Setup your profile.");
@@ -73,12 +73,11 @@ public class ProfileSetupCommand extends ProfileSubCommand {
             menuOption.setSetter(v -> {
                 String value = DataFormatter.toRaw(v);
                 propertyValue.setValue(value);
-                return null;
             });
             menu.addOption(menuOption);
         }
 
-        menu.addOption(new BackButtonMenuOption("Save").withEmoji("✔️"));
+        menu.addOption(new BackButtonMenuOption("Save").setEmoji("✔️"));
         return menu;
     }
 

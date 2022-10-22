@@ -8,6 +8,7 @@ import com.c3po.command.insecta.InsectaCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
 import com.c3po.command.pigeon.PigeonCommandGroup;
+import com.c3po.command.poll.PollCommandGroup;
 import com.c3po.command.profile.ProfileCommandGroup;
 import com.c3po.command.snakeoil.SnakeOilCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
@@ -42,6 +43,7 @@ public class CommandManager {
     @Autowired private BlackjackCommandGroup blackjackCommandGroup;
     @Autowired private InsectaCommandGroup insectaCommandGroup;
     @Autowired private BattleCommandGroup battleCommandGroup;
+    @Autowired private PollCommandGroup pollCommandGroup;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
@@ -57,6 +59,7 @@ public class CommandManager {
         register(blackjackCommandGroup);
         register(insectaCommandGroup);
         register(battleCommandGroup);
+        register(pollCommandGroup);
     }
 
     private void registerSettings() {

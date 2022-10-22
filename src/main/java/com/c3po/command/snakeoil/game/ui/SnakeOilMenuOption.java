@@ -54,7 +54,6 @@ public abstract class SnakeOilMenuOption<T> extends SelectMenuMenuOption<T> {
                 if (this instanceof PersonMenuOption) {
                     gameState.newTurn();
                 }
-            }))
-            ;
+            }));
     }
 }

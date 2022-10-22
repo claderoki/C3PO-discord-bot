@@ -8,12 +8,16 @@ import discord4j.core.object.reaction.ReactionEmoji;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import reactor.core.publisher.Mono;
+
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public abstract class MenuOption<T, F extends ComponentInteractionEvent, K extends ActionComponent> {
     protected final String name;
     private final String customId;
@@ -21,7 +25,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     private T value;
     @Setter
     private Predicate<F> allowedIf;
-    protected Function<T, Void> setter;
+    protected Consumer<T> setter;
     private boolean ownerOnly = false;
     protected @NonNull Context context;
     protected String emoji;
@@ -38,7 +42,7 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
 
     protected void setValue(T value) {
         if (setter != null) {
-            setter.apply(value);
+            setter.accept(value);
         }
         this.value = value;
     }
