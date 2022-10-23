@@ -13,7 +13,7 @@ public class PersonMenuOption extends SnakeOilMenuOption<SnakeOilPlayer> {
 
     @Override
     protected void afterHook() {
-        winner = getSelected().stream().findFirst().orElseThrow();
+        winner = getValue().stream().findFirst().orElseThrow();
         winner.incrementScore();
         gameState.getCurrentRound().setWinner(winner);
     }

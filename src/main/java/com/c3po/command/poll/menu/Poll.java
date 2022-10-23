@@ -1,28 +1,28 @@
 package com.c3po.command.poll.menu;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
+@Setter
 public class Poll {
-    private final String question;
-    private final LocalDateTime dueDate;
-    private final Long guildId;
-    private final Long authorId;
-    private final Long messageId;
-    private final Long channelId;
-    private final Long resultChannelId;
-    private final LocalDateTime createdAt;
-    private final boolean ended;
-    private final boolean anonymous;
-    private final boolean maxVotesPerUser;
-    private final String type;
-    private final Long roleIdNeededToVote;
-    private final Integer votePercentageToPass;
-    private final Long mentionRole;
-    private final boolean pin;
-    private final boolean deleteAfterResults;
+    private String question;
+    private LocalDateTime dueDate;
+    private Long guildId;
+    private Long authorId;
+    private Long messageId;
+    private Long channelId;
+    private Long resultChannelId;
+    private LocalDateTime createdAt;
+    private boolean ended;
+    private boolean anonymous;
+    private Integer maxVotesPerUser;
+    private PollType type;
+    private Long roleIdNeededToVote;
+    private Integer votePercentageToPass;
+    private Long mentionRole;
+    private boolean pin;
+    private boolean deleteAfterResults;
 }

@@ -3,9 +3,11 @@ package com.c3po.ui.input.base;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.object.component.Button;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.function.Predicate;
 
+@Accessors(chain = true)
 public abstract class ButtonMenuOption<T> extends MenuOption<T, ButtonInteractionEvent, Button> {
     public ButtonMenuOption(String name) {
         super(name);

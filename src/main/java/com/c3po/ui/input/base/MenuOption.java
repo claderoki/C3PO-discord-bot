@@ -23,7 +23,6 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
     private final String customId;
 
     private T value;
-    @Setter
     private Predicate<F> allowedIf;
     protected Consumer<T> setter;
     private boolean ownerOnly = false;
@@ -45,11 +44,6 @@ public abstract class MenuOption<T, F extends ComponentInteractionEvent, K exten
             setter.accept(value);
         }
         this.value = value;
-    }
-
-    public MenuOption<T, F, K> withEmoji(String emoji) {
-        this.emoji = emoji;
-        return this;
     }
 
     protected ReactionEmoji getEmoji() {

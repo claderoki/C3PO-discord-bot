@@ -18,8 +18,8 @@ public class PollCreateCommand extends PollSubCommand {
 
     @Override
     public Mono<Void> execute(Context context) throws RuntimeException {
-        Poll.PollBuilder pollBuilder = Poll.builder();
-        PollCreateMenu menu = new PollCreateMenu(context, pollBuilder);
+        Poll poll = new Poll();
+        PollCreateMenu menu = new PollCreateMenu(context, poll);
         return new MenuManager<>(menu).waitFor().then(Mono.fromRunnable(() -> {
             var a = "";
         }));

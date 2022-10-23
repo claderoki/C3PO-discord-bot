@@ -41,21 +41,21 @@ public class ProfileSetupCommand extends ProfileSubCommand {
                 new DateParser(),
                 propertyValue.getParsedValue()
             )
-                .withEmoji("\uD83D\uDCC5")
+                .setEmoji("\uD83D\uDCC5")
                 ;
         } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.countryKey)) {
             return new WaiterMenuOption<>("Country",
                 StringParser.builder().min(2).max(2).build(),
                 propertyValue.getParsedValue())
-                .withEmoji("\uD83D\uDDFA")
+                .setEmoji("\uD83D\uDDFA")
                 ;
         } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.cityKey)) {
             return new WaiterMenuOption<>("City", StringParser.builder().build(), propertyValue.getParsedValue())
-                .withEmoji("\uD83D\uDCCD")
+                .setEmoji("\uD83D\uDCCD")
                 ;
         } else if (propertyValue.getParentId() == attributeService.getId(KnownAttribute.timezoneKey)) {
             return new WaiterMenuOption<>("Timezone", TimezoneParser.builder().build(), propertyValue.getParsedValue())
-                .withEmoji("\uD83D\uDCCD")
+                .setEmoji("\uD83D\uDCCD")
                 ;
         }
 

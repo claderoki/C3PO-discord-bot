@@ -34,8 +34,7 @@ public class CardMenuOption extends SnakeOilMenuOption<Word> {
 
     @Override
     protected void afterHook() {
-        List<Word> words = getSelected();
-        for(Word word: words) {
+        for(Word word: getValue()) {
             player.getWords().removeCard(word);
             gameState.getCurrentRound().addWord(player, word);
         }

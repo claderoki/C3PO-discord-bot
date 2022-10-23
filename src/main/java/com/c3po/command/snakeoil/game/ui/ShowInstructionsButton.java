@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public class ShowInstructionsButton extends ButtonMenuOption<Void> {
     public ShowInstructionsButton() {
         super("Instructions");
-        withEmoji(Emoji.WHITE_QUESTION_MARK);
+        setEmoji(Emoji.WHITE_QUESTION_MARK);
     }
 
     @Override

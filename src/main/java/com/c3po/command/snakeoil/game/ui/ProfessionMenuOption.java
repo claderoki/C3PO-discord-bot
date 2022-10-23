@@ -15,7 +15,7 @@ public class ProfessionMenuOption extends SnakeOilMenuOption<Profession> {
 
     @Override
     protected void afterHook() {
-        Profession profession = getSelected().stream()
+        Profession profession = getValue().stream()
             .findFirst()
             .orElseThrow();
 

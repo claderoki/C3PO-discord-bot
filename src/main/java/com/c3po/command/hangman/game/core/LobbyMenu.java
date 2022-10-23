@@ -49,8 +49,8 @@ public class LobbyMenu extends Menu {
     private List<MenuOption<?,?,?>> getMenuOptions() {
         VoidMenuOption joinButton = new VoidMenuOption("Join");
         VoidMenuOption exitButton = new VoidMenuOption("Exit");
-        joinButton.withEmoji("↩️");
-        exitButton.withEmoji("\uD83D\uDEAA");
+        joinButton.setEmoji("↩️");
+        exitButton.setEmoji("\uD83D\uDEAA");
         users.add(context.getEvent().getInteraction().getUser());
         joinButton.setExecutor(c -> {
             if (goldNeeded > 0) {
@@ -73,7 +73,7 @@ public class LobbyMenu extends Menu {
             return Mono.empty();
         });
         StartButtonMenuOption startButton = new StartButtonMenuOption("Start");
-        startButton.withEmoji("▶️");
+        startButton.setEmoji("▶️");
         startButton.setOwnerOnly(true);
         return List.of(joinButton, exitButton, startButton);
     }

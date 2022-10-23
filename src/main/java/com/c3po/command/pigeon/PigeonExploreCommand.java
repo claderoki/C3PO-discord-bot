@@ -60,7 +60,7 @@ public class PigeonExploreCommand extends PigeonSubCommand {
             .thumbnail(location.imageUrl()));
         VoidMenuOption option = new VoidMenuOption("Remind me!");
         option.setShouldContinue(false);
-        option.withEmoji("❗");
+        option.setEmoji("❗");
         option.setExecutor((e) -> {
             NewReminder reminder = new NewReminder(
                 userId,

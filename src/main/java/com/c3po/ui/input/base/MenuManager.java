@@ -74,9 +74,9 @@ public class MenuManager<M extends Menu> {
                 .flatMap(this::processEvent)
                 .takeWhile(c -> c)
                 .then(Mono.just(menu))
-                .onErrorResume(TimeoutException.class, ignore ->
-                    menu.getContext().sendToast(Toast.builder().message("Menu timed out.").build())
-                        .then(Mono.just(menu)))
+                .onErrorResume(TimeoutException.class, ignore -> Mono.just(menu))
+//                    menu.getContext().sendToast(Toast.builder().message("Menu timed out.").build())
+//                        .then())
         );
     }
 }

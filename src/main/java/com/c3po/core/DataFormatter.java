@@ -22,6 +22,9 @@ public class DataFormatter {
     }
 
     public static String toRaw(Object value) {
+        if (value == null) {
+            return null;
+        }
         if (value instanceof Boolean v) {
             return v ? "1" : "0";
         }

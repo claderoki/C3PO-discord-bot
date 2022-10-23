@@ -19,7 +19,7 @@ public class ShowDeckButton extends ButtonMenuOption<Void> {
 
     public ShowDeckButton(GameState gameState) {
         super("My deck");
-        withEmoji(Emoji.CARD);
+        setEmoji(Emoji.CARD);
         this.gameState = gameState;
         this.playerIds = gameState.getPlayers().stream().map(c -> c.getUser().getId()).toList();
     }

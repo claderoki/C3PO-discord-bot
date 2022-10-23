@@ -2,20 +2,16 @@ package com.c3po.ui.input.base;
 
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent;
 import discord4j.core.object.component.SelectMenu;
-import lombok.Getter;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class SelectMenuMenuOption<T> extends MenuOption<List<String>, SelectMenuInteractionEvent, SelectMenu> {
+public abstract class SelectMenuMenuOption<T> extends MenuOption<List<T>, SelectMenuInteractionEvent, SelectMenu> {
     private static final int MAX = 25;
-    private Map<String, String> cachedOptions;
     private Map<String, T> optionMapping;
-    @Getter
-    private List<T> selected;
 
     final public SelectMenu getComponent() {
         return modifySelectMenu(SelectMenu.of(getCustomId(), getOptions()));
@@ -31,48 +27,38 @@ public abstract class SelectMenuMenuOption<T> extends MenuOption<List<String>, S
 
     protected abstract List<T> fetchOptions();
 
-    protected abstract String toValue(T value);
+    protected abstract String toValue(T option);
 
-    protected abstract String toLabel(T value);
+    protected abstract String toLabel(T option);
 
-    private SelectMenu.Option createOption(Map.Entry<String, String> entry) {
-        SelectMenu.Option option = SelectMenu.Option.of(
-            entry.getValue(),
-            entry.getKey()
-        );
-        List<String> values = getValue();
-        if (values != null) {
-            option.withDefault(getValue().contains(entry.getKey()));
-        }
-        return option;
+    private SelectMenu.Option createOption(T option) {
+        SelectMenu.Option selectOption = SelectMenu.Option.of(toLabel(option), toValue(option));
+        Optional.ofNullable(getValue()).map(v -> v.contains(option)).ifPresent(v -> selectOption.withDefault(true));
+        return selectOption;
     }
 
     private boolean shouldRefreshCache() {
-        return cachedOptions == null;
+        return optionMapping == null;
     }
 
-    protected List<SelectMenu.Option> getOptions() {
-        if (shouldRefreshCache()) {
-            List<T> options = fetchOptions();
-            cachedOptions = options.stream().collect(Collectors.toMap(this::toValue, this::toLabel));
-            optionMapping = options.stream().collect(Collectors.toMap(this::toValue, c -> c));
-        }
-
-        var options = cachedOptions.entrySet()
+    private List<SelectMenu.Option> getCachedOptions() {
+        var options = optionMapping.values()
             .stream()
             .map(this::createOption)
             .toList();
         return options.size() > MAX ? options.subList(0, MAX) : options;
     }
 
-    @Override
-    public Mono<Void> execute(SelectMenuInteractionEvent event) {
-        List<String> oldValues = getValue();
-        setValue(event.getValues());
-        if (!Objects.equals(oldValues, getValue())) {
-            selected = getValue().stream().map(c -> optionMapping.get(c)).toList();
+    protected List<SelectMenu.Option> getOptions() {
+        if (shouldRefreshCache()) {
+            optionMapping = fetchOptions().stream().collect(Collectors.toMap(this::toValue, c -> c));
         }
-        return Mono.empty();
+        return getCachedOptions();
     }
 
+    @Override
+    public Mono<Void> execute(SelectMenuInteractionEvent event) {
+        setValue(event.getValues().stream().map(v -> optionMapping.get(v)).toList());
+        return Mono.empty();
+    }
 }
