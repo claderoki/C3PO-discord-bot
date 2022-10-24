@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class SelectMenuMenuOption<T> extends MenuOption<List<T>, SelectMenuInteractionEvent, SelectMenu> {
@@ -41,6 +42,12 @@ public abstract class SelectMenuMenuOption<T> extends MenuOption<List<T>, Select
         return optionMapping == null;
     }
 
+    private void cacheOptions() {
+        optionMapping = fetchOptions()
+            .stream()
+            .collect(Collectors.toMap(this::toValue, Function.identity()));
+    }
+
     private List<SelectMenu.Option> getCachedOptions() {
         var options = optionMapping.values()
             .stream()
@@ -51,7 +58,7 @@ public abstract class SelectMenuMenuOption<T> extends MenuOption<List<T>, Select
 
     protected List<SelectMenu.Option> getOptions() {
         if (shouldRefreshCache()) {
-            optionMapping = fetchOptions().stream().collect(Collectors.toMap(this::toValue, c -> c));
+            cacheOptions();
         }
         return getCachedOptions();
     }

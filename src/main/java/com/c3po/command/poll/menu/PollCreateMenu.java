@@ -61,10 +61,10 @@ public class PollCreateMenu extends Menu {
     Long messageId;
     LocalDateTime createdAt;
     Long guildId;
+    Long authorId;
 
     String question;
     LocalDateTime dueDate;
-    Long authorId;
     Long channelId;
     Long resultChannelId;
     boolean maxVotesPerUser;
@@ -95,6 +95,7 @@ public class PollCreateMenu extends Menu {
             new EnumSelectMenuMenuOption<>("Vote percentage to pass", PollType.class, v -> v.name().toLowerCase())
                 .setSetter(v -> poll.setType(v.get(0)))
                 .setEmoji(Emoji.CALENDAR),
+
 
             new VoidMenuOption("Create")
                 .setDisabledIf((e) -> !validatePoll())
