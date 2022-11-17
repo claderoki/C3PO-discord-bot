@@ -43,7 +43,6 @@ public class SettingGroup {
     @Autowired
     private SettingValidationCache settingValidationCache;
 
-
     private final String settingKey;
     private final String category;
     private final String settingParam;

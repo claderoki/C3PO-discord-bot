@@ -13,7 +13,6 @@ public class GuildRewardSettings extends BaseSettings {
 
     private boolean enabled;
 
-    @Builder.Default
     private final Duration timeout = Duration.ofSeconds(25);
 
     private int minPointsPerMessage;

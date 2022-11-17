@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class MenuTest {
@@ -70,9 +71,7 @@ public class MenuTest {
         MenuManager<Menu> menuManager = new MenuManager<>(menu, interactor);
         menuManager.waitFor().block();
 
-        if (menu.getOptionsHandled() != amountToHandle) {
-            throw new RuntimeException("failed");
-        }
+        assertEquals(menu.getOptionsHandled(), amountToHandle);
     }
 
     @Test

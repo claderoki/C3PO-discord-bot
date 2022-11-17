@@ -53,8 +53,8 @@ public class EventHelper {
     protected static void hydrateCommandOptions(ApplicationCommandInteractionOption option, HashMap<String, CommandOption<?>> options) {
         switch (option.getType()) {
             case SUB_COMMAND, SUB_COMMAND_GROUP -> {
-                for (ApplicationCommandInteractionOption suboption : option.getOptions()) {
-                    hydrateCommandOptions(suboption, options);
+                for (ApplicationCommandInteractionOption subOption : option.getOptions()) {
+                    hydrateCommandOptions(subOption, options);
                 }
             }
             default -> options.put(option.getName(), getCommandOption(option));
