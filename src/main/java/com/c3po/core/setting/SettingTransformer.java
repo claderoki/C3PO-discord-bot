@@ -40,6 +40,16 @@ public class SettingTransformer {
         }
     }
 
+    private static String formatDescription(String description) {
+        if (description == null) {
+            return "No description";
+        }
+        if (description.length() > 100) {
+            return description.substring(0, 100);
+        }
+        return description;
+    }
+
     public static ApplicationCommandRequest toCommand(String category, Collection<Setting> settings, CommandManager commandManager) {
         ImmutableApplicationCommandRequest.Builder request = ApplicationCommandRequest.builder();
         request.name(category);
@@ -57,7 +67,7 @@ public class SettingTransformer {
 
             request.addOption(ApplicationCommandOptionData.builder()
                 .type(DiscordCommandOptionType.SUB_COMMAND.getValue())
-                .description(setting.getDescription() != null ? setting.getDescription() : "No description")
+                .description(formatDescription(setting.getDescription()))
                 .name(name)
                 .addOption(finalOption.build())
                 .build());

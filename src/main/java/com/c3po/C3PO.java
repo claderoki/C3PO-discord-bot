@@ -13,12 +13,14 @@ import com.c3po.helper.environment.Configuration;
 import com.c3po.listener.CommandListener;
 import com.c3po.listener.EventListener;
 import com.c3po.listener.MessageCreateListener;
+import com.c3po.listener.VoiceStateUpdateListener;
 import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.ClientPresence;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,22 +29,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 @SpringBootApplication
+@RequiredArgsConstructor
 public class C3PO {
-    @Autowired
-    private CommandManager commandManager;
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
+    private final CommandManager commandManager;
+    private final AutowireCapableBeanFactory beanFactory;
 
-    public C3PO() {
+    @PostConstruct
+    public void postConstruct() {
         CacheManager.set(new Cache());
         CacheManager.set("flags", new Cache());
+        run();
     }
 
-    @Bean
     public void run() {
         Configuration config = Configuration.instance();
 
@@ -72,6 +75,7 @@ public class C3PO {
 
         register(gateway, beanFactory.createBean(CommandListener.class));
         register(gateway, beanFactory.createBean(MessageCreateListener.class));
+        register(gateway, beanFactory.createBean(VoiceStateUpdateListener.class));
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();

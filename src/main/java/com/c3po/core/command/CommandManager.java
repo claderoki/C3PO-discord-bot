@@ -23,6 +23,7 @@ import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,20 +31,20 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.util.*;
 
-@NoArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class CommandManager {
-    @Autowired private SettingRepository settingRepository;
-    @Autowired private ProfileCommandGroup profileCommandGroup;
-    @Autowired private MilkywayCommandGroup milkywayCommandGroup;
-    @Autowired private PersonalRoleCommandGroup personalRoleCommandGroup;
-    @Autowired private PigeonCommandGroup pigeonCommandGroup;
-    @Autowired private SnakeOilCommandGroup snakeOilCommandGroup;
-    @Autowired private HangmanCommandGroup hangmanCommandGroup;
-    @Autowired private BlackjackCommandGroup blackjackCommandGroup;
-    @Autowired private InsectaCommandGroup insectaCommandGroup;
-    @Autowired private BattleCommandGroup battleCommandGroup;
-    @Autowired private PollCommandGroup pollCommandGroup;
+    private final SettingRepository settingRepository;
+    private final ProfileCommandGroup profileCommandGroup;
+    private final MilkywayCommandGroup milkywayCommandGroup;
+    private final PersonalRoleCommandGroup personalRoleCommandGroup;
+    private final PigeonCommandGroup pigeonCommandGroup;
+    private final SnakeOilCommandGroup snakeOilCommandGroup;
+    private final HangmanCommandGroup hangmanCommandGroup;
+    private final BlackjackCommandGroup blackjackCommandGroup;
+    private final InsectaCommandGroup insectaCommandGroup;
+    private final BattleCommandGroup battleCommandGroup;
+    private final PollCommandGroup pollCommandGroup;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
@@ -143,13 +144,19 @@ public class CommandManager {
             for (Long guildId: guildIds) {
                 applicationService.bulkOverwriteGuildApplicationCommand(applicationId, guildId, requests)
                     .doOnNext(cmd -> LogHelper.log("Successfully registered guild command " + cmd.name()))
-                    .doOnError(e -> LogHelper.log("Failed to register guild commands: " + e.getMessage()))
+                    .doOnError(e -> {
+                        saveCommandHash(previousHash);
+                        LogHelper.log("Failed to register guild commands: " + e.getMessage());
+                    })
                     .subscribe();
             }
         } else {
             applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, requests)
                 .doOnNext(cmd -> LogHelper.log("Successfully registered global command " + cmd.name()))
-                .doOnError(e -> LogHelper.log("Failed to register global commands: " + e.getMessage()))
+                .doOnError(e -> {
+                    saveCommandHash(previousHash);
+                    LogHelper.log("Failed to register global commands: " + e.getMessage());
+                })
                 .subscribe();
         }
     }

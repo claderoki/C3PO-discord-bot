@@ -59,7 +59,7 @@ public class PersonalRoleProcessor {
             member = context.getEvent().getInteraction().getMember().orElseThrow();
             if (personalRoleAttributeValue.getValue() != null) {
                 return guild.getRoleById(Snowflake.of(Long.parseLong(personalRoleAttributeValue.getValue()))).map(p->{
-                    existingRole=p;
+                    existingRole = p;
                     return Mono.empty();
                 });
             }

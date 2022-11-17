@@ -11,10 +11,7 @@ import com.c3po.core.command.CommandSettings;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.DataType;
 import com.c3po.helper.EventHelper;
-import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
-import com.c3po.helper.cache.keys.MilkywaySettingsKey;
-import com.c3po.helper.cache.keys.PersonalRoleSettingsKey;
-import com.c3po.helper.cache.keys.SettingGroupCacheKey;
+import com.c3po.helper.cache.keys.*;
 import com.c3po.core.setting.*;
 import com.c3po.core.setting.validation.SettingValidationCache;
 import com.c3po.core.setting.validation.SettingValidation;
@@ -161,6 +158,7 @@ public class SettingGroup {
             case KnownCategory.GUILDREWARDS -> new GuildRewardSettingsKey(target);
             case KnownCategory.MILKYWAY -> new MilkywaySettingsKey(target);
             case KnownCategory.PERSONALROLE -> new PersonalRoleSettingsKey(target);
+            case KnownCategory.DISCONNECTER -> new DisconnecterSettingsKey(target);
             default -> null;
         };
     }

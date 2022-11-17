@@ -1,5 +1,6 @@
 package com.c3po.core;
 
+import discord4j.common.util.Snowflake;
 import lombok.Getter;
 
 
@@ -23,6 +24,10 @@ public final class ScopeTarget {
 
     public static ScopeTarget guild(Long guildId) {
         return new ScopeTarget(null, guildId);
+    }
+
+    public static ScopeTarget guild(Snowflake guildId) {
+        return new ScopeTarget(null, guildId.asLong());
     }
 
     @Override

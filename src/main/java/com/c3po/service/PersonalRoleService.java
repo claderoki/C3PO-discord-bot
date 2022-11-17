@@ -18,12 +18,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PersonalRoleService {
-
     @Autowired
     private AttributeRepository attributeRepository;
     @Autowired
     private SettingService settingService;
-
     @Autowired
     private SettingRepository settingRepository;
 
