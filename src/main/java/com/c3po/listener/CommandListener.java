@@ -8,6 +8,7 @@ import com.c3po.core.command.*;
 import com.c3po.command.SettingGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.core.setting.validation.SettingValidationCache;
 import com.c3po.error.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.LogHelper;
@@ -17,6 +18,7 @@ import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.spec.EmbedCreateSpec;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
@@ -25,15 +27,12 @@ import reactor.core.publisher.Mono;
 import java.util.*;
 
 @Component
+@RequiredArgsConstructor
 public class CommandListener implements EventListener<ChatInputInteractionEvent> {
-    @Autowired
-    private CommandManager commandManager;
-    @Autowired
-    private SettingService settingService;
-    @Autowired
-    private SettingRepository settingRepository;
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
+    private final CommandManager commandManager;
+    private final SettingService settingService;
+    private final SettingRepository settingRepository;
+    private final AutowireCapableBeanFactory beanFactory;
 
     private final static HashMap<String, HashMap<String, String>> settingMap = new HashMap<>();
 

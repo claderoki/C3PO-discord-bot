@@ -9,6 +9,7 @@ import discord4j.core.event.domain.VoiceStateUpdateEvent;
 import discord4j.core.object.VoiceState;
 import discord4j.core.spec.GuildMemberEditSpec;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -16,8 +17,9 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class VoiceStateUpdateListener implements EventListener<VoiceStateUpdateEvent> {
-    private final static Duration TIMEOUT = Duration.ofMinutes(1);
+    private final static Duration TIMEOUT = Duration.ofMinutes(10);
     private final DisconnecterService disconnecterService;
 
     @Override

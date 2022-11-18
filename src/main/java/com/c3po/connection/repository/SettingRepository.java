@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @Service
-@org.springframework.context.annotation.Scope("singleton")
 public class SettingRepository extends Repository {
     private void create(PropertyValue propertyValue) {
         String query = "INSERT INTO `setting_value` (`user_id`, `guild_id`, `value`, `setting_id`) VALUES (?, ?, ?, ?)";

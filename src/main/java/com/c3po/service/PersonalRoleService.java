@@ -13,17 +13,16 @@ import com.c3po.model.personalrole.PersonalRoleSettings;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Role;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class PersonalRoleService {
-    @Autowired
-    private AttributeRepository attributeRepository;
-    @Autowired
-    private SettingService settingService;
-    @Autowired
-    private SettingRepository settingRepository;
+    private final AttributeRepository attributeRepository;
+    private final SettingService settingService;
+    private final SettingRepository settingRepository;
 
     public PersonalRoleSettings getSettings(ScopeTarget target) {
         return CacheManager.get().computeIfAbsent(new PersonalRoleSettingsKey(target), (key) -> {

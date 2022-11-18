@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class InsectaCollectCommand extends InsectaSubCommand {
     protected InsectaCollectCommand() {
-        super("collect");
+        super("collect", insectaRepository, insectaService);
     }
 
     @Override

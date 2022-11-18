@@ -10,21 +10,18 @@ import com.c3po.core.setting.KnownCategory;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.model.milkyway.MilkywaySettings;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MilkywayService {
-    @Autowired
-    private SettingService settingService;
-
-    @Autowired
-    private SettingRepository settingRepository;
-
-    @Autowired
-    private MilkywayRepository milkywayRepository;
+    private final SettingService settingService;
+    private final SettingRepository settingRepository;
+    private final MilkywayRepository milkywayRepository;
 
     public MilkywaySettings getSettings(ScopeTarget target) {
         return CacheManager.get().computeIfAbsent(new MilkywaySettingsKey(target), key -> {

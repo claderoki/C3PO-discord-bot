@@ -4,20 +4,20 @@ import com.c3po.command.insecta.service.InsectaService;
 import com.c3po.connection.repository.InsectaRepository;
 import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.SubCommand;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
 
 public abstract class InsectaSubCommand extends SubCommand {
-    @Autowired
-    protected InsectaRepository insectaRepository;
+    protected final InsectaRepository insectaRepository;
+    protected final InsectaService insectaService;
 
-    @Autowired
-    protected InsectaService insectaService;
-
-    protected InsectaSubCommand(String name, String description) {
+    protected InsectaSubCommand(String name, String description, InsectaRepository insectaRepository, InsectaService insectaService) {
         super(CommandCategory.INSECTA, name, description);
+        this.insectaRepository = insectaRepository;
+        this.insectaService = insectaService;
     }
-    protected InsectaSubCommand(String name) {
+    protected InsectaSubCommand(String name, InsectaRepository insectaRepository, InsectaService insectaService) {
         super(CommandCategory.INSECTA, name);
+        this.insectaRepository = insectaRepository;
+        this.insectaService = insectaService;
     }
 }

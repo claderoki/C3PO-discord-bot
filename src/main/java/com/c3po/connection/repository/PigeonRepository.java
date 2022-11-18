@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Scope("singleton")
 public class PigeonRepository extends Repository {
     public synchronized Integer getActiveId(int humanId) {
         Result result = getOne("SELECT `id` FROM `pigeon` WHERE human_id = ? AND `condition` = 'active'", new IntParameter(humanId));

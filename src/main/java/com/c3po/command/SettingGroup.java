@@ -33,10 +33,8 @@ import java.util.HashSet;
 public class SettingGroup {
     @Autowired
     private SettingService settingService;
-
     @Autowired
     private SettingRepository settingRepository;
-
     @Autowired
     private SettingValidationCache settingValidationCache;
 

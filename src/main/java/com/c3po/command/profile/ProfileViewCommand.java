@@ -22,7 +22,7 @@ import java.util.Optional;
 public class ProfileViewCommand extends ProfileSubCommand {
 
     protected ProfileViewCommand() {
-        super("view", "View your own, or someone else's profile.");
+        super("view", "View your own, or someone else's profile.", profileService);
         this.addOption(option -> option.name("member")
             .description("The member who's profile you'd like to view.")
             .required(false)

@@ -4,14 +4,14 @@ import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.helper.cache.keys.PigeonIdKey;
 import com.c3po.helper.cache.CacheManager;
 import com.c3po.model.pigeon.Pigeon;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class PigeonService {
-
-    @Autowired
-    private PigeonRepository pigeonRepository;
+    private final PigeonRepository pigeonRepository;
 
     public Integer getCurrentId(int humanId) {
         return CacheManager.get().computeIfAbsent(new PigeonIdKey(humanId), (key) -> pigeonRepository.getActiveId(humanId));

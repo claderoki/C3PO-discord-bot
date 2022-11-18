@@ -13,7 +13,6 @@ import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.service.HumanService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.object.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -23,17 +22,16 @@ import java.util.*;
 
 @Component
 public class HangmanStartCommand extends SubCommand {
-    @Autowired
-    private HumanService humanService;
-
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
+    private final HumanService humanService;
+    private final AutowireCapableBeanFactory beanFactory;
 
     private final static List<String> wordCache = new ArrayList<>();
     private final static int bet = 25;
 
-    protected HangmanStartCommand() {
+    protected HangmanStartCommand(HumanService humanService, AutowireCapableBeanFactory beanFactory) {
         super(CommandCategory.HANGMAN, "start", "no description");
+        this.humanService = humanService;
+        this.beanFactory = beanFactory;
     }
 
     private Mono<Set<User>> getUsers(Context context) {

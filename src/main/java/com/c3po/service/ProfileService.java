@@ -10,6 +10,7 @@ import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.ValueFormatter;
 import com.c3po.model.pigeon.Pigeon;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,20 +20,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class ProfileService {
-    @Autowired
-    private HumanService humanService;
-    @Autowired
-    private PigeonService pigeonService;
-
-    @Autowired
-    private AttributeService attributeService;
-
-    @Autowired
-    private AttributeRepository attributeRepository;
-
-    @Autowired
-    private HumanRepository humanRepository;
+    private final HumanService humanService;
+    private final PigeonService pigeonService;
+    private final AttributeService attributeService;
+    private final AttributeRepository attributeRepository;
+    private final HumanRepository humanRepository;
 
     private static final ArrayList<Integer> editableAttributeIds = new ArrayList<>();
 

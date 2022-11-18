@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BlackjackCommandGroup extends CommandGroup {
-    @Autowired
     public BlackjackCommandGroup(BlackjackStartCommand start) {
         super(CommandCategory.BLACKJACK,"Blackjack game");
         addCommands(start);

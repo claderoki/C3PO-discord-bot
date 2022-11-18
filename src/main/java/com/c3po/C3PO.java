@@ -1,11 +1,6 @@
 package com.c3po;
 
 import com.c3po.core.command.CommandManager;
-import com.c3po.core.wordnik.WordnikApi;
-import com.c3po.core.wordnik.endpoints.GetRandomWords;
-import com.c3po.core.wordnik.endpoints.GetWordDefinition;
-import com.c3po.core.wordnik.responses.WordDefinitionListResponse;
-import com.c3po.core.wordnik.responses.WordResponse;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.CacheManager;
@@ -21,11 +16,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.ClientPresence;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -37,7 +28,9 @@ import java.util.concurrent.TimeoutException;
 @RequiredArgsConstructor
 public class C3PO {
     private final CommandManager commandManager;
-    private final AutowireCapableBeanFactory beanFactory;
+    private final CommandListener commandListener;
+    private final MessageCreateListener messageCreateListener;
+    private final VoiceStateUpdateListener voiceStateUpdateListener;
 
     @PostConstruct
     public void postConstruct() {
@@ -73,9 +66,9 @@ public class C3PO {
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
         commandManager.registerAll(gateway.getRestClient(), false);
 
-        register(gateway, beanFactory.createBean(CommandListener.class));
-        register(gateway, beanFactory.createBean(MessageCreateListener.class));
-        register(gateway, beanFactory.createBean(VoiceStateUpdateListener.class));
+        register(gateway, commandListener);
+        register(gateway, messageCreateListener);
+        register(gateway, voiceStateUpdateListener);
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();

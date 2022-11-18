@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BattleCommandGroup extends CommandGroup {
-    @Autowired
     public BattleCommandGroup(BattleStartCommand start) {
         super(CommandCategory.BATTLE,"Battle game");
         addCommands(start);

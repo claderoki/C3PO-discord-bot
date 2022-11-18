@@ -76,25 +76,28 @@ public class PollCreateMenu extends Menu {
 
     private List<MenuOption<?,?,?>> getAvailableOptions() {
         return List.of(
-            new BooleanMenuOption("Pin?", false)
-                .setSetter(poll::setPin)
-                .setEmoji(Emoji.PIN),
-            new BooleanMenuOption("Delete after results?", false)
-                .setSetter(poll::setDeleteAfterResults)
-                .setEmoji(Emoji.TRASH),
-            new WaiterMenuOption<>("Due date", DurationParser.builder().build())
-                .setSetter(v -> poll.setDueDate(DateTimeHelper.now().plus(v)))
-                .setEmoji(Emoji.CALENDAR),
-            new BooleanMenuOption("Anonymous?", false)
-                .setSetter(poll::setAnonymous)
-                .setEmoji(Emoji.TRASH),
-            new WaiterMenuOption<>("Vote percentage to pass", IntParser.builder().min(0).max(100).build())
-                .setDisabledIf(v -> poll.getType() != null && poll.getType().equals(PollType.BOOL))
-                .setSetter(poll::setVotePercentageToPass)
-                .setEmoji(Emoji.CALENDAR),
-            new EnumSelectMenuMenuOption<>("Vote percentage to pass", PollType.class, v -> v.name().toLowerCase())
-                .setSetter(v -> poll.setType(v.get(0)))
-                .setEmoji(Emoji.CALENDAR),
+                // Mandatory are: Channel, Question, due date.
+
+
+//            new BooleanMenuOption("Pin?", false)
+//                .setSetter(poll::setPin)
+//                .setEmoji(Emoji.PIN),
+//            new BooleanMenuOption("Delete after results?", false)
+//                .setSetter(poll::setDeleteAfterResults)
+//                .setEmoji(Emoji.TRASH),
+//            new WaiterMenuOption<>("Due date", DurationParser.builder().build())
+//                .setSetter(v -> poll.setDueDate(DateTimeHelper.now().plus(v)))
+//                .setEmoji(Emoji.CALENDAR),
+//            new BooleanMenuOption("Anonymous?", false)
+//                .setSetter(poll::setAnonymous)
+//                .setEmoji(Emoji.TRASH),
+//            new WaiterMenuOption<>("Vote percentage to pass", IntParser.builder().min(0).max(100).build())
+//                .setDisabledIf(v -> poll.getType() != null && poll.getType().equals(PollType.BOOL))
+//                .setSetter(poll::setVotePercentageToPass)
+//                .setEmoji(Emoji.CALENDAR),
+//            new EnumSelectMenuMenuOption<>("Vote percentage to pass", PollType.class, v -> v.name().toLowerCase())
+//                .setSetter(v -> poll.setType(v.get(0)))
+//                .setEmoji(Emoji.CALENDAR),
 
 
             new VoidMenuOption("Create")
