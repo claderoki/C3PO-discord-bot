@@ -32,7 +32,8 @@ public class ScenarioMenu extends Menu {
     public List<ExplorationScenarioWinnings> getTotalWinnings() {
         return options.values().stream()
             .filter(o -> o instanceof ScenarioMenuOption)
-            .map(o->((ScenarioMenuOption) o).getWinnings())
+            .map(o -> ((ScenarioMenuOption)o))
+            .map(ScenarioMenuOption::getWinnings)
             .filter(Objects::nonNull)
             .collect(Collectors.toList())
         ;

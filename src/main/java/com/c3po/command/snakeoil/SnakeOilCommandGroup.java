@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SnakeOilCommandGroup extends CommandGroup {
-    @Autowired
     public SnakeOilCommandGroup(SnakeOilStartCommand start) {
         super(CommandCategory.SNAKE_OIL,"Snake oil game");
         addCommands(start);

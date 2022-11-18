@@ -13,10 +13,8 @@ import reactor.core.publisher.Mono;
 public abstract class PigeonSubCommand extends SubCommand {
     @Autowired
     protected PigeonService pigeonService;
-
     @Autowired
     protected PigeonRepository pigeonRepository;
-
     @Autowired
     protected PigeonValidation validation;
 

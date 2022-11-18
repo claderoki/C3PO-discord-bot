@@ -1,8 +1,0 @@
-package com.c3po.core.setting;
-
-public class KnownCategory {
-    public static final String GUILDREWARDS = "guildrewards";
-    public static final String MILKYWAY = "milkyway";
-    public static final String PERSONALROLE = "personalrole";
-    public static final String DISCONNECTER = "disconnecter";
-}

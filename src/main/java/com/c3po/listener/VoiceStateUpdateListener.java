@@ -72,7 +72,7 @@ public class VoiceStateUpdateListener implements EventListener<VoiceStateUpdateE
             return Mono.empty();
         } catch (Exception e) {
             LogHelper.log(e);
-            return Mono.empty();
+            return Mono.error(e);
         }
     }
 }

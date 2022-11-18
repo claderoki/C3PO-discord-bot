@@ -16,7 +16,6 @@ import com.c3po.ui.input.WaiterMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
 import com.c3po.ui.input.base.MenuOption;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,13 +24,13 @@ import java.util.List;
 
 @Component
 public class ProfileSetupCommand extends ProfileSubCommand {
-    @Autowired
-    private AttributeService attributeService;
-    @Autowired
-    private AttributeRepository attributeRepository;
+    private final AttributeService attributeService;
+    private final AttributeRepository attributeRepository;
 
-    protected ProfileSetupCommand() {
+    protected ProfileSetupCommand(AttributeService attributeService, AttributeRepository attributeRepository) {
         super("setup", "Setup your profile.");
+        this.attributeService = attributeService;
+        this.attributeRepository = attributeRepository;
     }
 
     private MenuOption<?,?,?> getOptionFor(PropertyValue propertyValue) {

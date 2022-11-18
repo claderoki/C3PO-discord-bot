@@ -3,16 +3,15 @@ package com.c3po.command.pigeon.validation;
 import com.c3po.connection.repository.PigeonRepository;
 import com.c3po.error.PublicException;
 import com.c3po.service.HumanService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PigeonValidation {
-    @Autowired
-    private HumanService humanService;
-
-    @Autowired
-    private PigeonRepository pigeonRepository;
+    private final HumanService humanService;
+    private final PigeonRepository pigeonRepository;
 
     public PigeonValidationResult validate(PigeonValidationSettings settings, Long userId) throws PublicException {
         int humanId = humanService.getHumanId(userId);

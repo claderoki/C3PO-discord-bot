@@ -1,30 +1,30 @@
 package com.c3po.listener;
 
+import com.c3po.command.SettingGroup;
 import com.c3po.command.SettingInfo;
+import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.command.*;
-import com.c3po.command.SettingGroup;
-import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.property.PropertyValue;
-import com.c3po.core.setting.validation.SettingValidationCache;
+import com.c3po.core.setting.SettingCategory;
+import com.c3po.core.setting.SettingTransformer;
 import com.c3po.error.PublicException;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.helper.LogHelper;
-import com.c3po.core.setting.*;
 import com.c3po.helper.LogScope;
 import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -79,7 +79,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             String content = valuesToView(values);
             return event.reply().withContent("```\n%s```".formatted(content));
         }
-        SettingGroup settingGroup = new SettingGroup(category, settingKey);
+        SettingGroup settingGroup = new SettingGroup(SettingCategory.find(category), settingKey);
         beanFactory.autowireBean(settingGroup);
         LogHelper.log("Setting group " + settingKey + " is being started", LogScope.DEVELOPMENT);
         Mono<Void> commandResult = settingGroup.handle(event);
@@ -95,16 +95,13 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         }
 
         Command command = commandManager.matchCommand(fullName);
-        if (command != null) {
-            Context context = new Context(event);
-            return CommandSettingValidation.validate(command.getSettings(), event).flatMap(valid -> {
-                if (!valid) {
-                    return Mono.empty();
-                }
-                return processCommand(command, context);
-            });
+        if (command == null) {
+            return Mono.empty();
         }
-        return Mono.empty();
+
+        return CommandSettingValidation.validate(command.getSettings(), event)
+            .filter(c -> c)
+            .flatMap(c -> processCommand(command, new Context(event)));
     }
 
     private Mono<Void> beforeCommand(BucketManager bucketManager, Command command) {

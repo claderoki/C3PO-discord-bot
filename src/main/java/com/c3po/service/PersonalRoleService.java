@@ -4,35 +4,24 @@ import com.c3po.command.personalrole.PersonalRoleProcessor;
 import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.ScopeTarget;
-import com.c3po.core.property.PropertyValue;
-import com.c3po.core.setting.KnownCategory;
+import com.c3po.core.setting.SettingCategory;
+import com.c3po.helper.cache.CacheManager;
 import com.c3po.helper.cache.keys.PersonalRolePositionKey;
 import com.c3po.helper.cache.keys.PersonalRoleSettingsKey;
-import com.c3po.helper.cache.CacheManager;
+import com.c3po.helper.cache.keys.SettingGroupCacheKey;
 import com.c3po.model.personalrole.PersonalRoleSettings;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Role;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class PersonalRoleService {
+public class PersonalRoleService extends BaseSettingService<PersonalRoleSettings> {
     private final AttributeRepository attributeRepository;
-    private final SettingService settingService;
-    private final SettingRepository settingRepository;
 
-    public PersonalRoleSettings getSettings(ScopeTarget target) {
-        return CacheManager.get().computeIfAbsent(new PersonalRoleSettingsKey(target), (key) -> {
-            PersonalRoleSettings settings = new PersonalRoleSettings(target);
-            for(PropertyValue value: settingRepository.getHydratedPropertyValues(target, KnownCategory.PERSONALROLE).values()) {
-                String settingKey = settingService.getCode(value.getParentId());
-                settings.set(settingKey, value.getValue());
-            }
-            return settings;
-        });
+    public PersonalRoleService(SettingService settingService, SettingRepository settingRepository, AttributeRepository attributeRepository) {
+        super(settingService, settingRepository);
+        this.attributeRepository = attributeRepository;
     }
 
     public int getRolePosition(Guild guild) {
@@ -42,5 +31,20 @@ public class PersonalRoleService {
             return role == null ? null : role.getRawPosition();
         });
         return position == null ? 0 : position;
+    }
+
+    @Override
+    protected SettingCategory getCategory() {
+        return SettingCategory.PERSONALROLE;
+    }
+
+    @Override
+    protected PersonalRoleSettings getBaseSettings(ScopeTarget target) {
+        return new PersonalRoleSettings(target);
+    }
+
+    @Override
+    protected SettingGroupCacheKey<PersonalRoleSettings> getCacheKey(ScopeTarget target) {
+        return new PersonalRoleSettingsKey(target);
     }
 }

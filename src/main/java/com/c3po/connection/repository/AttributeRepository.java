@@ -185,6 +185,17 @@ public class AttributeRepository extends Repository {
         execute(query, new IntParameter(propertyValue.getId()));
     }
 
+    public int purge(Long guildId, Set<Long> userIdsStillInGuild) {
+        PlaceholderList placeholderList = PlaceholderList.of(userIdsStillInGuild.toArray());
+        placeholderList.addBefore(new LongParameter(guildId));
+
+        String query = """
+            DELETE FROM `attribute_value` WHERE `guild_id` = ? AND `user_id` NOT IN (%s)
+            AND `attribute_id` IN (SELECT `id` FROM `attribute` WHERE `purge_values` = 1)
+            """.formatted(placeholderList.getQuestionMarks());
+        return execute(query, placeholderList.getParameters().toArray(Parameter[]::new));
+    }
+
     public String getOldestValueFor(Long guildId, Integer attributeId) {
         String query = """
             SELECT `value` FROM `attribute_value`

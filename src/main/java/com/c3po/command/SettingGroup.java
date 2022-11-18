@@ -39,11 +39,11 @@ public class SettingGroup {
     private SettingValidationCache settingValidationCache;
 
     private final String settingKey;
-    private final String category;
+    private final SettingCategory category;
     private final String settingParam;
     private Integer settingId;
 
-    public SettingGroup(String category, String settingKey) {
+    public SettingGroup(SettingCategory category, String settingKey) {
         this.category = category;
         this.settingKey = settingKey;
         this.settingParam = settingKey.replace("_id", "");
@@ -109,7 +109,7 @@ public class SettingGroup {
     }
 
     public Mono<Void> handle(ChatInputInteractionEvent event) {
-        this.settingId = settingService.getId(category, settingKey);
+        this.settingId = settingService.getId(category.getType(), settingKey);
         Setting setting = settingService.getSetting(settingId);
         CommandSettings commandSettings = scopeToSettings(setting.getScope());
 
@@ -128,7 +128,7 @@ public class SettingGroup {
             ArrayList<SettingValidation> validations = settingValidationCache.get().get(settingId);
             requiredSettings.add(settingId);
             requiredSettings.addAll(getRequiredSettings(validations));
-            HashMap<Integer, PropertyValue> settingValues = settingRepository.getHydratedPropertyValues(target, category, requiredSettings);
+            HashMap<Integer, PropertyValue> settingValues = settingRepository.getHydratedPropertyValues(target, category.getType(), requiredSettings);
             PropertyValue settingValue = settingValues.get(settingId);
             setValue(settingValue, value);
             if (validations != null) {
@@ -141,25 +141,14 @@ public class SettingGroup {
             }
             settingRepository.save(settingValue);
             if (settingValue.changed()) {
-                SettingGroupCacheKey<?> cacheKey = getCacheKey(target);
-                if (cacheKey != null) {
-                    CacheManager.get().remove(cacheKey);
-                }
+                SettingGroupCacheKey<?> cacheKey = CategoryCacheKeyFactory.create(category, target);
+                CacheManager.get().remove(cacheKey);
             }
 
             return event.reply().withEmbeds(createEmbedFor(settingValue));
         }).then();
     }
 
-    protected SettingGroupCacheKey<?> getCacheKey(ScopeTarget target) {
-        return switch (category) {
-            case KnownCategory.GUILDREWARDS -> new GuildRewardSettingsKey(target);
-            case KnownCategory.MILKYWAY -> new MilkywaySettingsKey(target);
-            case KnownCategory.PERSONALROLE -> new PersonalRoleSettingsKey(target);
-            case KnownCategory.DISCONNECTER -> new DisconnecterSettingsKey(target);
-            default -> null;
-        };
-    }
 
     protected void setValue(PropertyValue settingValue, String value) {
         settingValue.setValue(parseValue(settingValue, value));

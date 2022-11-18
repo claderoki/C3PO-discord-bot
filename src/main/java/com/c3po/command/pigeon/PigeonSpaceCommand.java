@@ -17,7 +17,6 @@ import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.service.ExplorationService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.spec.EmbedCreateFields;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -29,23 +28,19 @@ import java.util.List;
 
 @Component
 public class PigeonSpaceCommand extends PigeonSubCommand {
-    @Autowired
-    protected ExplorationService explorationService;
+    protected final ExplorationService explorationService;
+    protected final ExplorationRepository explorationRepository;
+    protected final HumanRepository humanRepository;
+    protected final StreakRepository streakRepository;
+    private final AutowireCapableBeanFactory beanFactory;
 
-    @Autowired
-    protected ExplorationRepository explorationRepository;
-
-    @Autowired
-    protected HumanRepository humanRepository;
-
-    @Autowired
-    protected StreakRepository streakRepository;
-
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
-
-    protected PigeonSpaceCommand() {
+    protected PigeonSpaceCommand(ExplorationService explorationService, ExplorationRepository explorationRepository, HumanRepository humanRepository, StreakRepository streakRepository, AutowireCapableBeanFactory beanFactory) {
         super("space", "no description.");
+        this.explorationService = explorationService;
+        this.explorationRepository = explorationRepository;
+        this.humanRepository = humanRepository;
+        this.streakRepository = streakRepository;
+        this.beanFactory = beanFactory;
     }
 
     protected PigeonValidationSettings getValidationSettings() {

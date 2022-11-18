@@ -11,22 +11,17 @@ import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.service.AttributeService;
 import com.c3po.service.HumanService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 public class MilkywayDenyCommand extends MilkywaySubCommand {
-    @Autowired
-    private HumanService humanService;
-    @Autowired
-    private AttributeService attributeService;
-    @Autowired
-    private AttributeRepository attributeRepository;
-    @Autowired
-    private ItemRepository itemRepository;
+    private final HumanService humanService;
+    private final AttributeService attributeService;
+    private final AttributeRepository attributeRepository;
+    private final ItemRepository itemRepository;
 
-    protected MilkywayDenyCommand() {
+    protected MilkywayDenyCommand(HumanService humanService, AttributeService attributeService, AttributeRepository attributeRepository, ItemRepository itemRepository) {
         super("deny", "Deny a milkyway");
         this.addOption(option -> option.name("id")
             .description("The identifier to deny")
@@ -36,6 +31,10 @@ public class MilkywayDenyCommand extends MilkywaySubCommand {
             .description("The reason why this milkyway was denied.")
             .required(true)
             .type(DiscordCommandOptionType.STRING.getValue()));
+        this.humanService = humanService;
+        this.attributeService = attributeService;
+        this.attributeRepository = attributeRepository;
+        this.itemRepository = itemRepository;
     }
 
     private void givebackPayment(Milkyway milkyway) {

@@ -11,18 +11,16 @@ import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.model.pigeon.stat.HumanGold;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 public class PigeonTrainCommand extends PigeonSubCommand {
+    private final HumanRepository humanRepository;
 
-    @Autowired
-    private HumanRepository humanRepository;
-
-    protected PigeonTrainCommand() {
+    protected PigeonTrainCommand(HumanRepository humanRepository) {
         super( "train", "no description.");
+        this.humanRepository = humanRepository;
     }
 
     protected PigeonValidationSettings getValidationSettings() {

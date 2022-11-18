@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProfileCommandGroup extends CommandGroup {
-
-    @Autowired
     public ProfileCommandGroup(ProfileViewCommand view, ProfileSetupCommand setup) {
         super(CommandCategory.PROFILE,"Profile info");
         addCommand(view);

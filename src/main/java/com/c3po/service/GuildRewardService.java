@@ -1,30 +1,31 @@
 package com.c3po.service;
 
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
-import com.c3po.core.setting.KnownCategory;
 import com.c3po.core.ScopeTarget;
-import com.c3po.core.property.PropertyValue;
-import com.c3po.helper.cache.CacheManager;
+import com.c3po.core.setting.SettingCategory;
+import com.c3po.helper.cache.keys.GuildRewardSettingsKey;
+import com.c3po.helper.cache.keys.SettingGroupCacheKey;
 import com.c3po.model.guildreward.GuildRewardSettings;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class GuildRewardService {
-    private final SettingRepository settingRepository;
-    private final SettingService settingService;
+public class GuildRewardService extends BaseSettingService<GuildRewardSettings> {
+    public GuildRewardService(SettingService settingService, SettingRepository settingRepository) {
+        super(settingService, settingRepository);
+    }
 
-    public GuildRewardSettings getSettings(ScopeTarget target) {
-        return CacheManager.get().computeIfAbsent(new GuildRewardSettingsKey(target), key -> {
-            GuildRewardSettings settings = new GuildRewardSettings(target);
-            for(PropertyValue value: settingRepository.getHydratedPropertyValues(target, KnownCategory.GUILDREWARDS).values()) {
-                String settingKey = settingService.getCode(value.getParentId());
-                settings.set(settingKey, value.getValue());
-            }
-            return settings;
-        });
+    @Override
+    protected SettingCategory getCategory() {
+        return SettingCategory.GUILDREWARDS;
+    }
+
+    @Override
+    protected GuildRewardSettings getBaseSettings(ScopeTarget target) {
+        return new GuildRewardSettings(target);
+    }
+
+    @Override
+    protected SettingGroupCacheKey<GuildRewardSettings> getCacheKey(ScopeTarget target) {
+        return new GuildRewardSettingsKey(target);
     }
 }

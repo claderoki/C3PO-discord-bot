@@ -12,6 +12,7 @@ import com.c3po.processors.Processor;
 import com.c3po.service.AttributeService;
 import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -23,13 +24,11 @@ import java.util.HashMap;
 import java.util.Random;
 
 @Component
+@RequiredArgsConstructor
 public class GuildRewardProcessor extends Processor<MessageCreateEvent> {
-    @Autowired
-    private AttributeRepository attributeRepository;
-    @Autowired
-    private AttributeService attributeService;
-    @Autowired
-    private GuildRewardService guildRewardService;
+    private final AttributeRepository attributeRepository;
+    private final AttributeService attributeService;
+    private final GuildRewardService guildRewardService;
 
     private static final HashMap<String, OffsetDateTime> lastRewards = new HashMap<>();
     private static Integer attributeId = null;

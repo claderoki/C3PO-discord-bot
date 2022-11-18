@@ -8,16 +8,17 @@ import com.c3po.helper.cache.keys.AttributeCodeKey;
 import com.c3po.helper.cache.keys.AttributeIdKey;
 import com.c3po.helper.cache.keys.AttributeValueKey;
 import com.c3po.helper.cache.CacheManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@org.springframework.stereotype.Service
+@Service
+@RequiredArgsConstructor
 public class AttributeService {
     Cache cache = CacheManager.get("attributes");
-
-    @Autowired
-    private AttributeRepository attributeRepository;
+    private final AttributeRepository attributeRepository;
 
     public PropertyValue getAttributeValue(ScopeTarget target, int attributeId) {
         AttributeValueKey key = new AttributeValueKey(target, attributeId);

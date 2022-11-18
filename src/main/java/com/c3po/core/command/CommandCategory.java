@@ -11,6 +11,7 @@ public enum CommandCategory {
     POLLS("poll"),
     PIGEON("pigeon"),
     MILKYWAY("milkyway"),
+    ACTIVITY_TRACKER("activitytracker"),
     HANGMAN("hangman"),
     SNAKE_OIL("snakeoil"),
     PERSONAL_ROLE("personalrole"),

@@ -1,17 +1,17 @@
 package com.c3po.service;
 
 import com.c3po.connection.repository.HumanRepository;
-import com.c3po.helper.cache.keys.HumanIdKey;
 import com.c3po.core.ScopeTarget;
 import com.c3po.helper.cache.CacheManager;
+import com.c3po.helper.cache.keys.HumanIdKey;
 import discord4j.common.util.Snowflake;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@org.springframework.stereotype.Service
+@Service
+@RequiredArgsConstructor
 public class HumanService {
-
-    @Autowired
-    private HumanRepository humanRepository;
+    private final HumanRepository humanRepository;
 
     public Integer getHumanId(long userId) {
         return CacheManager.get().computeIfAbsent(new HumanIdKey(ScopeTarget.user(userId)), (key) -> {

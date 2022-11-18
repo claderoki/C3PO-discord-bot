@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class InsectaBuyCommand extends InsectaSubCommand {
     protected InsectaBuyCommand() {
-        super("buy", insectaRepository, insectaService);
+        super("buy");
         addOption(o -> o
             .name("type")
             .description("no description")

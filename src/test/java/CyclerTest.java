@@ -27,13 +27,13 @@ public class CyclerTest {
     }
 
     @Test
-    public void testAllowed() {
+    public void testLeftToRight() {
         List<Integer> values = List.of(1,2,3);
         baseTest(values, CycleDirection.LEFT_TO_RIGHT);
     }
 
     @Test
-    public void testAllowed2() {
+    public void testRightToLeft() {
         List<Integer> values = List.of(1,2,3);
         baseTest(values, CycleDirection.RIGHT_TO_LEFT);
     }

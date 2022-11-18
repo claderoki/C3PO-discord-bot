@@ -1,17 +1,16 @@
 package com.c3po.service;
 
-import com.c3po.helper.cache.CacheManager;
-import com.c3po.model.milkyway.MilkywayItem;
 import com.c3po.connection.repository.MilkywayRepository;
 import com.c3po.connection.repository.SettingRepository;
-import com.c3po.helper.cache.keys.MilkywayIdentifierKey;
-import com.c3po.helper.cache.keys.MilkywaySettingsKey;
-import com.c3po.core.setting.KnownCategory;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.core.setting.SettingCategory;
+import com.c3po.helper.cache.CacheManager;
+import com.c3po.helper.cache.keys.MilkywayIdentifierKey;
+import com.c3po.helper.cache.keys.MilkywaySettingsKey;
+import com.c3po.model.milkyway.MilkywayItem;
 import com.c3po.model.milkyway.MilkywaySettings;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class MilkywayService {
     public MilkywaySettings getSettings(ScopeTarget target) {
         return CacheManager.get().computeIfAbsent(new MilkywaySettingsKey(target), key -> {
             MilkywaySettings settings = new MilkywaySettings(target);
-            for(PropertyValue value: settingRepository.getHydratedPropertyValues(target, KnownCategory.MILKYWAY).values()) {
+            for(PropertyValue value: settingRepository.getHydratedPropertyValues(target, SettingCategory.MILKYWAY.getType()).values()) {
                 String settingKey = settingService.getCode(value.getParentId());
                 settings.set(settingKey, value.getValue());
             }

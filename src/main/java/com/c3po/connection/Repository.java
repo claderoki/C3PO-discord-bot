@@ -48,19 +48,17 @@ public class Repository {
         return statement;
     }
 
-    protected final void execute(Connection connection, String query, Parameter... params) {
+    protected final int execute(Connection connection, String query, Parameter... params) {
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
-            statement.executeUpdate();
+            return statement.executeUpdate();
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
     }
 
-    protected final void execute(String query, Parameter... params) {
+    protected final int execute(String query, Parameter... params) {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = preparedStatement(connection, query, params)) {
-                statement.executeUpdate();
-            }
+            return execute(connection, query, params);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

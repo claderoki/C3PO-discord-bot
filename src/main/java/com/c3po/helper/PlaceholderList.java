@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor
@@ -40,6 +41,10 @@ public class PlaceholderList {
     }
 
     public static PlaceholderList of(Collection<Object> values) {
+        return of(values.toArray());
+    }
+
+    public static PlaceholderList of(Set<Object> values) {
         return of(values.toArray());
     }
 

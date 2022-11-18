@@ -9,12 +9,14 @@ import com.c3po.listener.CommandListener;
 import com.c3po.listener.EventListener;
 import com.c3po.listener.MessageCreateListener;
 import com.c3po.listener.VoiceStateUpdateListener;
+import com.c3po.processors.attribute.AttributePurger;
 import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.ClientPresence;
+import discord4j.gateway.intent.IntentSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import reactor.core.publisher.Mono;
@@ -31,6 +33,7 @@ public class C3PO {
     private final CommandListener commandListener;
     private final MessageCreateListener messageCreateListener;
     private final VoiceStateUpdateListener voiceStateUpdateListener;
+    private final AttributePurger attributePurger;
 
     @PostConstruct
     public void postConstruct() {
@@ -47,9 +50,10 @@ public class C3PO {
             .build();
 
         client.gateway()
-        .setInitialPresence(c -> ClientPresence.invisible())
-        .withGateway(this::setupGateway)
-        .block();
+            .setEnabledIntents(IntentSet.all())
+            .setInitialPresence(c -> ClientPresence.invisible())
+            .withGateway(this::setupGateway)
+            .block();
     }
 
     private ReactorResources getReactorResources() {
@@ -69,6 +73,8 @@ public class C3PO {
         register(gateway, commandListener);
         register(gateway, messageCreateListener);
         register(gateway, voiceStateUpdateListener);
+
+        attributePurger.execute(gateway).subscribe();
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();

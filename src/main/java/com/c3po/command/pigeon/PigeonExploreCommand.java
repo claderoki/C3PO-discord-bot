@@ -14,7 +14,6 @@ import com.c3po.service.ExplorationService;
 import com.c3po.ui.input.VoidMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -23,15 +22,15 @@ import java.time.LocalDateTime;
 
 @Component
 public class PigeonExploreCommand extends PigeonSubCommand {
-    @Autowired
-    protected ExplorationRepository explorationRepository;
-    @Autowired
-    protected ReminderRepository reminderRepository;
-    @Autowired
-    protected ExplorationService explorationService;
+    protected final ExplorationRepository explorationRepository;
+    protected final ReminderRepository reminderRepository;
+    protected final ExplorationService explorationService;
 
-    protected PigeonExploreCommand() {
+    protected PigeonExploreCommand(ExplorationRepository explorationRepository, ReminderRepository reminderRepository, ExplorationService explorationService) {
         super("explore", "no description.");
+        this.explorationRepository = explorationRepository;
+        this.reminderRepository = reminderRepository;
+        this.explorationService = explorationService;
     }
 
     protected PigeonValidationSettings getValidationSettings() {
