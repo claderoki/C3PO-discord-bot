@@ -7,40 +7,36 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class Cache {
-    public final HashMap<String, Object> cache = new HashMap<>();
-    private final HashMap<String, OffsetDateTime> expiryDates = new HashMap<>();
+    public final HashMap<String, CacheItem<Object>> cache = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public <T> T get(CacheKey<T> key) {
         String fullKey = key.getFullKey();
-        OffsetDateTime expiryDate = expiryDates.get(fullKey);
-        if (expiryDate != null && OffsetDateTime.now(ZoneOffset.UTC).isAfter(expiryDate)) {
+        CacheItem<Object> cacheItem = cache.get(fullKey);
+
+        if (cacheItem == null) {
+            return null;
+        }
+
+        if (cacheItem.isExpired()) {
             remove(key);
             return null;
         }
 
-        Object value = cache.get(fullKey);
-        if (value == null) {
-            return null;
-        }
-
-        return (T)value;
+        return (T)cacheItem.getValue();
     }
 
     public <T> void set(CacheKey<T> key, T value) {
         String fullKey = key.getFullKey();
 
         Duration timeToLive = key.getTimeToLive();
-        if (timeToLive != null) {
-            expiryDates.put(fullKey, OffsetDateTime.now(ZoneOffset.UTC).plus(key.getTimeToLive()));
-        }
-        cache.put(fullKey, value);
+        OffsetDateTime expirationDate = timeToLive == null ? null : OffsetDateTime.now(ZoneOffset.UTC).plus(key.getTimeToLive());
+        cache.put(fullKey, new CacheItem<>(value, expirationDate));
     }
 
     public <T> void remove(CacheKey<T> key) {
         String fullKey = key.getFullKey();
         cache.remove(fullKey);
-        expiryDates.remove(fullKey);
     }
 
     public <T> T computeIfAbsent(CacheKey<T> key, Function<CacheKey<T>, T> or) {
@@ -58,4 +54,7 @@ public class Cache {
         return null;
     }
 
+    public void removeExpiredItems() {
+        cache.entrySet().removeIf(e -> e.getValue().isExpired());
+    }
 }

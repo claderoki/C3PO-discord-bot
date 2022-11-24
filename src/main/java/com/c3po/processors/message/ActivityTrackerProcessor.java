@@ -4,6 +4,7 @@ import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.property.PropertyValue;
+import com.c3po.database.SQLRuntimeException;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.LogScope;
@@ -16,9 +17,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Component
 @RequiredArgsConstructor
 public class ActivityTrackerProcessor extends Processor<MessageCreateEvent> {
+    private final static Duration COOLDOWN_PERIOD = Duration.ofSeconds(10);
+
     private final AttributeRepository attributeRepository;
     private final AttributeService attributeService;
     private final ActivityTrackerService activityTrackerService;
@@ -39,8 +44,12 @@ public class ActivityTrackerProcessor extends Processor<MessageCreateEvent> {
     private Mono<Void> resetLastActive(ScopeTarget target) {
         PropertyValue value = attributeService.getAttributeValue(target, getAttributeId());
         value.setValue(DateTimeHelper.now().format(DateTimeHelper.DATETIME_FORMATTER));
-        attributeRepository.save(value);
-        LogHelper.log("Reset activity for %s".formatted(target), LogScope.DEVELOPMENT);
+        try {
+            attributeRepository.save(value);
+        } catch (SQLRuntimeException e) {
+            String a = "";
+        }
+//        LogHelper.log("Reset activity for %s".formatted(target), LogScope.DEVELOPMENT);
         return Mono.empty();
     }
 

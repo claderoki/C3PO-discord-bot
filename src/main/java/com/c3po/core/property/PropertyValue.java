@@ -58,4 +58,10 @@ public class PropertyValue {
         }
     }
 
+    public static PropertyValue.PropertyValueBuilder builderFrom(Attribute attribute) {
+        return builder()
+            .parentId(attribute.getId())
+            .type(attribute.getType());
+    }
+
 }

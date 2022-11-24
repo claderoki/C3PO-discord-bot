@@ -9,7 +9,9 @@ import com.c3po.listener.CommandListener;
 import com.c3po.listener.EventListener;
 import com.c3po.listener.MessageCreateListener;
 import com.c3po.listener.VoiceStateUpdateListener;
+import com.c3po.processors.attribute.ActivityEnsurer;
 import com.c3po.processors.attribute.AttributePurger;
+import com.c3po.processors.attribute.Task;
 import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -25,15 +27,18 @@ import reactor.netty.http.client.HttpClient;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 public class C3PO {
+    private GatewayDiscordClient gateway;
     private final CommandManager commandManager;
     private final CommandListener commandListener;
     private final MessageCreateListener messageCreateListener;
     private final VoiceStateUpdateListener voiceStateUpdateListener;
     private final AttributePurger attributePurger;
+    private final ActivityEnsurer activityEnsurer;
 
     @PostConstruct
     public void postConstruct() {
@@ -68,19 +73,38 @@ public class C3PO {
     }
 
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
+        this.gateway = gateway;
         commandManager.registerAll(gateway.getRestClient(), false);
 
-        register(gateway, commandListener);
-        register(gateway, messageCreateListener);
-        register(gateway, voiceStateUpdateListener);
+        register(commandListener);
+        register(messageCreateListener);
+        register(voiceStateUpdateListener);
 
-        attributePurger.execute(gateway).subscribe();
+        register(attributePurger);
+        register(activityEnsurer);
+        createTask(Mono.fromRunnable(CacheManager::removeAllExpiredItems), Duration.ofHours(1));
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();
     }
 
-    private <T extends Event> void register(GatewayDiscordClient gateway, EventListener<T> eventListener) {
+    private void createTask(Mono<Void> mono, Duration duration) {
+        AtomicInteger i = new AtomicInteger();
+        Mono.defer(() -> {
+                if (i.getAndIncrement() > 0) {
+                    return Mono.delay(duration).then(mono);
+                }
+                return mono;
+            })
+            .repeat()
+            .subscribe();
+    }
+
+    private void register(Task task) {
+        createTask(task.execute(gateway), task.getDelay());
+    }
+
+    private <T extends Event> void register(EventListener<T> eventListener) {
         gateway.getEventDispatcher()
             .on(eventListener.getEventType())
             .flatMap(event -> eventListener.execute(event)

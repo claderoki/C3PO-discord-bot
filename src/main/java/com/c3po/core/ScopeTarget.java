@@ -18,6 +18,10 @@ public final class ScopeTarget {
         return new ScopeTarget(userId, guildId);
     }
 
+    public static ScopeTarget member(Snowflake userId, Snowflake guildId) {
+        return new ScopeTarget(userId.asLong(), guildId.asLong());
+    }
+
     public static ScopeTarget user(Long userId) {
         return new ScopeTarget(userId, null);
     }

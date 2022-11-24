@@ -10,11 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.HashSet;
 
 @Component
 @RequiredArgsConstructor
-public class AttributePurger {
+public class AttributePurger extends Task {
     private final AttributeRepository attributeRepository;
 
     public Mono<Integer> executeForGuild(Guild guild) {
@@ -31,7 +32,13 @@ public class AttributePurger {
         return client.getGuilds()
             .filter(c -> c.getId().equals(Snowflake.of(729843647347949638L)))
             .flatMap(this::executeForGuild)
-            .doOnEach(i -> LogHelper.log(i.get() + " attribute values purged"))
+            .filter(c -> c > 0)
+            .doOnNext(i -> LogHelper.log(i + " attribute values purged"))
             .then();
+    }
+
+    @Override
+    public Duration getDelay() {
+        return Duration.ofHours(1);
     }
 }

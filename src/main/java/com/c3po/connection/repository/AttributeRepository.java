@@ -1,18 +1,20 @@
 package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
+import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
+import com.c3po.core.property.Attribute;
+import com.c3po.core.property.AttributeCondition;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;
 import com.c3po.helper.DataType;
 import com.c3po.helper.PlaceholderList;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@Scope("singleton")
 public class AttributeRepository extends Repository {
 
     private void create(ScopeTarget target, int attributeId, String value) {
@@ -54,7 +56,7 @@ public class AttributeRepository extends Repository {
 
     public void save(PropertyValue... propertyValues) {
         for (PropertyValue propertyValue: propertyValues) {
-            if (propertyValue.getId() == 0 || propertyValue.getId() == null) {
+            if (propertyValue.getId() == null || propertyValue.getId() == 0) {
                 create(propertyValue);
             } else {
                 update(propertyValue);
@@ -171,6 +173,21 @@ public class AttributeRepository extends Repository {
         return values;
     }
 
+    public Attribute getAttribute(int attributeId) {
+        String query = "SELECT * FROM `attribute` WHERE `id` = ?";
+        Result result = getOne(query, new IntParameter(attributeId));
+        if (result == null) {
+            return null;
+        }
+        return Attribute.builder()
+            .id(result.getInt("id"))
+            .key(result.getString("key"))
+            .scope(Scope.valueOf(result.getString("scope")))
+            .type(DataType.valueOf(result.getString("type")))
+            .defaultValue(result.optString("default_value"))
+            .build();
+    }
+
     public HashMap<String, Integer> getAttributeIdentifiers() {
         HashMap<String, Integer> identifiers = new HashMap<>();
         for (Result result: getMany("SELECT `id`, `key` FROM `attribute`")) {
@@ -194,6 +211,33 @@ public class AttributeRepository extends Repository {
             AND `attribute_id` IN (SELECT `id` FROM `attribute` WHERE `purge_values` = 1)
             """.formatted(placeholderList.getQuestionMarks());
         return execute(query, placeholderList.getParameters().toArray(Parameter[]::new));
+    }
+
+    public Set<Long> getUserIdsHaving(Long guildId, int attributeId) {
+        return getMany("SELECT `user_id` FROM `attribute_value` WHERE `attribute_id` = ? AND `guild_id` = ?",
+            new IntParameter(attributeId),
+            new LongParameter(guildId))
+            .stream()
+            .map(c -> c.getLong("user_id"))
+            .collect(Collectors.toSet());
+    }
+
+    private String getConditionOperator(AttributeCondition condition) {
+        return switch (condition) {
+            case GTE -> ">=";
+            case LTE -> "<=";
+        };
+    }
+
+    public Map<Long, String> queryCondition(Long guildId, int attributeId, AttributeCondition condition, String value) {
+        String operator = getConditionOperator(condition);
+        String query = "SELECT `user_id`, `value` FROM `attribute_value` WHERE `value` %s ? AND `guild_id` = ? AND `attribute_id` = ?";
+        return getMany(query.formatted(operator),
+            new StringParameter(value),
+            new LongParameter(guildId),
+            new IntParameter(attributeId))
+            .stream()
+            .collect(Collectors.toMap(r -> r.getLong("user_id"), r -> r.getString("value")));
     }
 
     public String getOldestValueFor(Long guildId, Integer attributeId) {

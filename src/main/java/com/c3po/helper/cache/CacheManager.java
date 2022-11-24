@@ -21,4 +21,7 @@ public class CacheManager {
         set("global", cache);
     }
 
+    public static void removeAllExpiredItems() {
+        instances.forEach((k,v) -> v.removeExpiredItems());
+    }
 }

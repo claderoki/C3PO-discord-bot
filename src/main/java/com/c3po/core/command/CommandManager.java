@@ -1,5 +1,6 @@
 package com.c3po.core.command;
 
+import com.c3po.activitytracker.ActivityTrackerCommandGroup;
 import com.c3po.command.SettingInfo;
 import com.c3po.command.battle.BattleCommandGroup;
 import com.c3po.command.blackjack.BlackjackCommandGroup;
@@ -45,7 +46,9 @@ public class CommandManager {
     private final BlackjackCommandGroup blackjackCommandGroup;
     private final InsectaCommandGroup insectaCommandGroup;
     private final BattleCommandGroup battleCommandGroup;
+    private final ActivityTrackerCommandGroup activityTrackerCommandGroup;
     private final PollCommandGroup pollCommandGroup;
+
     private final SettingValidationCache settingValidationCache;
 
     final HashMap<String, Command> commands = new HashMap<>();
@@ -63,6 +66,7 @@ public class CommandManager {
         register(insectaCommandGroup);
         register(battleCommandGroup);
         register(pollCommandGroup);
+        register(activityTrackerCommandGroup);
     }
 
     private void registerSettings() {
@@ -105,16 +109,21 @@ public class CommandManager {
         return hash;
     }
 
-    @SneakyThrows
     private void saveCommandHash(String hash) {
+        if (hash == null) {
+            hash = "";
+        }
         File file = new File(".data/commandHash");
         if (tryCreateFile(file)) {
             return;
         }
-
-        FileOutputStream fos = new FileOutputStream(file, false);
-        fos.write(hash.getBytes());
-        fos.close();
+        try {
+            FileOutputStream fos = new FileOutputStream(file, false);
+            fos.write(hash.getBytes());
+            fos.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void registerAll(RestClient restClient, boolean clear) {
@@ -138,7 +147,6 @@ public class CommandManager {
         List<ApplicationCommandRequest> requests = commandRequestList.values().stream().toList();
         if (Configuration.instance().getMode().equals(Mode.DEVELOPMENT)) {
             Long[] guildIds = {
-                695416318681415790L,
                 729843647347949638L,
                 1013158959315701930L,
                 1018656324797599797L
@@ -148,7 +156,7 @@ public class CommandManager {
                     .doOnNext(cmd -> LogHelper.log("Successfully registered guild command " + cmd.name()))
                     .doOnError(e -> {
                         saveCommandHash(previousHash);
-                        LogHelper.log("Failed to register guild commands: " + e.getMessage());
+                        LogHelper.log("Failed to register guild commands for %s: %s".formatted(guildId, e.getMessage()));
                     })
                     .subscribe();
             }

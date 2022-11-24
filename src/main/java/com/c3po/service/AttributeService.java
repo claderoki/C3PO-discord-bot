@@ -17,12 +17,12 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AttributeService {
-    Cache cache = CacheManager.get("attributes");
+    private final Cache cache = CacheManager.get("attributes");
     private final AttributeRepository attributeRepository;
 
     public PropertyValue getAttributeValue(ScopeTarget target, int attributeId) {
         AttributeValueKey key = new AttributeValueKey(target, attributeId);
-        return cache.computeIfAbsent(key, (k) -> attributeRepository.getHydratedPropertyValue(target, attributeId).orElse(null));
+        return cache.computeIfAbsent(key, k -> attributeRepository.getHydratedPropertyValue(target, attributeId).orElse(null));
     }
 
     private void cacheIdAndCodes() {
