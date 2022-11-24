@@ -8,18 +8,13 @@ import java.time.Duration;
 
 @Getter
 public class GuildRewardSettings extends BaseSettings {
-    private final ScopeTarget target;
-
-    private boolean enabled;
-
     private final Duration timeout = Duration.ofSeconds(25);
-
+    private boolean enabled;
     private int minPointsPerMessage;
-
     private int maxPointsPerMessage;
 
     public GuildRewardSettings(ScopeTarget target) {
-        this.target = target;
+        super(target);
     }
 
     public void set(String key, String value) {

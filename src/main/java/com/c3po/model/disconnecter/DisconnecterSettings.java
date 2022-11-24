@@ -6,11 +6,10 @@ import lombok.Getter;
 
 @Getter
 public class DisconnecterSettings extends BaseSettings {
-    private final ScopeTarget target;
     private boolean enabled;
 
     public DisconnecterSettings(ScopeTarget target) {
-        this.target = target;
+        super(target);
     }
 
     public void set(String key, String value) {

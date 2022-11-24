@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class MilkywaySettings extends BaseSettings {
-    private final ScopeTarget target;
     private boolean enabled;
     private int costPerDay;
     private Long categoryId;
@@ -15,7 +14,7 @@ public class MilkywaySettings extends BaseSettings {
     private boolean godmode;
 
     public MilkywaySettings(ScopeTarget target) {
-        this.target = target;
+        super(target);
     }
 
     public void set(String key, String value) {
