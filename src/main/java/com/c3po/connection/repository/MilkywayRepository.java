@@ -9,7 +9,6 @@ import com.c3po.model.milkyway.Milkyway;
 import com.c3po.model.milkyway.MilkywayStatus;
 import com.c3po.model.milkyway.PurchaseType;
 import discord4j.common.util.Snowflake;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

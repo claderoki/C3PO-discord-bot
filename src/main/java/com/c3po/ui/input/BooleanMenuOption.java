@@ -5,8 +5,6 @@ import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.object.component.Button;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Consumer;
-
 public class BooleanMenuOption extends ButtonMenuOption<Boolean> {
     public BooleanMenuOption(String name, Boolean value) {
         super(name, value);

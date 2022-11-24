@@ -2,14 +2,8 @@ package com.c3po.command.poll.menu;
 
 import com.c3po.core.DataFormatter;
 import com.c3po.core.command.Context;
-import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.Emoji;
-import com.c3po.helper.waiter.DurationParser;
-import com.c3po.helper.waiter.IntParser;
-import com.c3po.ui.input.BooleanMenuOption;
 import com.c3po.ui.input.VoidMenuOption;
-import com.c3po.ui.input.WaiterMenuOption;
-import com.c3po.ui.input.base.EnumSelectMenuMenuOption;
 import com.c3po.ui.input.base.Menu;
 import com.c3po.ui.input.base.MenuOption;
 import discord4j.core.spec.EmbedCreateSpec;

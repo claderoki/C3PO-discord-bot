@@ -13,7 +13,6 @@ import com.c3po.service.AttributeService;
 import com.c3po.service.GuildRewardService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

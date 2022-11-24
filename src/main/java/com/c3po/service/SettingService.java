@@ -7,7 +7,6 @@ import com.c3po.helper.cache.keys.SettingKey;
 import com.c3po.core.setting.Setting;
 import com.c3po.helper.cache.CacheManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

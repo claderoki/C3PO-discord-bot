@@ -11,7 +11,6 @@ import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.ValueFormatter;
 import com.c3po.model.pigeon.Pigeon;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;

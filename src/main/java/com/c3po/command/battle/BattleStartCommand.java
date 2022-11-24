@@ -1,7 +1,6 @@
 package com.c3po.command.battle;
 
 import com.c3po.command.battle.entity.BattlePlayer;
-import com.c3po.command.battle.entity.monster.Monster;
 import com.c3po.command.battle.entity.monster.Slime;
 import com.c3po.command.battle.game.*;
 import com.c3po.command.hangman.game.core.LobbyMenu;

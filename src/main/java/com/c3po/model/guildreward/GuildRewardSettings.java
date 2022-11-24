@@ -2,7 +2,6 @@ package com.c3po.model.guildreward;
 
 import com.c3po.core.ScopeTarget;
 import com.c3po.model.BaseSettings;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Duration;

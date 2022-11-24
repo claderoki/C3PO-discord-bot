@@ -3,7 +3,6 @@ package com.c3po.core.setting.validation;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.helper.TimedTrigger;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

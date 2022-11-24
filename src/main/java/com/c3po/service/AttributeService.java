@@ -9,7 +9,6 @@ import com.c3po.helper.cache.keys.AttributeIdKey;
 import com.c3po.helper.cache.keys.AttributeValueKey;
 import com.c3po.helper.cache.CacheManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

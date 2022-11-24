@@ -4,7 +4,6 @@ import com.c3po.connection.Repository;
 import com.c3po.database.*;
 import com.c3po.helper.PlaceholderList;
 import com.c3po.model.item.ItemCategory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

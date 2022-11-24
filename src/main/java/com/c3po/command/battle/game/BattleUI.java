@@ -1,7 +1,6 @@
 package com.c3po.command.battle.game;
 
 import com.c3po.command.battle.action.core.Action;
-import com.c3po.command.battle.action.core.ActionContext;
 import com.c3po.command.battle.action.core.AttackContext;
 import com.c3po.command.battle.action.core.AttackResult;
 import com.c3po.command.battle.entity.Entity;

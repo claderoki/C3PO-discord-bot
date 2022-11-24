@@ -7,7 +7,6 @@ import com.c3po.database.*;
 import com.c3po.model.pigeon.*;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.model.pigeon.stat.core.Stat;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

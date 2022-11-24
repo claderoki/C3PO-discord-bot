@@ -1,7 +1,6 @@
 package com.c3po.ui.input.base;
 
 import com.c3po.helper.Unicode;
-import com.c3po.ui.Toast;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;

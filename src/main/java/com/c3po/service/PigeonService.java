@@ -5,7 +5,6 @@ import com.c3po.helper.cache.keys.PigeonIdKey;
 import com.c3po.helper.cache.CacheManager;
 import com.c3po.model.pigeon.Pigeon;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

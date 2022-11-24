@@ -3,7 +3,6 @@ package com.c3po.command.snakeoil.game.ui;
 import com.c3po.helper.Emoji;
 import com.c3po.ui.input.base.ButtonMenuOption;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
 
 public class ShowInstructionsButton extends ButtonMenuOption<Void> {

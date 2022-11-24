@@ -7,7 +7,6 @@ import com.c3po.helper.Emoji;
 import com.c3po.ui.input.base.*;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

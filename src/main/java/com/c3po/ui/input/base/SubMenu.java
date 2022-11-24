@@ -1,7 +1,6 @@
 package com.c3po.ui.input.base;
 
 import com.c3po.core.command.Context;
-import discord4j.core.object.component.Button;
 import lombok.Getter;
 
 @Getter

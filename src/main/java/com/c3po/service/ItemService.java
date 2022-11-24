@@ -5,7 +5,6 @@ import com.c3po.helper.cache.keys.ItemCategoriesKey;
 import com.c3po.helper.cache.CacheManager;
 import com.c3po.model.item.ItemCategory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
