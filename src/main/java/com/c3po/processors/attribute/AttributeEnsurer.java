@@ -6,7 +6,6 @@ import com.c3po.core.property.Attribute;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.helper.LogHelper;
 import com.c3po.service.AttributeService;
-import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -50,9 +49,11 @@ public abstract class AttributeEnsurer extends Task {
             .map(List::size);
     }
 
+    protected abstract Mono<Boolean> shouldExecute(Guild guild);
+
     public Mono<Void> execute(GatewayDiscordClient client) {
         return client.getGuilds()
-            .filter(c -> c.getId().equals(Snowflake.of(729843647347949638L)))
+            .filterWhen(this::shouldExecute)
             .flatMap(this::executeForGuild)
             .filter(c -> c > 0)
             .doOnNext(i -> LogHelper.log(i + " attribute(s) created."))
