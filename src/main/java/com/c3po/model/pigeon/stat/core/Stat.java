@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public abstract class Stat {
-    protected long  value;
+    protected long value;
     protected final StatType statType;
     protected final StatCategory statCategory;
 
