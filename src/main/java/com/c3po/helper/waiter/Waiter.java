@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @Setter
+@Deprecated
 public class Waiter {
     private String prompt;
     private final ChatInputInteractionEvent event;

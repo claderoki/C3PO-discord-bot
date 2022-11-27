@@ -14,7 +14,7 @@ public abstract class EventParser<T, F extends Event> {
     protected ChatInputInteractionEvent event;
 
     protected abstract Mono<T> parseValue(F event);
-    protected abstract Mono<T> validateValue(T value);
+    protected abstract Mono<Void> validateValue(T value);
 
     protected Mono<Void> finish(F event) {
         return Mono.empty();
@@ -24,7 +24,7 @@ public abstract class EventParser<T, F extends Event> {
 
     public Mono<T> parse(F event) {
         return parseValue(event)
-            .flatMap(this::validateValue)
+            .flatMap(v -> validateValue(v).then(Mono.just(v)))
             .flatMap(v -> finish(event).then(Mono.just(v)));
     }
 

@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
+@Deprecated
 public class StringParser extends MessageParser<String> {
     private Integer min;
     private Integer max;

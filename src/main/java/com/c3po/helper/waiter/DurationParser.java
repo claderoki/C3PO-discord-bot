@@ -9,6 +9,7 @@ import java.time.Duration;
 
 @Builder
 @Getter
+@Deprecated
 public class DurationParser extends MessageParser<Duration> {
     @Override
     protected Duration parseValue(ParseResult<Duration> result, MessageCreateEvent event) {

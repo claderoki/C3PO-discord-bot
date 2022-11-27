@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 @Setter
 @NoArgsConstructor
+@Deprecated
 public abstract class EventParser<T, F extends Event> {
     protected ChatInputInteractionEvent event;
 

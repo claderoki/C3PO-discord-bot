@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
+@Deprecated
 public class IntParser extends MessageParser<Integer> {
     private Integer min;
     private Integer max;

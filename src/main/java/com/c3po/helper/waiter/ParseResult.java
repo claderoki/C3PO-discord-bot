@@ -9,6 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Deprecated
 public class ParseResult<T> {
     private ResultType type;
     private List<String> errors = new ArrayList<>();

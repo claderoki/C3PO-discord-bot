@@ -9,6 +9,7 @@ import java.time.ZoneId;
 
 @Builder
 @Getter
+@Deprecated
 public class TimezoneParser extends MessageParser<ZoneId> {
     @Override
     protected ZoneId parseValue(ParseResult<ZoneId> result, MessageCreateEvent event) {

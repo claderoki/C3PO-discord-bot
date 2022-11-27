@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Builder
 @Getter
 @NoArgsConstructor
+@Deprecated
 public class DateParser extends MessageParser<LocalDate> {
 
     @Override
