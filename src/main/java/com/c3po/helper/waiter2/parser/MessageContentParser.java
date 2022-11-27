@@ -25,12 +25,8 @@ public abstract class MessageContentParser<T> extends MessageParser<T> {
 
     protected Mono<Void> preValidate(String content) {
         ArrayList<String> errors = new ArrayList<>();
-        if (contentRangeFilter.isTooLow(content.length())) {
-            errors.add("Content can't be less than " + contentRangeFilter.getMin());
-        }
-        if (contentRangeFilter.isTooHigh(content.length())) {
-            errors.add("Content can't be higher than " + contentRangeFilter.getMax());
-        }
+        contentRangeFilter.ifTooLow(content.length(), m -> errors.add("Content can't be less than " + m));
+        contentRangeFilter.ifTooHigh(content.length(), m -> errors.add("Content can't be higher than " + m));
         if (!errors.isEmpty()) {
             return Mono.error(new ParseException(errors));
         }
