@@ -6,6 +6,7 @@ import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
+import com.c3po.core.SimpleMessage;
 import com.c3po.core.command.*;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.core.setting.SettingCategory;
@@ -17,13 +18,11 @@ import com.c3po.helper.LogScope;
 import com.c3po.service.SettingService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.spec.EmbedCreateSpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.HashMap;
 
 @Component
@@ -125,10 +124,10 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             bucketManager.after();
         }
         if (exception instanceof PublicException publicException) {
-            EmbedCreateSpec embed = EmbedHelper.error(publicException.getMessage()).build();
-            return context.getInteractor().replyOrEdit(c -> c.withEmbeds(embed),
-                c -> c.withEmbedsOrNull(Collections.singleton(embed)))
-                .then();
+            SimpleMessage simpleMessage = SimpleMessage.builder()
+                .embed(EmbedHelper.error(publicException.getMessage()).build())
+                .build();
+            return context.getInteractor().replyOrEdit(simpleMessage).then();
         }
         LogHelper.log(exception);
         return Mono.empty();
