@@ -18,11 +18,15 @@ public class OptionContainer {
         return (T) get(key).getValue();
     }
 
-    @SuppressWarnings("unchecked")
     protected <T> T optValue(String key) {
+        return optValue(key, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T optValue(String key, T defaultValue) {
         CommandOption<?> option = get(key);
         if (option == null) {
-            return null;
+            return defaultValue;
         }
         return (T)option.getValue();
     }

@@ -38,6 +38,7 @@ public abstract class AttributeEnsurer extends Task {
         Attribute attribute = attributeRepository.getAttribute(getAttributeId());
 
         return guild.getMembers()
+            .filter(m -> !m.isBot())
             .filter(m -> !userIds.contains(m.getId().asLong()))
             .map(m -> PropertyValue.builderFrom(attribute)
                 .value(getValue(m))

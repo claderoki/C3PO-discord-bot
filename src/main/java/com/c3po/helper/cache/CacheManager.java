@@ -24,4 +24,8 @@ public class CacheManager {
     public static void removeAllExpiredItems() {
         instances.forEach((k,v) -> v.removeExpiredItems());
     }
+
+    public static int size() {
+        return instances.values().stream().mapToInt(Cache::size).sum();
+    }
 }

@@ -20,6 +20,7 @@ public class AttributePurger extends Task {
 
     public Mono<Integer> executeForGuild(Guild guild) {
         return guild.getMembers()
+            .filter(m -> !m.isBot())
             .map(User::getId)
             .map(Snowflake::asLong)
             .collectList()

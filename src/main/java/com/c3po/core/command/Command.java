@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -69,21 +70,8 @@ public abstract class Command {
             .build();
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof Command command)) return false;
-//        return category == command.category && name.equals(command.name) && description.equals(command.description) && options.equals(command.options) && type == command.type;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(category, name, description, options, type);
-//    }
+    public String hash() {
+        return String.valueOf(Objects.hash(name, options.stream().map(ApplicationCommandOptionData::name)));
+    }
 
-
-    //    @Override
-//    public int hashCode() {
-//        return name.hashCode();
-//    }
 }

@@ -74,7 +74,7 @@ public class CommandManager {
     }
 
     private String getCommandsHash() {
-        String all = String.join("", commands.keySet().stream().sorted().toList())
+        String all = String.join("", commands.values().stream().map(Command::hash).sorted().toList())
             + String.join("", settings.keySet().stream().sorted().toList()).replace(" ", "");
         return String.valueOf(all.hashCode());
     }

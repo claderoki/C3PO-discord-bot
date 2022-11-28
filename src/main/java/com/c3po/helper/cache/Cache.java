@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class Cache {
-    public final HashMap<String, CacheItem<Object>> cache = new HashMap<>();
+    protected final HashMap<String, CacheItem<Object>> cache = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public <T> T get(CacheKey<T> key) {
@@ -56,5 +56,9 @@ public class Cache {
 
     public void removeExpiredItems() {
         cache.entrySet().removeIf(e -> e.getValue().isExpired());
+    }
+
+    public int size() {
+        return cache.size();
     }
 }

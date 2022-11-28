@@ -72,6 +72,13 @@ public class C3PO {
             .build();
     }
 
+    private void clearCache() {
+        int sizeBefore = CacheManager.size();
+        CacheManager.removeAllExpiredItems();
+        int sizeAfter = CacheManager.size();
+        LogHelper.log("Cleared %s expired cache items.".formatted(sizeBefore-sizeAfter));
+    }
+
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
         this.gateway = gateway;
         commandManager.registerAll(gateway.getRestClient(), false);
@@ -82,7 +89,7 @@ public class C3PO {
 
         register(attributePurger);
         register(activityEnsurer);
-        createTask(Mono.fromRunnable(CacheManager::removeAllExpiredItems), Duration.ofHours(1));
+        createTask(Mono.fromRunnable(this::clearCache), Duration.ofHours(1));
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();
