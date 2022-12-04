@@ -27,7 +27,7 @@ public abstract class AttributeEnsurer extends Task {
     private final AttributeService attributeService;
 
     protected abstract String getAttributeCode();
-    protected abstract String getValue(Member member);
+    protected abstract Mono<String> getValue(Member member);
 
     public int getAttributeId() {
         return attributeService.getId(getAttributeCode());
@@ -40,10 +40,10 @@ public abstract class AttributeEnsurer extends Task {
         return guild.getMembers()
             .filter(m -> !m.isBot())
             .filter(m -> !userIds.contains(m.getId().asLong()))
-            .map(m -> PropertyValue.builderFrom(attribute)
-                .value(getValue(m))
+            .flatMap(m -> getValue(m).map(v -> PropertyValue.builderFrom(attribute)
+                .value(v)
                 .target(ScopeTarget.member(m.getId(), guild.getId()))
-                .build())
+                .build()))
             .collectList()
             .filter(c -> !c.isEmpty())
             .doOnSuccess(c -> attributeRepository.save(c.toArray(PropertyValue[]::new)))

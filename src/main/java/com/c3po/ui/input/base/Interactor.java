@@ -92,8 +92,23 @@ public class Interactor {
             .then(Mono.fromRunnable(() -> setReplied(true)));
     }
 
+    private Mono<Message> getFollowup(SimpleMessage simpleMessage) {
+        var followup = _followup();
+        simpleMessage.getContent().ifPresent(followup::withContent);
+        simpleMessage.getEmbed().ifPresent(followup::withEmbeds);
+        return followup.then(Mono.fromRunnable(() -> setReplied(true)));
+    }
+
     public Mono<Message> replyOrEdit(SimpleMessage simpleMessage) {
         return isReplied ? getEditor(simpleMessage) : getReplier(simpleMessage);
+    }
+
+    public Mono<Message> followup(SimpleMessage simpleMessage) {
+        return getFollowup(simpleMessage);
+    }
+
+    public Mono<Message> replyOrFollowup(SimpleMessage simpleMessage) {
+        return isReplied ? getFollowup(simpleMessage) : getReplier(simpleMessage);
     }
 
     private InteractionFollowupCreateMono _followup() {

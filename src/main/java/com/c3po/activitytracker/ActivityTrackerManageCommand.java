@@ -2,6 +2,7 @@ package com.c3po.activitytracker;
 
 import com.c3po.connection.repository.AttributeRepository;
 import com.c3po.core.Scope;
+import com.c3po.core.SimpleMessage;
 import com.c3po.core.attribute.KnownAttribute;
 import com.c3po.core.command.Context;
 import com.c3po.core.property.AttributeCondition;
@@ -62,6 +63,9 @@ public class ActivityTrackerManageCommand extends ActivityTrackerSubCommand {
     }
 
     private Mono<Boolean> shouldKick(Context context, List<InactiveMember> members) {
+        if (members.isEmpty()) {
+            return Mono.empty();
+        }
         String message = members.stream()
             .map(m -> m.getMember().getUsername() + ", " + m.getLastActive().format(DateTimeHelper.DATE_FORMATTER)).collect(Collectors.joining("\n"));
 
@@ -79,6 +83,7 @@ public class ActivityTrackerManageCommand extends ActivityTrackerSubCommand {
 
     private Mono<Void> kickMembers(Context context, List<InactiveMember> members) {
         return Flux.fromStream(members.stream().map(m -> kickMember(m.getMember())))
+        .flatMap(c -> c)
         .count()
         .flatMap(i -> context.getInteractor().followup(f -> f.withEmbeds(EmbedHelper.normal(i + " inactives eliminated.").build())))
         .then();
@@ -98,19 +103,14 @@ public class ActivityTrackerManageCommand extends ActivityTrackerSubCommand {
             .flux()
             .flatMap(g -> getInactiveMembers(g, cutOffDuration))
             .collectList()
-            .flatMap(m -> {
-                if (m.isEmpty()) {
-                    return context.getInteractor().reply(f -> f.withEmbeds(EmbedHelper.normal("No inactives eliminated.").build()))
-                        .then(Mono.empty());
-                }
-                return Mono.just(m);
-            })
             .flatMap(m -> shouldKick(context, m)
                 .flatMap(shouldKick -> {
                     if (shouldKick) {
                         return kickMembers(context, m);
                     }
-                    return context.getInteractor().followup(f -> f.withEmbeds(EmbedHelper.normal("No inactives eliminated.").build()));
+                    return context.getInteractor().replyOrFollowup(SimpleMessage.builder()
+                        .embed(EmbedHelper.normal("No inactives eliminated.").build())
+                        .build());
                 }))
             .then();
     }

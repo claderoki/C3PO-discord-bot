@@ -3,7 +3,6 @@ package com.c3po.ui.input;
 import com.c3po.ui.input.base.ButtonMenuOption;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import discord4j.core.object.component.Button;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import reactor.core.publisher.Mono;
@@ -12,8 +11,12 @@ import java.util.function.Function;
 
 @Accessors(chain = true)
 public class DynamicButtonMenuOption extends ButtonMenuOption<Void> {
-    @Setter @Getter
+    @Setter
     private Button.Style buttonStyle = Button.Style.SECONDARY;
+
+    public Button.Style getButtonStyle() {
+        return buttonStyle;
+    }
 
     public DynamicButtonMenuOption(String name) {
         super(name);

@@ -30,7 +30,7 @@ public class ActivityEnsurer extends AttributeEnsurer {
     }
 
     @Override
-    protected String getValue(Member member) {
-        return DateTimeHelper.now().format(DateTimeHelper.DATETIME_FORMATTER);
+    protected Mono<String> getValue(Member member) {
+        return Mono.just(DateTimeHelper.now().format(DateTimeHelper.DATETIME_FORMATTER));
     }
 }

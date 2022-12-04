@@ -8,17 +8,31 @@ import reactor.core.publisher.Mono;
 
 @Getter
 public class ConfirmMenu extends Menu {
+    private final boolean warning;
+
     private Boolean confirmed = null;
 
-    public ConfirmMenu(Context context) {
+    public ConfirmMenu(Context context, boolean warning) {
         super(context);
+        this.warning = warning;
         setMaximumOptionsAllowed(1);
-        this.addOption(new DynamicButtonMenuOption("No")
+        addOption(getCancelOption());
+        addOption(getConfirmOption());
+    }
+
+    public ConfirmMenu(Context context) {
+        this(context, false);
+    }
+
+    private DynamicButtonMenuOption getCancelOption() {
+        return new DynamicButtonMenuOption("No")
             .onClick(e -> Mono.fromRunnable(() -> confirmed = false))
-        );
-        this.addOption(new DynamicButtonMenuOption("Yes")
+            .setButtonStyle(warning ? Button.Style.SUCCESS : Button.Style.PRIMARY);
+    }
+
+    private DynamicButtonMenuOption getConfirmOption() {
+        return new DynamicButtonMenuOption("Yes")
             .onClick(e -> Mono.fromRunnable(() -> confirmed = true))
-            .setButtonStyle(Button.Style.SUCCESS)
-        );
+            .setButtonStyle(warning ? Button.Style.DANGER : Button.Style.PRIMARY);
     }
 }
