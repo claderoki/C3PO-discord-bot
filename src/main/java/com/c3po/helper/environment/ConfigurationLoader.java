@@ -1,13 +1,21 @@
 package com.c3po.helper.environment;
 
+import com.c3po.helper.ValueParser;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class ConfigurationLoader {
+    private record Env(HashMap<String, String> map) implements ValueParser {
+        @Override
+        public String optString(String key) {
+            return map.get(key);
+        }
+    }
 
-    private static HashMap<String, String> getEnvironmentalVariables() throws Exception {
+    private static Env getEnvironmentalVariables() throws Exception {
         HashMap<String, String> map = new HashMap<>();
         try {
             File myObj = new File(".env");
@@ -24,24 +32,24 @@ public class ConfigurationLoader {
             throw new Exception(".env file not found.");
         }
 
-        return map;
+        return new Env(map);
     }
 
     public static Configuration load(Mode mode) throws Exception {
-        HashMap<String, String> map = getEnvironmentalVariables();
+        var env = getEnvironmentalVariables();
         return Configuration.builder()
             .databaseCredentials(DatabaseCredentials.builder()
-                .database(map.get("mysql_db_name"))
-                .host(map.get("mysql_host"))
-                .username(map.get("mysql_user"))
-                .password(map.get("mysql_password"))
-                .port(Integer.parseInt(map.get("mysql_port")))
+                .database(env.getString("mysql_db_name"))
+                .host(env.getString("mysql_host"))
+                .username(env.getString("mysql_user"))
+                .password(env.getString("mysql_password"))
+                .port(env.getInt("mysql_port"))
                 .build())
             .mode(mode)
-            .token(map.get("discord_token_" + mode.name().toLowerCase()))
-            .owmKey(map.get("openweathermap_key"))
-            .openAiKey(map.get("open_ai_key"))
-            .wordnikKey(map.get("wordnik_key"))
+            .token(env.getString("discord_token_" + mode.name().toLowerCase()))
+            .owmKey(env.getString("openweathermap_key"))
+            .openAiKey(env.getString("open_ai_key"))
+            .wordnikKey(env.getString("wordnik_key"))
             .build();
     }
 
