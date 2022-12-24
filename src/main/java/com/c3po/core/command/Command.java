@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 public abstract class Command {
@@ -71,7 +72,7 @@ public abstract class Command {
     }
 
     public String hash() {
-        return String.valueOf(Objects.hash(name, options.stream().map(ApplicationCommandOptionData::name)));
+        return String.valueOf(Objects.hash(name, options.stream().map(ApplicationCommandOptionData::name).collect(Collectors.joining(", "))));
     }
 
 }
