@@ -17,6 +17,7 @@ public enum CommandCategory {
     PERSONAL_ROLE("personalrole"),
     BLACKJACK("blackjack"),
     INSECTA("insecta"),
+    IMAGE("image"),
     BATTLE("battle");
 
     private final String value;

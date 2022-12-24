@@ -7,6 +7,7 @@ public class Configuration {
     private String token;
     private String owmKey;
     private String wordnikKey;
+    private String openAiKey;
     private DatabaseCredentials databaseCredentials;
 
     private static Configuration INSTANCE;

@@ -1,6 +1,9 @@
 package com.c3po.core.api;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.ByteBufFlux;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientResponse;
 
@@ -37,11 +40,29 @@ public abstract class ApiCall {
         return getBaseUri(endpoint) + "/" + endpoint.getEndpoint() + (rawParameters != null ? ("?"+rawParameters) : "");
     }
 
+    protected void modifyHeaders(HttpHeaders headers) {
+
+    }
+
+    private <T extends ApiResponse, E extends ApiEndpoint<T>> HttpClient.ResponseReceiver<?> getReceiver(E endpoint, HttpClient.RequestSender sender) {
+        var body = endpoint.getBody();
+        if (body == null ) {
+            return sender.uri(getFullUri(endpoint));
+        }
+        return sender.send(ByteBufFlux.fromString(Flux.just(body.toString())))
+            .uri(getFullUri(endpoint));
+    }
+
     private <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> _call(E endpoint, int retryCount) {
-        HttpClient client = HttpClient.create();
+        HttpClient client = HttpClient.create()
+            .headers(h -> {
+                modifyHeaders(h);
+                endpoint.modifyHeaders(h);
+            });
+
         var receiver = switch (endpoint.getMethod()) {
             case GET -> client.get().uri(getFullUri(endpoint));
-            case POST -> client.post().uri(getFullUri(endpoint));
+            case POST -> getReceiver(endpoint, client.post());
         };
 
         return receiver.responseSingle((response, bytes) -> {
@@ -57,7 +78,7 @@ public abstract class ApiCall {
         });
     }
 
-    public <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) {
+    public final <T extends ApiResponse, E extends ApiEndpoint<T>> Mono<T> call(E endpoint) {
         return call(endpoint, 0);
     }
 

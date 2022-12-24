@@ -5,6 +5,7 @@ import com.c3po.command.SettingInfo;
 import com.c3po.command.battle.BattleCommandGroup;
 import com.c3po.command.blackjack.BlackjackCommandGroup;
 import com.c3po.command.hangman.HangmanCommandGroup;
+import com.c3po.command.image.ImageCommandGroup;
 import com.c3po.command.insecta.InsectaCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
@@ -28,7 +29,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Component
@@ -46,6 +49,7 @@ public class CommandManager {
     private final BattleCommandGroup battleCommandGroup;
     private final ActivityTrackerCommandGroup activityTrackerCommandGroup;
     private final PollCommandGroup pollCommandGroup;
+    private final ImageCommandGroup imageCommandGroup;
 
     private final SettingValidationCache settingValidationCache;
 
@@ -65,6 +69,7 @@ public class CommandManager {
         register(battleCommandGroup);
         register(pollCommandGroup);
         register(activityTrackerCommandGroup);
+        register(imageCommandGroup);
     }
 
     private void registerSettings() {
