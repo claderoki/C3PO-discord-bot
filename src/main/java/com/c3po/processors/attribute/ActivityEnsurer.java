@@ -13,10 +13,11 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class ActivityEnsurer extends AttributeEnsurer {
-    ActivityTrackerService activityTrackerService;
+    private final ActivityTrackerService activityTrackerService;
 
-    public ActivityEnsurer(AttributeRepository attributeRepository, AttributeService attributeService) {
+    public ActivityEnsurer(AttributeRepository attributeRepository, AttributeService attributeService, ActivityTrackerService activityTrackerService) {
         super(attributeRepository, attributeService);
+        this.activityTrackerService = activityTrackerService;
     }
 
     @Override

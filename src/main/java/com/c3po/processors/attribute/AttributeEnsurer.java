@@ -46,7 +46,11 @@ public abstract class AttributeEnsurer extends Task {
                 .build()))
             .collectList()
             .filter(c -> !c.isEmpty())
-            .doOnSuccess(c -> attributeRepository.save(c.toArray(PropertyValue[]::new)))
+            .doOnSuccess(c -> {
+                if (c != null) {
+                    attributeRepository.save(c.toArray(PropertyValue[]::new));
+                }
+            })
             .map(List::size);
     }
 

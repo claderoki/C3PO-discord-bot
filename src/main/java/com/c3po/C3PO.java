@@ -11,6 +11,7 @@ import com.c3po.listener.MessageCreateListener;
 import com.c3po.listener.VoiceStateUpdateListener;
 import com.c3po.processors.attribute.ActivityEnsurer;
 import com.c3po.processors.attribute.AttributePurger;
+import com.c3po.processors.attribute.ChannelPurger;
 import com.c3po.processors.attribute.Task;
 import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
@@ -39,6 +40,7 @@ public class C3PO {
     private final VoiceStateUpdateListener voiceStateUpdateListener;
     private final AttributePurger attributePurger;
     private final ActivityEnsurer activityEnsurer;
+    private final ChannelPurger channelPurger;
 
     @PostConstruct
     public void postConstruct() {
@@ -73,10 +75,7 @@ public class C3PO {
     }
 
     private void clearCache() {
-        int sizeBefore = CacheManager.size();
         CacheManager.removeAllExpiredItems();
-        int sizeAfter = CacheManager.size();
-        LogHelper.log("Cleared %s expired cache items.".formatted(sizeBefore-sizeAfter));
     }
 
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
@@ -89,6 +88,7 @@ public class C3PO {
 
         register(attributePurger);
         register(activityEnsurer);
+        register(channelPurger);
         createTask(Mono.fromRunnable(this::clearCache), Duration.ofHours(1));
 
         LogHelper.log("Bot started up.");
@@ -104,6 +104,10 @@ public class C3PO {
                 return mono;
             })
             .repeat()
+            .onErrorResume(e -> {
+                LogHelper.log(e, "Task");
+                return Mono.empty();
+            })
             .subscribe();
     }
 
