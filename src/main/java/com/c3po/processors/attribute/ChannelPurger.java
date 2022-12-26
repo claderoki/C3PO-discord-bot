@@ -38,7 +38,7 @@ public class ChannelPurger extends Task {
             .map(Snowflake::of)
             .flux()
             .flatMap(i -> channel.getMessagesBefore(i)
-                .mergeWith(channel.getRestMessage(i).getData())
+                .mergeWith(channel.getRestMessage(i).getData().onErrorResume(e -> Mono.empty()))
                 .map(m -> new SimpleMessage(m.id(), m.author().id())))
             ;
     }
