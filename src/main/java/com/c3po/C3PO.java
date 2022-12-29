@@ -9,10 +9,7 @@ import com.c3po.listener.CommandListener;
 import com.c3po.listener.EventListener;
 import com.c3po.listener.MessageCreateListener;
 import com.c3po.listener.VoiceStateUpdateListener;
-import com.c3po.processors.attribute.ActivityEnsurer;
-import com.c3po.processors.attribute.AttributePurger;
-import com.c3po.processors.attribute.ChannelPurger;
-import com.c3po.processors.attribute.Task;
+import com.c3po.processors.attribute.*;
 import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -41,6 +38,7 @@ public class C3PO {
     private final AttributePurger attributePurger;
     private final ActivityEnsurer activityEnsurer;
     private final ChannelPurger channelPurger;
+    private final SafeInactiveReminder safeInactiveReminder;
 
     @PostConstruct
     public void postConstruct() {
@@ -48,6 +46,11 @@ public class C3PO {
         CacheManager.set("flags", new Cache());
         run();
     }
+
+//    @Bean
+//    public BotData getBotData() {
+//        return new BotData(gateway);
+//    }
 
     public void run() {
         Configuration config = Configuration.instance();
@@ -89,30 +92,35 @@ public class C3PO {
         register(attributePurger);
         register(activityEnsurer);
         register(channelPurger);
-        createTask(Mono.fromRunnable(this::clearCache), Duration.ofHours(1));
+//        register(safeInactiveReminder);
+        createTask(Mono.fromRunnable(this::clearCache), "Cache clear", Duration.ofHours(1));
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();
     }
 
-    private void createTask(Mono<Void> mono, Duration duration) {
+    private void createTask(Mono<Void> mono, Duration duration, String identifier, boolean initialDelay) {
         AtomicInteger i = new AtomicInteger();
         Mono.defer(() -> {
-                if (i.getAndIncrement() > 0) {
+                if (i.getAndIncrement() > 0 || initialDelay) {
                     return Mono.delay(duration).then(mono);
                 }
                 return mono;
             })
             .repeat()
             .onErrorResume(e -> {
-                LogHelper.log(e, "Task");
+                LogHelper.log(e, "Task " + identifier);
                 return Mono.empty();
             })
             .subscribe();
     }
 
+    private void createTask(Mono<Void> mono, String identifier, Duration duration) {
+        createTask(mono, duration, identifier,false);
+    }
+
     private void register(Task task) {
-        createTask(task.execute(gateway), task.getDelay());
+        createTask(task.execute(gateway), task.getClass().getSimpleName(), task.getDelay());
     }
 
     private <T extends Event> void register(EventListener<T> eventListener) {

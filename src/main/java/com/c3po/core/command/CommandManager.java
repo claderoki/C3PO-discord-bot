@@ -16,7 +16,6 @@ import com.c3po.command.snakeoil.SnakeOilCommandGroup;
 import com.c3po.connection.repository.SettingRepository;
 import com.c3po.core.setting.Setting;
 import com.c3po.core.setting.SettingTransformer;
-import com.c3po.core.setting.validation.SettingValidationCache;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.environment.Configuration;
 import com.c3po.helper.environment.Mode;
@@ -50,8 +49,6 @@ public class CommandManager {
     private final ActivityTrackerCommandGroup activityTrackerCommandGroup;
     private final PollCommandGroup pollCommandGroup;
     private final ImageCommandGroup imageCommandGroup;
-
-    private final SettingValidationCache settingValidationCache;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
