@@ -48,11 +48,6 @@ public class C3PO {
         run();
     }
 
-//    @Bean
-//    public BotData getBotData() {
-//        return new BotData(gateway);
-//    }
-
     public void run() {
         Configuration config = Configuration.instance();
 

@@ -35,7 +35,9 @@ public class ImageCreateCommand extends ImageSubCommand {
 
     private Mono<Void> call(Context context, String prompt) {
         return new OpenAIApi().call(GenerateImage.builder().prompt(prompt).responseFormat("b64_json").build())
-            .onErrorContinue((e,v) -> context.getInteractor().editReply().withContentOrNull("Failed."))
+            .onErrorResume(e -> context.getInteractor().editReply()
+                .withContentOrNull("Failed to generate image, most likely this is because you have a prompt containing something OpenAI considers inappropriate.")
+                .then(Mono.empty()))
             .map(r -> r.getB64s().get(0))
             .map(B64Json::asStream)
             .flatMap(s -> fileService.store(s, "file.png"))
