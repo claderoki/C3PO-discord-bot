@@ -52,6 +52,11 @@ public class GenerateImage extends ApiEndpoint<ImagesResponse> {
     public JSONObject getBody() {
         JSONObject body = new JSONObject();
         body.put("prompt", prompt);
+//        body.put("n", number);
+//        body.put("size", size);
+//        body.put("user", user);
+        body.put("response_format", responseFormat);
+
         return body;
     }
 }

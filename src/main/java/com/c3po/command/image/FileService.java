@@ -7,19 +7,21 @@ import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import lombok.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.io.InputStream;
 
-class FileService {
-    private final GatewayDiscordClient client;
+@Service
+public class FileService {
+    private static GatewayDiscordClient client;
+
+    public static void initiate(GatewayDiscordClient client) {
+        FileService.client = client;
+    }
 
     private @Nullable PrivateChannel defaultChannel;
-
-    FileService(GatewayDiscordClient client) {
-        this.client = client;
-    }
 
     private Mono<@NonNull PrivateChannel> getDefaultChannel() {
         if (defaultChannel == null) {
@@ -34,17 +36,22 @@ class FileService {
         return HttpClient.create().get().uri(path).responseSingle((r, bytes) -> bytes.asInputStream());
     }
 
-    public Mono<String> store(String path) {
+    public Mono<String> store(String path, String filename) {
         Mono<InputStream> streamMono;
         if (path.startsWith("http")) {
             streamMono = externalPathToStream(path);
         } else {
             streamMono = Mono.empty();
         }
+        return store(streamMono, filename);
+    }
+
+    public Mono<String> store(Mono<InputStream> streamMono, String filename) {
         return getDefaultChannel()
             .flatMap(c -> streamMono.flatMap(s -> c.createMessage(MessageCreateSpec.builder()
-                .addFile("file.png", s)
+                .addFile(filename, s)
                 .build())))
             .map(m -> m.getAttachments().get(0).getUrl());
     }
+
 }

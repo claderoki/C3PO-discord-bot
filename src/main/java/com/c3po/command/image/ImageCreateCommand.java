@@ -3,33 +3,25 @@ package com.c3po.command.image;
 import com.c3po.core.command.Context;
 import com.c3po.core.openai.OpenAIApi;
 import com.c3po.core.openai.endpoints.GenerateImage;
+import com.c3po.core.openai.responses.B64Json;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Message;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-
 @Component
 public class ImageCreateCommand extends ImageSubCommand {
-    private FileService fileService;
+    private final FileService fileService;
 
-    protected ImageCreateCommand() {
+    protected ImageCreateCommand(FileService fileService) {
         super("generate", "Generate an image.");
         addOption(o -> o.name("prompt")
             .type(DiscordCommandOptionType.STRING.getValue())
             .required(true)
             .description("Prompt..")
         );
-    }
-
-    private FileService getFileService(GatewayDiscordClient client) {
-        if (fileService == null) {
-            fileService = new FileService(client);
-        }
-        return fileService;
+        this.fileService = fileService;
     }
 
     private Mono<Message> sendImage(Context context, String prompt, String url) {
@@ -41,18 +33,13 @@ public class ImageCreateCommand extends ImageSubCommand {
             );
     }
 
-    private Mono<Void> postStore(Context context, String prompt, String url) {
-        return getFileService(context.getEvent().getClient()).store(url)
-            .flatMap(u -> sendImage(context, prompt, u))
-            .then();
-    }
-
     private Mono<Void> call(Context context, String prompt) {
-        return new OpenAIApi().call(GenerateImage.builder().prompt(prompt).build())
+        return new OpenAIApi().call(GenerateImage.builder().prompt(prompt).responseFormat("b64_json").build())
             .onErrorContinue((e,v) -> context.getInteractor().editReply().withContentOrNull("Failed."))
-            .map(r -> r.getUrls().get(0))
+            .map(r -> r.getB64s().get(0))
+            .map(B64Json::asStream)
+            .flatMap(s -> fileService.store(Mono.just(s), "file.png"))
             .flatMap(u -> sendImage(context, prompt, u).then(Mono.just(u)))
-            .doOnSuccess(u -> postStore(context, prompt, u).delaySubscription(Duration.ofMinutes(5)).subscribe())
             .then();
     }
 
