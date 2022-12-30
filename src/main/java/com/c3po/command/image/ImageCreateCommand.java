@@ -38,7 +38,7 @@ public class ImageCreateCommand extends ImageSubCommand {
             .onErrorContinue((e,v) -> context.getInteractor().editReply().withContentOrNull("Failed."))
             .map(r -> r.getB64s().get(0))
             .map(B64Json::asStream)
-            .flatMap(s -> fileService.store(Mono.just(s), "file.png"))
+            .flatMap(s -> fileService.store(s, "file.png"))
             .flatMap(u -> sendImage(context, prompt, u).then(Mono.just(u)))
             .then();
     }

@@ -54,4 +54,8 @@ public class FileService {
             .map(m -> m.getAttachments().get(0).getUrl());
     }
 
+    public Mono<String> store(InputStream stream, String filename) {
+        return store(Mono.just(stream), filename);
+    }
+
 }
