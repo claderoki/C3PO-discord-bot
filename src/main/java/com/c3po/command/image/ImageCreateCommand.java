@@ -10,6 +10,8 @@ import discord4j.core.object.entity.Message;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Component
 public class ImageCreateCommand extends ImageSubCommand {
     private FileService fileService;
@@ -50,7 +52,7 @@ public class ImageCreateCommand extends ImageSubCommand {
             .onErrorContinue((e,v) -> context.getInteractor().editReply().withContentOrNull("Failed."))
             .map(r -> r.getUrls().get(0))
             .flatMap(u -> sendImage(context, prompt, u).then(Mono.just(u)))
-            .doOnSuccess(u -> postStore(context, prompt, u).subscribe())
+            .doOnSuccess(u -> postStore(context, prompt, u).delaySubscription(Duration.ofMinutes(5)).subscribe())
             .then();
     }
 
