@@ -5,7 +5,6 @@ import com.c3po.command.SettingInfo;
 import com.c3po.command.battle.BattleCommandGroup;
 import com.c3po.command.blackjack.BlackjackCommandGroup;
 import com.c3po.command.hangman.HangmanCommandGroup;
-import com.c3po.command.image.ImageCommandGroup;
 import com.c3po.command.insecta.InsectaCommandGroup;
 import com.c3po.command.milkyway.MilkywayCommandGroup;
 import com.c3po.command.personalrole.PersonalRoleCommandGroup;
@@ -48,7 +47,6 @@ public class CommandManager {
     private final BattleCommandGroup battleCommandGroup;
     private final ActivityTrackerCommandGroup activityTrackerCommandGroup;
     private final PollCommandGroup pollCommandGroup;
-    private final ImageCommandGroup imageCommandGroup;
 
     final HashMap<String, Command> commands = new HashMap<>();
     final HashMap<String, SettingInfo> settings = new HashMap<>();
@@ -66,7 +64,6 @@ public class CommandManager {
         register(battleCommandGroup);
         register(pollCommandGroup);
         register(activityTrackerCommandGroup);
-        register(imageCommandGroup);
     }
 
     private void registerSettings() {
