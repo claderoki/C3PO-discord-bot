@@ -47,6 +47,23 @@ public class OptionContainer {
         return optValue(key);
     }
 
+    public Long optLong(String key, Long defaultValue) {
+        Long optValue = optValue(key);
+        return optValue == null ? defaultValue : optValue;
+    }
+
+    public int getInt(String key) {
+        return Math.toIntExact(getLong(key));
+    }
+
+    public Integer optInt(String key) {
+        return Math.toIntExact(optLong(key));
+    }
+
+    public Integer optInt(String key, Integer defaultValue) {
+        return Math.toIntExact(optLong(key, (long) defaultValue));
+    }
+
     public Boolean optBool(String key) {
         return optValue(key);
     }
