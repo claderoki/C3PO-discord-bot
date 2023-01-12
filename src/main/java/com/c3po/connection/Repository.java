@@ -1,5 +1,6 @@
 package com.c3po.connection;
 
+import com.c3po.connection.query.Query;
 import com.c3po.database.DataSourceLoader;
 import com.c3po.database.Parameter;
 import com.c3po.database.Result;
@@ -10,6 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Repository {
     final private DataSource dataSource;
@@ -92,6 +94,14 @@ public class Repository {
 
     protected final List<Result> getMany(String query, Collection<Parameter> params) {
         return getMany(query, params.toArray(new Parameter[0]));
+    }
+
+    protected final Stream<Result> streamMany(String query, Collection<Parameter> params) {
+        return getMany(query, params).stream();
+    }
+
+    protected final Stream<Result> streamMany(Query query) {
+        return getMany(query.getQuery(), query.getParameters()).stream();
     }
 
     protected final Result getOne(String query, Parameter... params) {
