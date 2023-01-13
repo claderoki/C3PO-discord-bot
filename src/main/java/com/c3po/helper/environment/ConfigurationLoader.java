@@ -2,8 +2,11 @@ package com.c3po.helper.environment;
 
 import com.c3po.helper.ValueParser;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -35,6 +38,11 @@ public class ConfigurationLoader {
         return new Env(map);
     }
 
+    private static SecretKey stringToSecretKey(String encodedKey) {
+        byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+    }
+
     public static Configuration load(Mode mode) throws Exception {
         var env = getEnvironmentalVariables();
         return Configuration.builder()
@@ -49,6 +57,7 @@ public class ConfigurationLoader {
             .token(env.getString("discord_token_" + mode.name().toLowerCase()))
             .owmKey(env.getString("openweathermap_key"))
             .openAiKey(env.getString("open_ai_key"))
+            .encryptionKey(stringToSecretKey(env.getString("encryption_key")))
             .wordnikKey(env.getString("wordnik_key"))
             .build();
     }

@@ -1,5 +1,7 @@
 package com.c3po.helper.environment;
 
+import javax.crypto.SecretKey;
+
 @lombok.Builder
 @lombok.Getter
 public class Configuration {
@@ -8,6 +10,7 @@ public class Configuration {
     private String owmKey;
     private String wordnikKey;
     private String openAiKey;
+    private SecretKey encryptionKey;
     private DatabaseCredentials databaseCredentials;
 
     private static Configuration INSTANCE;

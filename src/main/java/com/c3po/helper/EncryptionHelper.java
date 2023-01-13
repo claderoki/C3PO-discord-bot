@@ -1,63 +1,39 @@
 package com.c3po.helper;
 
+import com.c3po.helper.environment.Configuration;
+
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.KeySpec;
+import java.util.Base64;
 
 public class EncryptionHelper {
-    private static Key fetchKey() {
-        try {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
-            return factory.generateSecret()
-//            KeyGenerator keygenerator = KeyGenerator.getInstance("DES");
-//
-//            return keygenerator.generateKey();
+    public static String _encrypt(String input, Key secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        var encrypted = cipher.doFinal(input.getBytes());
+        return Base64.getEncoder().encodeToString(encrypted);
 
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
-    private static Key key = null;
-    private static Key getKey() {
-        if (key == null) {
-            key = fetchKey();
-        }
-        return key;
+    public static String _decrypt(String encryptedInput, Key secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        var input = Base64.getDecoder().decode(encryptedInput);
+        return new String(cipher.doFinal(input));
     }
 
-
-    public static String _decrypt(String value) throws Exception {
-        Cipher desCipher = Cipher.getInstance("DES");
-        desCipher.init(Cipher.DECRYPT_MODE, getKey());
-        byte[] textDecrypted = desCipher.doFinal(value.getBytes());
-        return new String(textDecrypted);
-    }
 
     public static String decrypt(String value) {
         try {
-            return _decrypt(value);
+            return _decrypt(value, Configuration.instance().getEncryptionKey());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String _encrypt(String value) throws Exception {
-        Cipher desCipher = Cipher.getInstance("DES");
-        desCipher.init(Cipher.ENCRYPT_MODE, getKey());
-        byte[] encrypted = desCipher.doFinal(value.getBytes());
-        return new String(encrypted);
-    }
-
     public static String encrypt(String value) {
         try {
-            return _encrypt(value);
+            return _encrypt(value, Configuration.instance().getEncryptionKey());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
