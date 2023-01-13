@@ -1,6 +1,5 @@
 package com.c3po;
 
-import com.c3po.command.image.FileService;
 import com.c3po.core.command.CommandManager;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.cache.Cache;
@@ -79,7 +78,7 @@ public class C3PO {
 
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
         this.gateway = gateway;
-        FileService.initiate(gateway);
+        DiscordInfo.initiate(gateway);
 
         commandManager.registerAll(gateway.getRestClient(), false);
 

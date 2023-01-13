@@ -1,11 +1,12 @@
 package com.c3po.command.image;
 
+import com.c3po.DiscordInfo;
 import discord4j.common.util.Snowflake;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -14,18 +15,15 @@ import reactor.netty.http.client.HttpClient;
 import java.io.InputStream;
 
 @Service
+@RequiredArgsConstructor
 public class FileService {
-    private static GatewayDiscordClient client;
-
-    public static void initiate(GatewayDiscordClient client) {
-        FileService.client = client;
-    }
+    private final DiscordInfo discordInfo;
 
     private @Nullable PrivateChannel defaultChannel;
 
     private Mono<@NonNull PrivateChannel> getDefaultChannel() {
         if (defaultChannel == null) {
-            return client.getUserById(Snowflake.of(771781840012705792L))
+            return discordInfo.getClient().getUserById(Snowflake.of(771781840012705792L))
                 .flatMap(User::getPrivateChannel)
                 .doOnSuccess(c -> defaultChannel = c);
         }
