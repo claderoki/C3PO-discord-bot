@@ -26,7 +26,7 @@ public class EncryptionTest {
 
     @ParameterizedTest
     @MethodSource("plainValues")
-    public void testLeftToRight(String plainValue) {
+    public void testValues(String plainValue) {
         Configuration.initiate(Configuration.builder()
             .encryptionKey(getTestKey())
             .build());
