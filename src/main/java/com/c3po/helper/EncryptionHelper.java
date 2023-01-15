@@ -7,7 +7,7 @@ import java.security.Key;
 import java.util.Base64;
 
 public class EncryptionHelper {
-    public static String _encrypt(String input, Key secretKey) throws Exception {
+    private static String _encrypt(String input, Key secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         var encrypted = cipher.doFinal(input.getBytes());
@@ -15,13 +15,12 @@ public class EncryptionHelper {
 
     }
 
-    public static String _decrypt(String encryptedInput, Key secretKey) throws Exception {
+    private static String _decrypt(String encryptedInput, Key secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         var input = Base64.getDecoder().decode(encryptedInput);
         return new String(cipher.doFinal(input));
     }
-
 
     public static String decrypt(String value) {
         try {

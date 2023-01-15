@@ -41,6 +41,20 @@ public final class ScopeTarget {
         return guild(guildId.asLong());
     }
 
+    private static Scope getScope(Long userId, Long guildId) {
+        if (guildId != null && userId != null) {
+            return Scope.MEMBER;
+        } else if (guildId == null && userId != null) {
+            return Scope.USER;
+        } else {
+            return Scope.GUILD;
+        }
+    }
+
+    public static ScopeTarget of(Long userId, Long guildId) {
+        return new ScopeTarget(userId, guildId, getScope(userId, guildId));
+    }
+
     @Override
     public String toString() {
         return switch (scope) {

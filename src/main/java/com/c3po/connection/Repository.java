@@ -5,6 +5,8 @@ import com.c3po.database.DataSourceLoader;
 import com.c3po.database.Parameter;
 import com.c3po.database.Result;
 import com.c3po.database.SQLRuntimeException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -66,6 +68,13 @@ public class Repository {
         }
     }
 
+    protected final Mono<Integer> monoExecute(String query, Parameter... params) {
+        try (Connection connection = getConnection()) {
+            return Mono.just(execute(connection, query, params));
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
     protected final List<Result> getMany(Connection connection, String query, Parameter... params) {
         ArrayList<Result> results = new ArrayList<>();
         try (PreparedStatement statement = preparedStatement(connection, query, params)) {
@@ -102,6 +111,10 @@ public class Repository {
 
     protected final Stream<Result> streamMany(Query query) {
         return getMany(query.getQuery(), query.getParameters()).stream();
+    }
+
+    protected final Flux<Result> fluxMany(Query query) {
+        return Flux.fromIterable(getMany(query.getQuery(), query.getParameters()));
     }
 
     protected final Result getOne(String query, Parameter... params) {
