@@ -10,5 +10,5 @@ import java.util.List;
 @Getter
 public class Query {
     private final String query;
-    private final List<Parameter> parameters;
+    private final List<Parameter<?>> parameters;
 }

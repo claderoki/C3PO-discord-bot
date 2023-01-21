@@ -4,6 +4,7 @@ import com.c3po.connection.Repository;
 import com.c3po.connection.query.QueryBuilder;
 import com.c3po.core.ScopeTarget;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.helper.EncryptionHelper;
 import com.c3po.model.credential.Credential;
 import org.springframework.stereotype.Service;
@@ -31,22 +32,22 @@ public class CredentialRepository extends Repository {
         );
     }
 
-    public Flux<Credential> getCredentials(String category, ScopeTarget target) {
+    public Flux<Credential> find(String category, ScopeTarget target) {
         QueryBuilder query = new QueryBuilder("SELECT `id`, `key`, `value` FROM `credential`");
         addTargetToQuery(query, target);
         query.addWhere("`category` = ?", new StringParameter(category));
         return fluxMany(query.build()).map(this::toModel);
     }
 
-    public Mono<Void> saveCredential(Credential credential) {
+    public Mono<Void> save(Credential credential) {
         if (credential.getId() == null) {
-            return createCredential(credential).then();
+            return create(credential).then();
         } else {
-            return updateCredential(credential).then();
+            return update(credential).then();
         }
     }
 
-    private Mono<Integer> createCredential(Credential credential) {
+    private Mono<Integer> create(Credential credential) {
        var query = """
             INSERT INTO `credential` (`category`, `key`, `value`, `user_id`, `guild_id`)
             VALUES (?, ?, ?, ?, ?)
@@ -55,12 +56,12 @@ public class CredentialRepository extends Repository {
             new StringParameter(credential.getCategory()),
             new StringParameter(credential.getKey()),
             new StringParameter(EncryptionHelper.encrypt(credential.getValue())),
-            Parameter.from(credential.getTarget().getUserId()),
-            Parameter.from(credential.getTarget().getGuildId())
+            new LongParameter(credential.getTarget().getUserId()),
+            new LongParameter(credential.getTarget().getGuildId())
         );
     }
 
-    private Mono<Integer> updateCredential(Credential credential) {
+    private Mono<Integer> update(Credential credential) {
         var query = "UPDATE `credential` SET `value` = ? WHERE `id` = ?";
         return monoExecute(query,
             new StringParameter(EncryptionHelper.encrypt(credential.getValue())),

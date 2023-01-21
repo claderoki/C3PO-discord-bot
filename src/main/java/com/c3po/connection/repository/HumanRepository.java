@@ -2,6 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class HumanRepository extends Repository {
     }
 
     public Long getGold(Integer humanId) {
-        Result result = getOne("SELECT `gold` FROM `human` WHERE `id` = ?", new LongParameter(humanId));
+        Result result = getOne("SELECT `gold` FROM `human` WHERE `id` = ?", new IntParameter(humanId));
         return result.getLong("gold");
     }
 

@@ -5,6 +5,7 @@ import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.helper.DataType;
 import com.c3po.helper.PlaceholderList;
 import com.c3po.core.setting.*;
@@ -23,10 +24,10 @@ public class SettingRepository extends Repository {
     private void create(PropertyValue propertyValue) {
         String query = "INSERT INTO `setting_value` (`user_id`, `guild_id`, `value`, `setting_id`) VALUES (?, ?, ?, ?)";
         execute(query,
-            Parameter.from(propertyValue.getTarget().getUserId()),
-            Parameter.from(propertyValue.getTarget().getGuildId()),
+            new LongParameter(propertyValue.getTarget().getUserId(), true),
+            new LongParameter(propertyValue.getTarget().getGuildId(), true),
             new StringParameter(propertyValue.getValue()),
-            new LongParameter(propertyValue.getParentId())
+            new IntParameter(propertyValue.getParentId())
         );
     }
 
@@ -35,7 +36,7 @@ public class SettingRepository extends Repository {
             return;
         }
         String query = "UPDATE `setting_value` SET `setting_value`.`value` = ? WHERE `setting_value`.`id` = ?";
-        execute(query, new StringParameter(propertyValue.getValue()), new LongParameter(propertyValue.getId()));
+        execute(query, new StringParameter(propertyValue.getValue()), new IntParameter(propertyValue.getId()));
     }
 
     public void save(PropertyValue... propertyValues) {
@@ -54,7 +55,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<Integer, PropertyValue> getHydratedPropertyValues(ScopeTarget target, String category, Integer... settingIds) {
         HashMap<Integer, PropertyValue> values = new HashMap<>();
-        ArrayList<Parameter> params = new ArrayList<>();
+        ArrayList<Parameter<?>> params = new ArrayList<>();
 
         StringBuilder query = new StringBuilder("""
                 SELECT
@@ -116,7 +117,7 @@ public class SettingRepository extends Repository {
 
     public HashMap<Integer, PropertyValue> getPropertyValues(ScopeTarget target, String category) {
         HashMap<Integer, PropertyValue> values = new HashMap<>();
-        ArrayList<Parameter> params = new ArrayList<>();
+        ArrayList<Parameter<?>> params = new ArrayList<>();
         params.add(new StringParameter(category));
 
         StringBuilder query = new StringBuilder("""
@@ -170,7 +171,7 @@ public class SettingRepository extends Repository {
     }
 
     public Setting getSetting(int id) {
-        Result result = getOne("SELECT * FROM `setting` WHERE `setting`.`id` = ?", new LongParameter(id));
+        Result result = getOne("SELECT * FROM `setting` WHERE `setting`.`id` = ?", new IntParameter(id));
         return resultToSetting(result);
     }
 

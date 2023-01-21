@@ -2,6 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.model.exploration.*;
 import com.c3po.model.pigeon.PigeonWinnings;
 import org.springframework.stereotype.Service;
@@ -134,10 +135,11 @@ public class ExplorationRepository extends Repository {
             winnings.getStats().values().stream().map(c -> String.valueOf(c.getValue())).collect(Collectors.joining(", "))
         );
 
+        Integer firstItemId = winnings.getItemIds().stream().findFirst().orElse(null);
         execute(query,
             new IntParameter(explorationId),
             new IntParameter(actionId),
-            Parameter.from(winnings.getItemIds().isEmpty() ? null : winnings.getItemIds().get(0))
+            new IntParameter(firstItemId, true)
         );
     }
 

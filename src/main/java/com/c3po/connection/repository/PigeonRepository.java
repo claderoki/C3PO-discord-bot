@@ -4,6 +4,7 @@ import com.c3po.command.pigeon.validation.PigeonValidationData;
 import com.c3po.command.pigeon.validation.PigeonValidationSettings;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.model.pigeon.*;
 import com.c3po.model.pigeon.stat.*;
 import com.c3po.model.pigeon.stat.core.Stat;
@@ -149,7 +150,7 @@ public class PigeonRepository extends Repository {
     }
 
     public synchronized PigeonValidationData getValidationData(PigeonValidationSettings settings, int humanId) {
-        List<Parameter> parameters = new ArrayList<>();
+        List<Parameter<?>> parameters = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT");
         query.append("(`human`.`gold` >= ?) AS `has_gold_needed`, ");
         parameters.add(new IntParameter(settings.getGoldNeeded()));

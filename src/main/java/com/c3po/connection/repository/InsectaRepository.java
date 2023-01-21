@@ -7,6 +7,7 @@ import com.c3po.command.insecta.core.Insectarium;
 import com.c3po.command.insecta.model.InsectaWinningDTO;
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

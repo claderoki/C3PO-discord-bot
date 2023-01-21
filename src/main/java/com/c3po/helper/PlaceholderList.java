@@ -12,19 +12,19 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 public class PlaceholderList {
-    List<Parameter> parameters;
+    List<Parameter<?>> parameters;
     String questionMarks;
 
-    public void addParameter(Parameter parameter) {
+    public void addParameter(Parameter<?> parameter) {
         parameters.add(parameter);
     }
 
-    public void addBefore(Parameter parameter) {
+    public void addBefore(Parameter<?> parameter) {
         parameters.add(0, parameter);
     }
 
     public static PlaceholderList of(Object[] values) {
-        List<Parameter> parameters = new ArrayList<>();
+        List<Parameter<?>> parameters = new ArrayList<>();
         StringBuilder questionMarks = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             Object value = values[i];
