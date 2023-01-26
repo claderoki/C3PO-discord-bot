@@ -1,6 +1,7 @@
 package com.c3po.ui.input.base;
 
 import com.c3po.core.SimpleMessage;
+import com.c3po.helper.PossibleHelper;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
@@ -80,15 +81,20 @@ public class Interactor {
     }
 
     private Mono<Message> getEditor(SimpleMessage simpleMessage) {
-        return editReply().withEmbedsOrNull(simpleMessage.getEmbed().map(List::of).orElse(null))
+        return editReply()
+            .withEmbedsOrNull(simpleMessage.getEmbeds().orElse(null))
             .withContentOrNull(simpleMessage.getContent().orElse(null));
     }
 
+    private InteractionApplicationCommandCallbackReplyMono messageToReply(SimpleMessage simpleMessage) {
+        return reply()
+            .withContent(PossibleHelper.fromOptional(simpleMessage.getContent()))
+            .withEmbeds(PossibleHelper.fromOptional(simpleMessage.getEmbeds()));
+    }
+
     private Mono<Message> getReplier(SimpleMessage simpleMessage) {
-        var reply = reply();
-        simpleMessage.getContent().ifPresent(reply::withContent);
-        simpleMessage.getEmbed().ifPresent(reply::withEmbeds);
-        return reply.onErrorResume(e -> getReplier(simpleMessage).then())
+        return messageToReply(simpleMessage)
+            .onErrorResume(e -> getEditor(simpleMessage).then())
             .then(Mono.fromRunnable(() -> setReplied(true)));
     }
 
