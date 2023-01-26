@@ -5,14 +5,18 @@ import com.c3po.connection.query.QueryBuilder;
 import com.c3po.core.ScopeTarget;
 import com.c3po.database.*;
 import com.c3po.database.result.Result;
-import com.c3po.helper.EncryptionHelper;
+import com.c3po.helper.EncryptionService;
 import com.c3po.model.credential.Credential;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class CredentialRepository extends Repository {
+    private final EncryptionService encryptionService;
+
     private void addTargetToQuery(QueryBuilder query, ScopeTarget target) {
         if (target.getGuildId() != null) {
             query.addWhere(" AND `guild_id` = ? ", new LongParameter(target.getGuildId()));
@@ -27,7 +31,7 @@ public class CredentialRepository extends Repository {
             result.getInt("id"),
             result.getString("category"),
             result.getString("key"),
-            result.getDecryptedString("value"),
+            encryptionService.decrypt(result.getString("value")),
             ScopeTarget.of(result.optLong("user_id"), result.optLong("guild_id"))
         );
     }
@@ -55,7 +59,7 @@ public class CredentialRepository extends Repository {
         return monoExecute(query,
             new StringParameter(credential.getCategory()),
             new StringParameter(credential.getKey()),
-            new StringParameter(EncryptionHelper.encrypt(credential.getValue())),
+            new StringParameter(encryptionService.encrypt(credential.getValue())),
             new LongParameter(credential.getTarget().getUserId()),
             new LongParameter(credential.getTarget().getGuildId())
         );
@@ -64,7 +68,7 @@ public class CredentialRepository extends Repository {
     private Mono<Integer> update(Credential credential) {
         var query = "UPDATE `credential` SET `value` = ? WHERE `id` = ?";
         return monoExecute(query,
-            new StringParameter(EncryptionHelper.encrypt(credential.getValue())),
+            new StringParameter(encryptionService.encrypt(credential.getValue())),
             new IntParameter(credential.getId())
         );
     }
