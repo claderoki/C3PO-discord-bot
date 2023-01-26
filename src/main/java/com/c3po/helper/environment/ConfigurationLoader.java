@@ -26,7 +26,7 @@ public class ConfigurationLoader {
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 if (!data.isBlank()) {
-                    String[] values = data.split("=");
+                    String[] values = data.split("=", 2);
                     map.put(values[0], values[1]);
                 }
             }

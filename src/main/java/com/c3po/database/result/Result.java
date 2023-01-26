@@ -29,6 +29,10 @@ public final class Result implements ValueParser {
     }
 
     public String optString(String key) {
-        return values.get(columns.get(key));
+        Integer index = columns.get(key);
+        if (index == null) {
+            return null;
+        }
+        return values.get(index);
     }
 }
