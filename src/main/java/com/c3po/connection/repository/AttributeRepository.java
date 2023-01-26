@@ -7,6 +7,7 @@ import com.c3po.core.property.Attribute;
 import com.c3po.core.property.AttributeCondition;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.helper.DataType;
 import com.c3po.helper.PlaceholderList;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,10 @@ public class AttributeRepository extends Repository {
             VALUES (?, ?, ?, ?, UTC_TIMESTAMP())
         """;
         execute(query,
-            Parameter.from(target.getUserId()),
-            Parameter.from(target.getGuildId()),
+            new LongParameter(target.getUserId(), true),
+            new LongParameter(target.getGuildId(), true),
             new StringParameter(value),
-            new LongParameter(attributeId)
+            new IntParameter(attributeId)
         );
     }
 
@@ -74,7 +75,7 @@ public class AttributeRepository extends Repository {
 
     public HashMap<Integer, PropertyValue> getHydratedPropertyValues(ScopeTarget target, Integer... attributeIds) {
         HashMap<Integer, PropertyValue> values = new HashMap<>();
-        ArrayList<Parameter> params = new ArrayList<>();
+        ArrayList<Parameter<?>> params = new ArrayList<>();
 
         StringBuilder query = new StringBuilder("""
                 SELECT
@@ -143,7 +144,7 @@ public class AttributeRepository extends Repository {
 
     public HashMap<Integer, PropertyValue> getPropertyValues(ScopeTarget target) {
         HashMap<Integer, PropertyValue> values = new HashMap<>();
-        ArrayList<Parameter> params = new ArrayList<>();
+        ArrayList<Parameter<?>> params = new ArrayList<>();
 
         StringBuilder query = new StringBuilder("""
                 SELECT

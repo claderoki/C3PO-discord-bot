@@ -2,7 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.LongParameter;
-import com.c3po.database.Result;
+import com.c3po.database.result.Result;
 import com.c3po.database.StringParameter;
 import com.c3po.model.streak.Streak;
 import org.springframework.context.annotation.Scope;

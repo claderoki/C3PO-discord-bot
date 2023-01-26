@@ -2,6 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.helper.PlaceholderList;
 import com.c3po.model.item.ItemCategory;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class ItemRepository extends Repository {
     public Map<Integer, Integer> getItemAmounts(Integer humanId, Integer... itemIds) {
         Map<Integer, Integer> amounts = new HashMap<>();
         PlaceholderList placeholderList = PlaceholderList.of(itemIds);
-        placeholderList.addBefore(new LongParameter(humanId));
+        placeholderList.addBefore(new IntParameter(humanId));
 
         String query = """
             SELECT

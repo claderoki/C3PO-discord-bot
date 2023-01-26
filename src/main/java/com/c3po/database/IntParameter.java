@@ -1,21 +1,20 @@
 package com.c3po.database;
 
-import lombok.AllArgsConstructor;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-@AllArgsConstructor
-public class IntParameter extends Parameter {
-    final int value;
+public class IntParameter extends Parameter<Integer> {
+    public IntParameter(Integer value) {
+        super(value);
+    }
+
+    public IntParameter(Integer value, boolean nullable) {
+        super(value, nullable);
+    }
 
     @Override
     public void bind(PreparedStatement preparedStatement, int index) throws SQLException {
         preparedStatement.setInt(index, value);
     }
 
-    @Override
-    public void bind(StringBuilder query) {
-        query.append(value);
-    }
 }

@@ -2,6 +2,7 @@ package com.c3po.connection.repository;
 
 import com.c3po.connection.Repository;
 import com.c3po.database.*;
+import com.c3po.database.result.Result;
 import com.c3po.helper.PlaceholderList;
 import com.c3po.core.ScopeTarget;
 import com.c3po.model.milkyway.ExpiredMilkyway;
@@ -41,9 +42,9 @@ public class MilkywayRepository extends Repository {
             new StringParameter(milkyway.getName()),
             new StringParameter(milkyway.getStatus().toString()),
             new StringParameter(milkyway.getPurchaseType().toString()),
-            Parameter.from(milkyway.getItemId()),
-            new LongParameter(milkyway.getAmount()),
-            new LongParameter(milkyway.getDaysPending())
+            new IntParameter(milkyway.getItemId(), true),
+            new IntParameter(milkyway.getAmount()),
+            new IntParameter(milkyway.getDaysPending())
         );
     }
 

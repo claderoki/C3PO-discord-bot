@@ -1,21 +1,20 @@
 package com.c3po.database;
 
-import lombok.AllArgsConstructor;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-@AllArgsConstructor
-public class StringParameter extends Parameter {
-    final String value;
+public class StringParameter extends Parameter<String> {
+    public StringParameter(String value) {
+        super(value);
+    }
+
+    public StringParameter(String value, boolean nullable) {
+        super(value, nullable);
+    }
 
     @Override
     public void bind(PreparedStatement preparedStatement, int index) throws SQLException {
         preparedStatement.setString(index, value);
     }
 
-    @Override
-    public void bind(StringBuilder query) {
-        query.append(value);
-    }
 }

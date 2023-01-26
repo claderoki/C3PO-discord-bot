@@ -94,4 +94,9 @@ public interface ValueParser {
     default Double getDouble(String key) {
         return get(key, Double::parseDouble);
     }
+
+    default String getDecryptedString(String key) {
+        return get(key, EncryptionHelper::decrypt);
+    }
+
 }
