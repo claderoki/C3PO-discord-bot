@@ -143,16 +143,17 @@ public class ExplorationRepository extends Repository {
         );
     }
 
-    public void finish(int explorationId) {
+    public void finishAll(int pigeonId) {
         String query = """
             UPDATE `exploration`
             SET
                 `exploration`.`end_date` = UTC_TIMESTAMP(),
                 `exploration`.`finished` = 1,
                 `exploration`.`actions_remaining` = 0
-            WHERE `exploration`.`id` = ?
+            WHERE `exploration`.`pigeon_id` = ?
+            AND `finished` = 0
             """;
-        execute(query, new IntParameter(explorationId));
+        execute(query, new IntParameter(pigeonId));
     }
 
     public void updateActionsRemaining(int explorationId, int actionsRemaining) {

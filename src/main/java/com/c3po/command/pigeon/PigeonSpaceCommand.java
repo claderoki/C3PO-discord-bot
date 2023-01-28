@@ -105,7 +105,8 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
             if (actionsRemaining <= 0) {
                 return executeFinalSequence(pigeon, context, exploration, totalWinnings)
                     .then(Mono.fromRunnable(() -> pigeonRepository.updateStatus(pigeon.getId(), PigeonStatus.IDLE)))
-                    .then(Mono.fromRunnable(() -> explorationRepository.finish(exploration.getId())));
+                    .then(Mono.fromRunnable(() -> explorationRepository.finishAll(pigeon.getId())))
+                    ;
             }
 
             explorationRepository.updateActionsRemaining(exploration.getId(), actionsRemaining);
