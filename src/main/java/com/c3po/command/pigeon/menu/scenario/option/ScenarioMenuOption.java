@@ -13,22 +13,20 @@ import com.c3po.service.ItemService;
 import com.c3po.ui.input.SingleUseButtonMenuOption;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public class ScenarioMenuOption extends SingleUseButtonMenuOption {
-    @Autowired
-    protected ItemService itemService;
-
+    protected final ItemService itemService;
     private final ExplorationAction action;
     private final double goldModifier;
     @Getter
     private ExplorationScenarioWinnings winnings;
 
-    public ScenarioMenuOption(ExplorationAction action, double goldModifier) {
+    public ScenarioMenuOption(ItemService itemService, ExplorationAction action, double goldModifier) {
         super(action.name());
+        this.itemService = itemService;
         emoji = action.symbol();
         this.action = action;
         this.goldModifier = goldModifier;

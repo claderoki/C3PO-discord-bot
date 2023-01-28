@@ -10,11 +10,15 @@ import com.c3po.core.command.Context;
 import com.c3po.helper.DateTimeDelta;
 import com.c3po.helper.DateTimeHelper;
 import com.c3po.helper.EmbedHelper;
-import com.c3po.model.exploration.*;
+import com.c3po.model.exploration.Exploration;
+import com.c3po.model.exploration.ExplorationBonus;
+import com.c3po.model.exploration.ExplorationScenarioWinnings;
+import com.c3po.model.exploration.FullExplorationLocation;
 import com.c3po.model.pigeon.Pigeon;
 import com.c3po.model.pigeon.PigeonStatus;
 import com.c3po.model.pigeon.PigeonWinnings;
 import com.c3po.service.ExplorationService;
+import com.c3po.service.ItemService;
 import com.c3po.ui.input.base.MenuManager;
 import discord4j.core.spec.EmbedCreateFields;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -33,14 +37,16 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     protected final HumanRepository humanRepository;
     protected final StreakRepository streakRepository;
     private final AutowireCapableBeanFactory beanFactory;
+    private final ItemService itemService;
 
-    protected PigeonSpaceCommand(ExplorationService explorationService, ExplorationRepository explorationRepository, HumanRepository humanRepository, StreakRepository streakRepository, AutowireCapableBeanFactory beanFactory) {
+    protected PigeonSpaceCommand(ExplorationService explorationService, ExplorationRepository explorationRepository, HumanRepository humanRepository, StreakRepository streakRepository, AutowireCapableBeanFactory beanFactory, ItemService itemService) {
         super("space", "no description.");
         this.explorationService = explorationService;
         this.explorationRepository = explorationRepository;
         this.humanRepository = humanRepository;
         this.streakRepository = streakRepository;
         this.beanFactory = beanFactory;
+        this.itemService = itemService;
     }
 
     protected PigeonValidationSettings getValidationSettings() {
@@ -88,7 +94,7 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
 
     private Mono<Void> executeScenarios(Pigeon pigeon, Context context, Exploration exploration) {
         FullExplorationLocation location = explorationService.getAllLocations().get(exploration.getLocationId());
-        ScenarioMenu menu = new ScenarioMenu(beanFactory, context, location, exploration, pigeon);
+        ScenarioMenu menu = new ScenarioMenu(itemService, context, location, exploration, pigeon);
         return new MenuManager<>(menu).waitFor().flatMap(c -> {
             List<ExplorationScenarioWinnings> totalWinnings = menu.getTotalWinnings();
             for (var winnings: totalWinnings) {
@@ -110,8 +116,6 @@ public class PigeonSpaceCommand extends PigeonSubCommand {
     @Override
     public Mono<Void> execute(Context context) throws RuntimeException {
         long userId = context.getEvent().getInteraction().getUser().getId().asLong();
-
-
         PigeonValidationSettings settings = getValidationSettings();
         PigeonValidationResult result = validation.validate(settings, userId);
 
