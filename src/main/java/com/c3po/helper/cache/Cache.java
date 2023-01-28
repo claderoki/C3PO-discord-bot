@@ -1,5 +1,7 @@
 package com.c3po.helper.cache;
 
+import reactor.core.publisher.Mono;
+
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -52,6 +54,11 @@ public class Cache {
         }
 
         return null;
+    }
+
+    public <T> Mono<T> computeIfAbsentMono(CacheKey<T> key, Function<CacheKey<T>, Mono<T>> or) {
+        return Mono.justOrEmpty(get(key))
+            .switchIfEmpty(or.apply(key).doOnSuccess(v -> set(key, v)));
     }
 
     public void removeExpiredItems() {
