@@ -11,7 +11,7 @@ public class PigeonCleanCommand extends PigeonStatCommand {
 
     @Override
     protected String getMessage() {
-        return "Your pigeon leaves dirty food prints on the floor! You decide to give it a bath.";
+        return "Your pigeon leaves dirty foot prints on the floor! You decide to give it a bath.";
     }
 
     @Override
