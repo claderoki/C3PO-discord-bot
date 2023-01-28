@@ -7,6 +7,7 @@ import com.c3po.service.ActivityTrackerService;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
 import discord4j.discordjson.Id;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,12 @@ public class SafeInactiveReminder extends Task {
 
     private final ActivityTrackerService activityTrackerService;
 
+    private Mono<?> remindMember(Guild guild, Member member) {
+        String content = member.getMention() + ", hello";
+        return guild.getChannelById(Snowflake.of(generalChannelId))
+            .flatMap(c -> c.getRestChannel().createMessage(content));
+    }
+
     public Mono<Integer> executeForGuild(Guild guild) {
         var settings = activityTrackerService.getSettings(ScopeTarget.guild(guild.getId()));
         return activityTrackerService.getInactiveMembers(guild, Duration.ofDays(settings.getDaysToBeInactive()))
@@ -29,12 +36,8 @@ public class SafeInactiveReminder extends Task {
             .collectList()
             .filter(l -> !l.isEmpty())
             .map(RandomHelper::choice)
-            .map(m -> {
-                LogHelper.log("MEMEBER IS " + m.getMember().getUsername());
-                return m;
-            })
-            .then(Mono.just(1))
-            ;
+            .flatMap(m -> remindMember(guild, m.getMember()))
+            .then(Mono.just(1));
     }
 
     public Mono<Void> execute(GatewayDiscordClient client) {
@@ -48,6 +51,6 @@ public class SafeInactiveReminder extends Task {
 
     @Override
     public Duration getDelay() {
-        return Duration.ofHours(1);
+        return Duration.ofHours(24);
     }
 }

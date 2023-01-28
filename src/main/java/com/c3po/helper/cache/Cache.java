@@ -61,8 +61,10 @@ public class Cache {
             .switchIfEmpty(or.apply(key).doOnSuccess(v -> set(key, v)));
     }
 
-    public void removeExpiredItems() {
+    public int removeExpiredItems() {
+        int before = size();
         cache.entrySet().removeIf(e -> e.getValue().isExpired());
+        return before - size();
     }
 
     public int size() {

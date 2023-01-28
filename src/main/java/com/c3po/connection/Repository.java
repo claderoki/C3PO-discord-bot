@@ -72,11 +72,13 @@ public class Repository {
     }
 
     protected final Mono<Integer> monoExecute(String query, Parameter<?>... params) {
-        try (Connection connection = getConnection()) {
-            return Mono.just(execute(connection, query, params));
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
+        return Mono.defer(() -> {
+            try (Connection connection = getConnection()) {
+                return Mono.just(execute(connection, query, params));
+            } catch (SQLException e) {
+                throw new SQLRuntimeException(e);
+            }
+        });
     }
     protected final List<Result> getMany(Connection connection, String query, Parameter<?>... params) {
         ArrayList<Result> results = new ArrayList<>();

@@ -11,4 +11,8 @@ public abstract class Task {
     public abstract Mono<Void> execute(GatewayDiscordClient client);
 
     public abstract Duration getDelay();
+
+    public String getIdentifier() {
+        return getClass().getSimpleName();
+    }
 }

@@ -11,4 +11,9 @@ import java.util.List;
 public class Query {
     private final String query;
     private final List<Parameter<?>> parameters;
+
+    public Query(String query) {
+        this.query = query;
+        this.parameters = List.of();
+    }
 }

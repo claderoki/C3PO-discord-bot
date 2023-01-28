@@ -1,6 +1,7 @@
 package com.c3po;
 
 import com.c3po.core.command.CommandManager;
+import com.c3po.core.task.TaskManager;
 import com.c3po.helper.LogHelper;
 import com.c3po.helper.cache.Cache;
 import com.c3po.helper.cache.CacheManager;
@@ -24,21 +25,26 @@ import reactor.netty.http.client.HttpClient;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 public class C3PO {
     private GatewayDiscordClient gateway;
-    private final CommandManager commandManager;
     private final CommandListener commandListener;
+
+    private final TaskManager taskManager;
+    private final CommandManager commandManager;
+
     private final MessageCreateListener messageCreateListener;
     private final VoiceStateUpdateListener voiceStateUpdateListener;
+
     private final AttributePurger attributePurger;
     private final ActivityEnsurer activityEnsurer;
     private final ChannelPurger channelPurger;
     private final SafeInactiveReminder safeInactiveReminder;
+    private final CacheClearer cacheClearer;
 
     @PostConstruct
     public void postConstruct() {
@@ -72,8 +78,14 @@ public class C3PO {
             .build();
     }
 
-    private void clearCache() {
-        CacheManager.removeAllExpiredItems();
+    private List<Task> getTasks() {
+        return List.of(
+            attributePurger,
+            activityEnsurer,
+            channelPurger,
+            safeInactiveReminder,
+            cacheClearer
+        );
     }
 
     private Mono<Void> setupGateway(GatewayDiscordClient gateway) {
@@ -86,38 +98,10 @@ public class C3PO {
         register(messageCreateListener);
         register(voiceStateUpdateListener);
 
-        register(attributePurger);
-        register(activityEnsurer);
-        register(channelPurger);
-//        register(safeInactiveReminder);
-        createTask(Mono.fromRunnable(this::clearCache), "Cache clear", Duration.ofHours(1));
+        getTasks().forEach(taskManager::register);
 
         LogHelper.log("Bot started up.");
         return gateway.onDisconnect();
-    }
-
-    private void createTask(Mono<Void> mono, Duration duration, String identifier, boolean initialDelay) {
-        AtomicInteger i = new AtomicInteger();
-        Mono.defer(() -> {
-                if (i.getAndIncrement() > 0 || initialDelay) {
-                    return Mono.delay(duration).then(mono);
-                }
-                return mono;
-            })
-            .repeat()
-            .onErrorResume(e -> {
-                LogHelper.log(e, "Task " + identifier);
-                return Mono.empty();
-            })
-            .subscribe();
-    }
-
-    private void createTask(Mono<Void> mono, String identifier, Duration duration) {
-        createTask(mono, duration, identifier,false);
-    }
-
-    private void register(Task task) {
-        createTask(task.execute(gateway), task.getClass().getSimpleName(), task.getDelay());
     }
 
     private <T extends Event> void register(EventListener<T> eventListener) {
