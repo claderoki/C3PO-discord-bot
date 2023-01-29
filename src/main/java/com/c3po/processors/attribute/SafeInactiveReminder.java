@@ -9,6 +9,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.discordjson.Id;
+import discord4j.discordjson.json.MessageData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -23,7 +24,7 @@ public class SafeInactiveReminder extends Task {
 
     private final ActivityTrackerService activityTrackerService;
 
-    private Mono<?> remindMember(Guild guild, Member member) {
+    private Mono<MessageData> remindMember(Guild guild, Member member) {
         String content = member.getMention() + ", hello";
         return guild.getChannelById(Snowflake.of(generalChannelId))
             .flatMap(c -> c.getRestChannel().createMessage(content));
@@ -45,7 +46,7 @@ public class SafeInactiveReminder extends Task {
             .filter(c -> c.getId().equals(Snowflake.of(729843647347949638L)))
             .flatMap(this::executeForGuild)
             .filter(c -> c > 0)
-            .doOnNext(i -> LogHelper.log(i + " mememe(s) purged"))
+            .doOnNext(i -> LogHelper.log(i + " inactive member reminded"))
             .then();
     }
 
