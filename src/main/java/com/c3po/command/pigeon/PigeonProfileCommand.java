@@ -19,6 +19,7 @@ import java.util.List;
 
 @Component
 public class PigeonProfileCommand extends PigeonSubCommand {
+
     protected PigeonProfileCommand() {
         super("profile", "no description.");
         this.addOption(option -> option.name("user")
