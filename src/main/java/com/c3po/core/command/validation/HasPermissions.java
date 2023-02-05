@@ -18,9 +18,7 @@ public class HasPermissions extends CommandValidation {
     }
 
     protected Mono<Member> getMember(ChatInputInteractionEvent event) {
-        return event.getInteraction().getMember()
-            .map(Mono::just)
-            .orElse(Mono.empty());
+        return Mono.justOrEmpty(event.getInteraction().getMember());
     }
 
     public final Mono<Boolean> validate(ChatInputInteractionEvent event) {
