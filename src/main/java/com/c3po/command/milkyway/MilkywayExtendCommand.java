@@ -1,7 +1,8 @@
 package com.c3po.command.milkyway;
 
-import com.c3po.core.command.CommandSettings;
 import com.c3po.core.command.Context;
+import com.c3po.core.command.validation.CommandValidation;
+import com.c3po.core.command.validation.GuildOnly;
 import com.c3po.error.PublicException;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.model.milkyway.Milkyway;
@@ -11,6 +12,8 @@ import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.ChannelModifyRequest;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class MilkywayExtendCommand extends MilkywaySubCommand {
@@ -22,8 +25,9 @@ public class MilkywayExtendCommand extends MilkywaySubCommand {
             .type(DiscordCommandOptionType.CHANNEL.getValue()));
     }
 
-    public CommandSettings getSettings() {
-        return CommandSettings.builder().guildOnly(true).build();
+    @Override
+    public List<CommandValidation> getValidations() {
+        return List.of(new GuildOnly());
     }
 
     @Override

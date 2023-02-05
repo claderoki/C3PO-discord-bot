@@ -29,13 +29,10 @@ public abstract class AttributeEnsurer extends Task {
     protected abstract String getAttributeCode();
     protected abstract Mono<String> getValue(Member member);
 
-    public int getAttributeId() {
-        return attributeService.getId(getAttributeCode());
-    }
-
     private Mono<Integer> executeForGuild(Guild guild) {
-        Set<Long> userIds = attributeRepository.getUserIdsHaving(guild.getId().asLong(), getAttributeId());
-        Attribute attribute = attributeRepository.getAttribute(getAttributeId());
+        int attributeId = attributeService.getId(getAttributeCode());
+        Set<Long> userIds = attributeRepository.getUserIdsHaving(guild.getId().asLong(), attributeId);
+        Attribute attribute = attributeRepository.getAttribute(attributeId);
 
         return guild.getMembers()
             .filter(m -> !m.isBot())
@@ -46,11 +43,7 @@ public abstract class AttributeEnsurer extends Task {
                 .build()))
             .collectList()
             .filter(c -> !c.isEmpty())
-            .doOnSuccess(c -> {
-                if (c != null) {
-                    attributeRepository.save(c.toArray(PropertyValue[]::new));
-                }
-            })
+            .doOnNext(c -> attributeRepository.save(c.toArray(PropertyValue[]::new)))
             .map(List::size);
     }
 

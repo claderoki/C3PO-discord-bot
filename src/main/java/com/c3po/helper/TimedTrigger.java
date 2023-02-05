@@ -30,6 +30,4 @@ public class TimedTrigger {
             refresh();
         }
     }
-
-
 }

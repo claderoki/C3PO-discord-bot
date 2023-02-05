@@ -1,6 +1,7 @@
 package com.c3po.core.command;
 
 import com.c3po.core.Scope;
+import com.c3po.core.command.validation.CommandValidation;
 import com.c3po.helper.DiscordCommandOptionType;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
@@ -35,10 +36,6 @@ public abstract class Command {
         return Optional.of(new Bucket(Scope.USER, 1));
     }
 
-    public CommandSettings getSettings() {
-        return null;
-    }
-
     protected abstract Mono<Void> execute(Context context) throws RuntimeException;
 
     protected Mono<Void> beforeExecute(Context context) {
@@ -47,6 +44,10 @@ public abstract class Command {
 
     protected Mono<Void> afterExecute(Context context) {
         return Mono.empty();
+    }
+
+    public List<CommandValidation> getValidations() {
+        return List.of();
     }
 
     public final Mono<Void> run(Context context) {

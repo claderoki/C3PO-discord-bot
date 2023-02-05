@@ -21,5 +21,4 @@ public enum CommandCategory {
     BATTLE("battle");
 
     private final String value;
-
 }

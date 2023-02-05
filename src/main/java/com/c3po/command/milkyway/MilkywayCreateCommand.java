@@ -1,6 +1,8 @@
 package com.c3po.command.milkyway;
 
 import com.c3po.core.command.*;
+import com.c3po.core.command.validation.CommandValidation;
+import com.c3po.core.command.validation.GuildOnly;
 import com.c3po.helper.DiscordCommandOptionType;
 import com.c3po.helper.EmbedHelper;
 import com.c3po.processors.MilkywayProcessor;
@@ -9,6 +11,8 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.spec.EmbedCreateSpec;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class MilkywayCreateCommand extends MilkywaySubCommand {
@@ -24,8 +28,11 @@ public class MilkywayCreateCommand extends MilkywaySubCommand {
             .type(DiscordCommandOptionType.STRING.getValue()));
     }
 
-    public CommandSettings getSettings() {
-        return CommandSettings.builder().guildOnly(true).build();
+    @Override
+    public List<CommandValidation> getValidations() {
+        return List.of(
+            new GuildOnly()
+        );
     }
 
     @Override

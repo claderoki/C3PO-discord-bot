@@ -7,7 +7,11 @@ import com.c3po.core.DataFormatter;
 import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.SimpleMessage;
-import com.c3po.core.command.*;
+import com.c3po.core.command.BucketManager;
+import com.c3po.core.command.Command;
+import com.c3po.core.command.CommandManager;
+import com.c3po.core.command.Context;
+import com.c3po.core.command.validation.CommandValidator;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.core.setting.SettingCategory;
 import com.c3po.core.setting.SettingTransformer;
@@ -86,6 +90,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         return commandResult;
     }
 
+
     public Mono<Void> execute(ChatInputInteractionEvent event) throws RuntimeException {
         String fullName = getFullyQualifiedCommandName(event);
         SettingInfo settingInfo = commandManager.matchSettingInfo(fullName);
@@ -98,7 +103,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
             return Mono.empty();
         }
 
-        return CommandSettingValidation.validate(command.getSettings(), event)
+        return new CommandValidator().validate(event, command.getValidations())
             .filter(c -> c)
             .flatMap(c -> processCommand(command, new Context(event)));
     }
@@ -141,6 +146,7 @@ public class CommandListener implements EventListener<ChatInputInteractionEvent>
         }
         try {
             return Mono.defer(() -> beforeCommand(bucketManager, command))
+                .log()
                 .then(command.run(context))
                 .then(Mono.defer(() -> afterCommand(bucketManager, command)))
                 .onErrorResume(e -> handleError(bucketManager, context, e));

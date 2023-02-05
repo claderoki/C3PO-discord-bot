@@ -1,32 +1,29 @@
 package com.c3po.core.command;
 
 import com.c3po.helper.EventHelper;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.c3po.helper.cache.CacheManager;
+import com.c3po.helper.cache.keys.BucketKey;
 
 
 public class BucketManager {
-    private final static Map<String, BucketData> data = new HashMap<>();
-
     private final Bucket bucket;
-    private final String key;
+    private final BucketData bucketData;
 
     public BucketManager(Bucket bucket, Command command, Context context) {
         this.bucket = bucket;
-        this.key =  EventHelper.scopeToTarget(bucket.getPer(), context.getEvent()) +":"+ command.getName();
+        BucketKey key = new BucketKey(EventHelper.scopeToTarget(bucket.getPer(), context.getEvent()), command.getName());
+        this.bucketData = CacheManager.get().computeIfAbsent(key, k -> new BucketData());
     }
 
     public void before() {
-        data.computeIfAbsent(key, (c) -> new BucketData()).incrementAmount();
+        bucketData.incrementAmount();
     }
 
     public void after() {
-        data.computeIfAbsent(key, (c) -> new BucketData()).decrementAmount();
+        bucketData.decrementAmount();
     }
 
     public boolean validate() {
-        BucketData bucketData = data.get(key);
         if (bucketData == null) {
             return true;
         }

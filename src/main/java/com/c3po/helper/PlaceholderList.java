@@ -28,11 +28,9 @@ public class PlaceholderList {
         StringBuilder questionMarks = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             Object value = values[i];
-
-            if (i == values.length-1) {
-                questionMarks.append("?");
-            } else {
-                questionMarks.append("?,");
+            questionMarks.append("?");
+            if (i != values.length-1) {
+                questionMarks.append(",");
             }
             parameters.add(Parameter.from(value));
         }

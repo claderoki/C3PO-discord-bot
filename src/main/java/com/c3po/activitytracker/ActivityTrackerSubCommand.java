@@ -1,8 +1,12 @@
 package com.c3po.activitytracker;
 
 import com.c3po.core.command.CommandCategory;
-import com.c3po.core.command.CommandSettings;
 import com.c3po.core.command.SubCommand;
+import com.c3po.core.command.validation.CommandValidation;
+import com.c3po.core.command.validation.GuildOnly;
+import com.c3po.core.command.validation.IsAdmin;
+
+import java.util.List;
 
 public abstract class ActivityTrackerSubCommand extends SubCommand {
     protected ActivityTrackerSubCommand(String name, String description) {
@@ -10,10 +14,10 @@ public abstract class ActivityTrackerSubCommand extends SubCommand {
     }
 
     @Override
-    public CommandSettings getSettings() {
-        return CommandSettings.builder()
-            .guildOnly(true)
-            .adminOnly(true)
-            .build();
+    public List<CommandValidation> getValidations() {
+        return List.of(
+            new IsAdmin(),
+            new GuildOnly()
+        );
     }
 }

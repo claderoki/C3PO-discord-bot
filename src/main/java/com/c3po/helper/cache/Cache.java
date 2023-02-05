@@ -58,7 +58,7 @@ public class Cache {
 
     public <T> Mono<T> computeIfAbsentMono(CacheKey<T> key, Function<CacheKey<T>, Mono<T>> or) {
         return Mono.justOrEmpty(get(key))
-            .switchIfEmpty(or.apply(key).doOnSuccess(v -> set(key, v)));
+            .switchIfEmpty(or.apply(key).doOnNext(v -> set(key, v)));
     }
 
     public int removeExpiredItems() {
