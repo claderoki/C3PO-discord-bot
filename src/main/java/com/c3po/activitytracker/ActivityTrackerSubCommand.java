@@ -4,7 +4,7 @@ import com.c3po.core.command.CommandCategory;
 import com.c3po.core.command.SubCommand;
 import com.c3po.core.command.validation.CommandValidation;
 import com.c3po.core.command.validation.GuildOnly;
-import com.c3po.core.command.validation.IsAdmin;
+import com.c3po.core.command.validation.HasPermissions;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public abstract class ActivityTrackerSubCommand extends SubCommand {
     @Override
     public List<CommandValidation> getValidations() {
         return List.of(
-            new IsAdmin(),
+            HasPermissions.admin(),
             new GuildOnly()
         );
     }

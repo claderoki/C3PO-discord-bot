@@ -6,10 +6,7 @@ import com.c3po.core.Scope;
 import com.c3po.core.ScopeTarget;
 import com.c3po.core.command.option.CommandOption;
 import com.c3po.core.command.option.OptionContainer;
-import com.c3po.core.command.validation.CommandValidation;
-import com.c3po.core.command.validation.CommandValidator;
-import com.c3po.core.command.validation.GuildOnly;
-import com.c3po.core.command.validation.IsAdmin;
+import com.c3po.core.command.validation.*;
 import com.c3po.core.property.PropertyValue;
 import com.c3po.core.setting.CategoryCacheKeyFactory;
 import com.c3po.core.setting.Setting;
@@ -89,7 +86,7 @@ public class SettingGroup {
 
     public static List<CommandValidation> scopeToValidations(Scope scope) {
         return switch (scope) {
-            case GUILD -> List.of(new GuildOnly(), new IsAdmin());
+            case GUILD -> List.of(new GuildOnly(), HasPermissions.admin());
             case USER -> List.of();
             case MEMBER -> List.of(new GuildOnly());
         };

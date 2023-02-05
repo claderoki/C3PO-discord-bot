@@ -45,7 +45,7 @@ public class CommandValidationTest {
         when(event.getInteraction()).thenReturn(interaction);
         when(interaction.getMember()).thenReturn(Optional.of(member));
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.none()));
-        Boolean validated = validate(event, List.of(new IsAdmin()));
+        Boolean validated = validate(event, List.of(HasPermissions.admin()));
         assertEquals(Boolean.FALSE, validated);
     }
 
@@ -57,7 +57,7 @@ public class CommandValidationTest {
         when(event.getInteraction()).thenReturn(interaction);
         when(interaction.getMember()).thenReturn(Optional.of(member));
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.all()));
-        Boolean validated = validate(event, List.of(new IsAdmin()));
+        Boolean validated = validate(event, List.of(HasPermissions.admin()));
         assertEquals(Boolean.TRUE, validated);
     }
 
@@ -90,10 +90,9 @@ public class CommandValidationTest {
         when(interaction.getMember()).thenReturn(Optional.of(member));
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.all()));
         when(interaction.getGuildId()).thenReturn(Optional.of(Snowflake.of(1)));
-        Boolean validated = validate(event, List.of(new GuildOnly(), new IsAdmin()));
+        Boolean validated = validate(event, List.of(new GuildOnly(), HasPermissions.admin()));
         assertEquals(Boolean.TRUE, validated);
     }
-
 
     @Test
     public void adminAndGuildOnlyInvalid() {
@@ -104,7 +103,7 @@ public class CommandValidationTest {
         when(interaction.getMember()).thenReturn(Optional.of(member));
         when(member.getBasePermissions()).thenReturn(Mono.just(PermissionSet.none()));
         when(interaction.getGuildId()).thenReturn(Optional.of(Snowflake.of(1)));
-        Boolean validated = validate(event, List.of(new GuildOnly(), new IsAdmin()));
+        Boolean validated = validate(event, List.of(new GuildOnly(), HasPermissions.admin()));
         assertEquals(Boolean.FALSE, validated);
     }
 }
