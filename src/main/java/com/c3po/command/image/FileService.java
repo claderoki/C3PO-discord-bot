@@ -25,7 +25,7 @@ public class FileService {
         if (defaultChannel == null) {
             return discordInfo.getClient().getUserById(Snowflake.of(771781840012705792L))
                 .flatMap(User::getPrivateChannel)
-                .doOnSuccess(c -> defaultChannel = c);
+                .doOnNext(c -> defaultChannel = c);
         }
         return Mono.just(defaultChannel);
     }
